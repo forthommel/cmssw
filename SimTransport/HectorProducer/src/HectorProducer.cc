@@ -28,17 +28,11 @@ HectorProducer::HectorProducer(edm::ParameterSet const & parameters): eventsAnal
   
   m_InTag          = parameters.getParameter<std::string>("HepMCProductLabel") ;
   m_verbosity      = parameters.getParameter<bool>("Verbosity");
-  m_FP420Transport = parameters.getParameter<bool>("FP420Transport");
-  m_ZDCTransport   = parameters.getParameter<bool>("ZDCTransport");
   
   produces<edm::HepMCProduct>();
   produces<edm::LHCTransportLinkContainer>();
 
-  hector = new Hector(parameters, 
-		      m_verbosity,
-		      m_FP420Transport,
-		      m_ZDCTransport);
-  
+  hector = new Hector(parameters, m_verbosity);
 }
 
 HectorProducer::~HectorProducer(){
@@ -73,25 +67,20 @@ void HectorProducer::produce(edm::Event & iEvent, const edm::EventSetup & es){
     }
 
   evt_ = new HepMC::GenEvent( *HepMCEvt->GetEvent() );
-  hector->clearApertureFlags();
-  if(m_FP420Transport) {
-    hector->clear();
-    hector->add( evt_ ,es);
-    hector->filterFP420();
-  }
-  if(m_ZDCTransport) {
-    hector->clear();
-    hector->add( evt_ ,es);
-    hector->filterZDC();
-    
-    hector->clear();
-    hector->add( evt_ ,es);
-    hector->filterD1();
-  }
-  evt_ = hector->addPartToHepMC( evt_ );
+
   if (m_verbosity) {
-    evt_->print();
+     for(HepMC::GenEvent::vertex_const_iterator ivtx = evt_->vertices_begin();ivtx!=evt_->vertices_end();ivtx++) (*ivtx)->print();
   }
+
+  hector->clearApertureFlags();
+
+  hector->clear();
+  hector->add( evt_ ,es);
+  hector->propagateToPPS();
+
+  evt_ = hector->addPartToHepMC( evt_ );
+
+  if (m_verbosity) { evt_->print(); }
   
   auto_ptr<HepMCProduct> NewProduct(new HepMCProduct()) ;
   NewProduct->addHepMCData( evt_ ) ;
