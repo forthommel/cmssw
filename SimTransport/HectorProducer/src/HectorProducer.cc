@@ -63,7 +63,7 @@ void HectorProducer::produce(edm::Event & iEvent, const edm::EventSetup & es){
   if ( HepMCEvt.provenance()->moduleLabel() == "LHCTransport" )
     {
       throw cms::Exception("LogicError")
-        << "HectorTrasported HepMCProduce already exists\n";
+        << "HectorTransported HepMCProduce already exists\n";
     }
 
   evt_ = new HepMC::GenEvent( *HepMCEvt->GetEvent() );

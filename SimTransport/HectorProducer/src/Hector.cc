@@ -255,7 +255,7 @@ void Hector::propagateToPPS(){
       line = (*it).first;
       H_BeamParticle * part = (*it).second;
 
-      if(m_verbosity) LogDebug("HectorEventProcessing") << "Hector:propagatToPPS: barcode = " << line;
+      if(m_verbosity) LogDebug("HectorEventProcessing") << "Hector:propagateToPPS: barcode = " << line;
 
       m_isStopped[line] = 500.;// assume that the particle has stopped in the beam line
 
