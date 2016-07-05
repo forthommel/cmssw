@@ -22,7 +22,10 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 # raw data source
-process.source = cms.Source("PoolSource",
+#process.source = cms.Source("PoolSource",
+#    fileNames = cms.untracked.vstring(options.inputFiles)
+#)
+process.source = cms.Source("NewEventStreamFileReader",
     fileNames = cms.untracked.vstring(options.inputFiles)
 )
 
@@ -33,7 +36,8 @@ process.maxEvents = cms.untracked.PSet(
 # frame analyzer
 process.totemVFATFrameAnalyzer = cms.EDAnalyzer("TotemVFATFrameAnalyzer",
     rawDataTag = cms.InputTag("rawDataCollector"),
-    fedIds = cms.vuint32(578, 579, 580),
+    #fedIds = cms.vuint32(578, 579, 580),
+    fedIds = cms.vuint32(581, 582, 583),
     RawUnpacking = cms.PSet()
 )
 
