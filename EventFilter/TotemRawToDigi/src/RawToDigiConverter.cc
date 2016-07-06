@@ -273,6 +273,82 @@ void RawToDigiConverter::Run(const VFATFrameCollection &input,
 
 //----------------------------------------------------------------------------------------------------
 
+void RawToDigiConverter::Run(const VFATFrameCollection &input,
+  const TotemDAQMapping &mapping, const TotemAnalysisMask &analysisMask,
+  DetSetVector<TotemDiamondDigi> &rpData, DetSetVector<TotemVFATStatus> &finalStatus)
+{
+  // structure merging vfat frame data with the mapping
+  map<TotemFramePosition, Record> records;
+
+  // common processing - frame validation
+  RunCommon(input, mapping, records);
+
+  // second loop over data
+  for (auto &p : records)
+  {
+    Record &record = p.second;
+
+    // check whether the data come from RP VFATs
+    if (record.info->symbolicID.subSystem != TotemSymbID::RP)
+    {
+      LogProblem("Totem") << "Error in RawToDigiConverter::Run > "
+        << "VFAT is not from RP. subSystem = " << record.info->symbolicID.subSystem;
+      continue;
+    }
+
+    // silently ignore RP CC VFATs
+    if (record.info->type != TotemVFATInfo::data)
+      continue;
+
+    // calculate ids
+    unsigned short chipId = record.info->symbolicID.symbolicID;
+    det_id_type detId = TotemRPDetId::decToRawId(chipId / 10);
+    uint8_t chipPosition = chipId % 10;
+
+    // update chipPosition in status
+    record.status.setChipPosition(chipPosition);
+
+    // produce digi only for good frames
+    if (record.status.isOK())
+    {
+      // find analysis mask (needs a default=no mask, if not in present the mapping)
+      TotemVFATAnalysisMask anMa;
+      anMa.fullMask = false;
+  
+      auto analysisIter = analysisMask.analysisMask.find(record.info->symbolicID);
+      if (analysisIter != analysisMask.analysisMask.end())
+      {            
+        // if there is some information about masked channels - save it into conversionStatus
+        anMa = analysisIter->second;
+        if (anMa.fullMask)
+          record.status.setFullyMaskedOut();
+        else
+          record.status.setPartiallyMaskedOut();
+      }
+  
+      // create the digi
+      unsigned short offset = chipPosition * 128;
+      const vector<unsigned char> &activeChannels = record.frame->getActiveChannels();
+    
+      for (auto ch : activeChannels)
+      {
+        // skip masked channels
+        if (!anMa.fullMask && anMa.maskedChannels.find(ch) == anMa.maskedChannels.end())
+        {
+          DetSet<TotemDiamondDigi> &digiDetSet = rpData.find_or_insert(detId);
+          digiDetSet.push_back(TotemDiamondDigi(offset + ch));
+        }
+      }
+    }
+
+    // save status
+    DetSet<TotemVFATStatus> &statusDetSet = finalStatus.find_or_insert(detId);
+    statusDetSet.push_back(record.status);
+  }
+}
+
+//----------------------------------------------------------------------------------------------------
+
 void RawToDigiConverter::PrintSummaries()
 {
   if (printErrorSummary)

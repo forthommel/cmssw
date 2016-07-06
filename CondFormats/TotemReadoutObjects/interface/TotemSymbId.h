@@ -18,7 +18,7 @@ class TotemSymbID
 {
   public:
     /// identifies the TOTEM subsystem
-    enum {RP, T1, T2} subSystem;
+    enum {RP, T1, T2, Diamond} subSystem;
 
     /// integer-encoded symbolic ID
     unsigned int symbolicID;

@@ -20,6 +20,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 
 #include "DataFormats/TotemDigi/interface/TotemRPDigi.h"
+#include "DataFormats/TotemDigi/interface/TotemDiamondDigi.h"
 #include "DataFormats/TotemDigi/interface/TotemVFATStatus.h"
 #include "DataFormats/TotemDigi/interface/TotemFEDInfo.h"
 
@@ -73,7 +74,7 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
   fedDataToken = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("rawDataTag"));
 
   // validate chosen subSystem
-  if (subSystem != "RP")
+  if (subSystem != "RP" and subSystem != "DiamondRP")
     throw cms::Exception("TotemVFATRawToDigi::TotemVFATRawToDigi") << "Unknown sub-system string " << subSystem << "." << endl;
 
   // FED (OptoRx) headers and footers
@@ -82,6 +83,8 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
   // digi
   if (subSystem == "RP")
     produces< DetSetVector<TotemRPDigi> >(subSystem);
+  if (subSystem == "DiamondRP")
+    produces< DetSetVector<TotemDiamondDigi> >(subSystem);
 
   // set default IDs
   if (fedIds.empty())
@@ -89,6 +92,11 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
     if (subSystem == "RP")
     {
       for (int id = FEDNumbering::MINTotemRPFEDID; id <= FEDNumbering::MAXTotemRPFEDID; ++id)
+        fedIds.push_back(id);
+    }
+    if (subSystem == "DiamondRP")
+    {
+      for (int id = FEDNumbering::MINTotemDiamondFEDID; id <= FEDNumbering::MAXTotemDiamondFEDID; ++id)
         fedIds.push_back(id);
     }
   }
@@ -109,6 +117,8 @@ void TotemVFATRawToDigi::produce(edm::Event& event, const edm::EventSetup &es)
 {
   if (subSystem == "RP")
     run< DetSetVector<TotemRPDigi> >(event, es);
+  if (subSystem == "DiamondRP")
+    run< DetSetVector<TotemDiamondDigi> >(event, es);
 }
 
 //----------------------------------------------------------------------------------------------------

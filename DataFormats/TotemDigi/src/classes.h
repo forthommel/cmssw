@@ -11,6 +11,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 
 #include "DataFormats/TotemDigi/interface/TotemRPDigi.h"
+#include "DataFormats/TotemDigi/interface/TotemDiamondDigi.h"
 #include "DataFormats/TotemDigi/interface/TotemTriggerCounters.h"
 #include "DataFormats/TotemDigi/interface/TotemVFATStatus.h"
 #include "DataFormats/TotemDigi/interface/TotemFEDInfo.h"
@@ -26,6 +27,14 @@ namespace DataFormats_DataFormats {
     std::vector<edm::DetSet<TotemRPDigi> > vec_ds_rp_str_dig;
     edm::Wrapper<edm::DetSet<TotemRPDigi> > wds_rp_str_dig;
     edm::Wrapper<edm::DetSetVector<TotemRPDigi> > wdsv_rp_str_dig;
+
+    TotemDiamondDigi dia_str_dig;
+    edm::DetSet<TotemDiamondDigi> ds_dia_str_dig;
+    std::vector<TotemDiamondDigi> vec_dia_str_dig;
+    edm::DetSetVector<TotemDiamondDigi> dsv_dia_str_dig;
+    std::vector<edm::DetSet<TotemDiamondDigi> > vec_ds_dia_str_dig;
+    edm::Wrapper<edm::DetSet<TotemDiamondDigi> > wds_dia_str_dig;
+    edm::Wrapper<edm::DetSetVector<TotemDiamondDigi> > wdsv_dia_str_dig;
 
     TotemTriggerCounters dummy10;
     edm::Wrapper<TotemTriggerCounters> dummy11;

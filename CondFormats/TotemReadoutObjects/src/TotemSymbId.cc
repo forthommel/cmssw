@@ -20,6 +20,9 @@ std::ostream& operator << (std::ostream& s, const TotemSymbID &sid)
     case TotemSymbID::T2:
       s << "sub-system=T2, ";
       break;
+    case TotemSymbID::Diamond:
+      s << "sub-system=Diamond, ";
+      break;
   }
 
   s << "symb. id=" << sid.symbolicID;

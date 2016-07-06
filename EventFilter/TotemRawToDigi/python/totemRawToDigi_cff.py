@@ -9,3 +9,6 @@ totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
 from EventFilter.TotemRawToDigi.totemRPRawToDigi_cfi import *
 totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
+
+from EventFilter.TotemRawToDigi.totemDiamondRPRawToDigi_cfi import *
+totemDiamondRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")

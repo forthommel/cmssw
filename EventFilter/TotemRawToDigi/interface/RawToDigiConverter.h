@@ -18,6 +18,7 @@
 #include "CondFormats/TotemReadoutObjects/interface/TotemAnalysisMask.h"
 
 #include "DataFormats/TotemDigi/interface/TotemRPDigi.h"
+#include "DataFormats/TotemDigi/interface/TotemDiamondDigi.h"
 #include "DataFormats/TotemDigi/interface/TotemVFATStatus.h"
 
 //----------------------------------------------------------------------------------------------------
@@ -31,6 +32,10 @@ class RawToDigiConverter
     /// Creates RP digi.
     void Run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
       edm::DetSetVector<TotemRPDigi> &digi, edm::DetSetVector<TotemVFATStatus> &status);
+
+    /// Creates Diamond detector digi.
+    void Run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
+      edm::DetSetVector<TotemDiamondDigi> &digi, edm::DetSetVector<TotemVFATStatus> &status);
 
     /// Print error summaries.
     void PrintSummaries();
