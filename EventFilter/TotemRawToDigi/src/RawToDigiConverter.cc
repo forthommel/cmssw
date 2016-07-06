@@ -3,6 +3,7 @@
 * This is a part of TOTEM offline software.
 * Authors: 
 *   Jan Kašpar (jan.kaspar@gmail.com)
+*   Laurent Forthomme (laurent.forthomme@cern.ch)
 *
 ****************************************************************************/
 
@@ -347,7 +348,7 @@ std::cout << "number of active channels: " << activeChannels.size() << std::endl
         {
           DetSet<TotemDiamondDigi> &digiDetSet = rpData.find_or_insert(detId);
 std::cout << "channel:" << (unsigned int)ch << " --> offset=" << (unsigned int)offset << " --> value=" << (unsigned int)(offset+ch) << std::endl;
-          digiDetSet.push_back(TotemDiamondDigi(offset + ch));
+          //digiDetSet.push_back(TotemDiamondDigi(offset + ch)); //FIXME
         }
       }
     }

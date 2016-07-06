@@ -18,7 +18,7 @@ totemVFATRawToDigi = cms.EDProducer("TotemVFATRawToDigi",
     # 1: one-line message for every event with at least one corrupted VFAT frame
     # 2: lists all corrupted VFATs in all events
     # 3: lists all corruptions for all corrupted VFATs in all events
-    verbosity = cms.untracked.uint32(3),
+    verbosity = cms.untracked.uint32(1),
 
     # flags for available consistency tests
     # 0: do not perform the test at all
