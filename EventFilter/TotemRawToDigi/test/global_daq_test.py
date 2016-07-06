@@ -20,12 +20,12 @@ process.source = cms.Source("NewEventStreamFileReader",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(1)
 )
 
 # raw-to-digi conversion
 process.load('CondFormats.TotemReadoutObjects.TotemDAQMappingESSourceXML_cfi')
-process.TotemDAQMappingESSourceXML.mappingFileNames.append("CondFormats/TotemReadoutObjects/xml/ctpps_210_mapping.xml")
+#process.TotemDAQMappingESSourceXML.mappingFileNames.append("CondFormats/TotemReadoutObjects/xml/ctpps_210_mapping.xml")
 process.TotemDAQMappingESSourceXML.mappingFileNames.append("CondFormats/TotemReadoutObjects/xml/timing_diamond_215_mapping.xml")
 
 process.load("EventFilter.TotemRawToDigi.totemTriggerRawToDigi_cfi")
@@ -40,7 +40,7 @@ process.totemDiamondRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 # execution configuration
 process.p = cms.Path(
     process.totemTriggerRawToDigi *
-    process.totemRPRawToDigi *
+#    process.totemRPRawToDigi *
     process.totemDiamondRPRawToDigi
 )
 

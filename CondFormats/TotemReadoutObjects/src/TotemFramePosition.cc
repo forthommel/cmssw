@@ -105,7 +105,7 @@ unsigned char TotemFramePosition::setXMLAttribute(const std::string &attribute, 
     return 0;
   }
 
-  if (attribute == "TOTFEDId")
+  if (attribute == "TOTFEDId" || attribute == "FEDId")
   {
     setTOTFEDId(v);
     flag |= 0x8;

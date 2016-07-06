@@ -51,16 +51,14 @@ public:
 
   /// Common position tags
   static const std::string tagArm;
+  static const std::string tagStation;
+  static const std::string tagPot;
 
   /// RP XML tags
-  static const std::string tagRPStation;
-  static const std::string tagRPPot;
   static const std::string tagRPPlane;
 
   /// Diamond XML tags
   static const std::string tagDiamondChannel;
-  static const std::string tagDiamondStation;
-  static const std::string tagDiamondPot;
   static const std::string tagDiamondPlane;
 
   /// T2 XML tags
@@ -95,9 +93,9 @@ private:
   std::vector<std::string> maskFileNames;
 
   /// enumeration of XML node types
-  enum NodeType { nUnknown, nTop, nArm,
-    nRPStation, nRPPot, nRPPlane, nChip,
-    nDiamondStation, nDiamondPot, nDiamondPlane, nDiamondChannel,
+  enum NodeType { nUnknown, nTop, nArm, nStation, nPot,
+    nRPPlane, nChip,
+    nDiamondPlane, nDiamondChannel,
     nTriggerVFAT,
     nT2, nT2Half, nT2Det, nT1, nT1Arm, nT1Plane, nT1CSC, nT1ChannelType, nChannel };
 
@@ -159,12 +157,12 @@ private:
 
   bool RPNode(NodeType type)
   {
-    return ((type == nArm)||(type == nRPStation)||(type == nRPPot)||(type == nRPPlane)||(type == nChip)||(type == nTriggerVFAT));
+    return ((type == nArm)||(type == nStation)||(type == nPot)||(type == nRPPlane)||(type == nChip)||(type == nTriggerVFAT));
   }
 
   bool DiamondNode(NodeType type)
   {
-    return ((type == nArm)||(type == nDiamondStation)||(type == nDiamondPot)||(type == nDiamondPlane)||(type == nDiamondChannel)||(type == nTriggerVFAT));
+    return ((type == nArm)||(type == nStation)||(type == nPot)||(type == nDiamondPlane)||(type == nDiamondChannel)||(type == nTriggerVFAT));
   }
 
   bool T2Node(NodeType type)
@@ -195,6 +193,8 @@ using namespace xercesc;
 
 const string TotemDAQMappingESSourceXML::tagVFAT="vfat";
 const string TotemDAQMappingESSourceXML::tagChannel="channel";
+const string TotemDAQMappingESSourceXML::tagStation = "station";
+const string TotemDAQMappingESSourceXML::tagPot = "rp_detector_set";
 const string TotemDAQMappingESSourceXML::tagAnalysisMask="analysisMask";
 
 // common XML position tags
@@ -206,14 +206,10 @@ const string TotemDAQMappingESSourceXML::tagChip2 = "test_vfat";
 const string TotemDAQMappingESSourceXML::tagTriggerVFAT1 = "trigger_vfat";
 
 // specific RP XML tags
-const string TotemDAQMappingESSourceXML::tagRPStation = "station";
-const string TotemDAQMappingESSourceXML::tagRPPot = "rp_detector_set";
 const string TotemDAQMappingESSourceXML::tagRPPlane = "rp_plane";
 
 // specific Diamond XML tags
 const string TotemDAQMappingESSourceXML::tagDiamondChannel = "Diamond_ch";
-const string TotemDAQMappingESSourceXML::tagDiamondStation = "station";
-const string TotemDAQMappingESSourceXML::tagDiamondPot = "rp_detector_set";
 const string TotemDAQMappingESSourceXML::tagDiamondPlane = "rp_plane_diamond";
 
 // specific T2 XML tags
@@ -360,16 +356,17 @@ void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode *
     if (!RPNode(type))
       continue;
 
-    if ((type != parentType + 1)&&(parentType != nRPPot || type != nTriggerVFAT))
+    if ((type != parentType + 1)&&(parentType != nPot || type != nTriggerVFAT))
     {
-      if (parentType == nTop && type == nRPPot)
+      if (parentType == nTop && type == nPot)
       {
-	    LogPrint("TotemDAQMappingESSourceXML") << ">> TotemDAQMappingESSourceXML::ParseTreeRP > Warning: tag `" << tagRPPot
+	    LogPrint("TotemDAQMappingESSourceXML") << ">> TotemDAQMappingESSourceXML::ParseTreeRP > Warning: tag `" << tagPot
 					<< "' found in global scope, assuming station ID = 12.";
 	    parentID = 12;
       } else {
-        throw cms::Exception("TotemDAQMappingESSourceXML") << "Node " << XMLString::transcode(n->getNodeName())
+        edm::LogPrint("TotemDAQMappingESSourceXML") << "Node " << XMLString::transcode(n->getNodeName())
           << " not allowed within " << XMLString::transcode(parent->getNodeName()) << " block (strips).\n";
+        return;
       }
     }
 
@@ -491,16 +488,17 @@ void TotemDAQMappingESSourceXML::ParseTreeDiamond(ParseType pType, xercesc::DOMN
     if (!DiamondNode(type))
       continue;
 
-    if ((type != parentType + 1)&&(parentType != nDiamondPot || type != nTriggerVFAT))
+    if (((type != parentType + 1) && ((parentType == nPot) && (type != nDiamondPlane))) && (parentType != nPot || type != nTriggerVFAT))
     {
-      if (parentType == nTop && type == nDiamondPot)
+      if (parentType == nTop && type == nPot)
       {
-	    LogPrint("TotemDAQMappingESSourceXML") << ">> TotemDAQMappingESSourceXML::ParseTreeDiamond > Warning: tag `" << tagDiamondPot
+	    LogPrint("TotemDAQMappingESSourceXML") << ">> TotemDAQMappingESSourceXML::ParseTreeDiamond > Warning: tag `" << tagPot
 					<< "' found in global scope, assuming station ID = 12.";
 	    parentID = 12;
       } else {
-        throw cms::Exception("TotemDAQMappingESSourceXML") << "Node " << XMLString::transcode(n->getNodeName())
+        edm::LogPrint("TotemDAQMappingESSourceXML") << "Node " << XMLString::transcode(n->getNodeName())
           << " not allowed within " << XMLString::transcode(parent->getNodeName()) << " block (diamond).\n";
+        return;
       }
     }
 
@@ -1128,7 +1126,7 @@ TotemFramePosition TotemDAQMappingESSourceXML::ChipFramePosition(xercesc::DOMNod
   if (!fp.checkXMLAttributeFlag(attributeFlag))
   {
     throw cms::Exception("TotemDAQMappingESSourceXML") <<
-      "Wrong/incomplete DAQ channel specification (attributeFlag = " << attributeFlag << ")." << endl;
+      "Wrong/incomplete DAQ channel specification (attributeFlag = " << (unsigned int)attributeFlag << ")." << endl;
   }
 
   return fp;
@@ -1144,15 +1142,13 @@ TotemDAQMappingESSourceXML::NodeType TotemDAQMappingESSourceXML::GetNodeType(xer
   if (Test(n, tagChip2)) return nChip;
   if (Test(n, tagDiamondChannel)) return nDiamondChannel;
   if (Test(n, tagTriggerVFAT1)) return nTriggerVFAT;
+  if (Test(n, tagStation)) return nStation;
+  if (Test(n, tagPot)) return nPot;
 
   // RP node types
-  if (Test(n, tagRPStation)) return nRPStation;
-  if (Test(n, tagRPPot)) return nRPPot;
   if (Test(n, tagRPPlane)) return nRPPlane;
 
   // Diamond node types
-  if (Test(n, tagDiamondStation)) return nDiamondStation;
-  if (Test(n, tagDiamondPot)) return nDiamondPot;
   if (Test(n, tagDiamondPlane)) return nDiamondPlane;
 
   // T2 node types

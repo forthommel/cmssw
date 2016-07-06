@@ -55,6 +55,7 @@ void RawToDigiConverter::RunCommon(const VFATFrameCollection &input, const Totem
     TotemVFATStatus st;
     st.setMissing(true);
     records[p.first] = { &p.second, NULL,  st };
+//std::cout << "found " << p.second << " in DAQ mapping" << std::endl;
   }
 
   // event error message buffer
@@ -68,11 +69,16 @@ void RawToDigiConverter::RunCommon(const VFATFrameCollection &input, const Totem
 
     bool problemsPresent = false;
     bool stopProcessing = false;
-    
+
+std::cout << "looking for " << fr.Position() << std::endl;
+//for (map<TotemFramePosition, RawToDigiConverter::Record>::const_iterator it=records.begin(); it!=records.end(); it++) { std::cout << "--->" << it->first << std::endl; }
     // skip data frames not listed in the DAQ mapping
     auto records_it = records.find(fr.Position());
     if (records_it == records.end())
     {
+/*const VFATFrame* data = fr.Data();
+std::cout << "bunch crossing: " << data->getBC() << std::endl;*/
+std::cout << "unknown summary!! " << unknownSummary[fr.Position()] << std::endl;
       unknownSummary[fr.Position()]++;
       continue;
     }
@@ -153,6 +159,7 @@ void RawToDigiConverter::RunCommon(const VFATFrameCollection &input, const Totem
 
     if (fr.Data()->isBCPresent())
       BCChecker.Fill(fr.Data()->getBC(), fr.Position());
+std::cout << " ---> " << fr.Data()->isECPresent() << "/" << fr.Data()->isBCPresent() << std::endl;
   }
 
   // analyze EC and BC statistics
@@ -282,6 +289,7 @@ void RawToDigiConverter::Run(const VFATFrameCollection &input,
 
   // common processing - frame validation
   RunCommon(input, mapping, records);
+//for (map<TotemFramePosition, Record>::const_iterator it=records.begin(); it!=records.end(); it++) { std::cout << it->first << " -> " << std::endl; }
 
   // second loop over data
   for (auto &p : records)
@@ -289,10 +297,10 @@ void RawToDigiConverter::Run(const VFATFrameCollection &input,
     Record &record = p.second;
 
     // check whether the data come from RP VFATs
-    if (record.info->symbolicID.subSystem != TotemSymbID::RP)
+    if (record.info->symbolicID.subSystem != TotemSymbID::Diamond)
     {
       LogProblem("Totem") << "Error in RawToDigiConverter::Run > "
-        << "VFAT is not from RP. subSystem = " << record.info->symbolicID.subSystem;
+        << "VFAT is not from Diamond detector. subSystem = " << record.info->symbolicID.subSystem;
       continue;
     }
 
@@ -304,6 +312,7 @@ void RawToDigiConverter::Run(const VFATFrameCollection &input,
     unsigned short chipId = record.info->symbolicID.symbolicID;
     det_id_type detId = TotemRPDetId::decToRawId(chipId / 10);
     uint8_t chipPosition = chipId % 10;
+std::cout << " detid=" << detId << ", chipposition=" << (unsigned int)chipPosition << std::endl;
 
     // update chipPosition in status
     record.status.setChipPosition(chipPosition);
@@ -329,13 +338,15 @@ void RawToDigiConverter::Run(const VFATFrameCollection &input,
       // create the digi
       unsigned short offset = chipPosition * 128;
       const vector<unsigned char> &activeChannels = record.frame->getActiveChannels();
+std::cout << "number of active channels: " << activeChannels.size() << std::endl;
     
       for (auto ch : activeChannels)
       {
         // skip masked channels
-        if (!anMa.fullMask && anMa.maskedChannels.find(ch) == anMa.maskedChannels.end())
+        //if (!anMa.fullMask && anMa.maskedChannels.find(ch) == anMa.maskedChannels.end())
         {
           DetSet<TotemDiamondDigi> &digiDetSet = rpData.find_or_insert(detId);
+std::cout << "channel:" << (unsigned int)ch << " --> offset=" << (unsigned int)offset << " --> value=" << (unsigned int)(offset+ch) << std::endl;
           digiDetSet.push_back(TotemDiamondDigi(offset + ch));
         }
       }

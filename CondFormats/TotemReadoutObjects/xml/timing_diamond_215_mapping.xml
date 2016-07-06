@@ -1,129 +1,146 @@
 <top>	
-	<arm id="1">
-		<station id="1">
-			<rp_detector_set id="1">
-				<rp_plane_diamond id="1"> 
-					<Diamond_ch id="1"		hw_id="0x105"		FEDId="17"		GOHId="1"		IdxInFiber="4"/>
-					<Diamond_ch id="2"		hw_id="0x10E"		FEDId="17"		GOHId="1"		IdxInFiber="13"/>
-					<Diamond_ch id="3"		hw_id="0x10B"		FEDId="17"		GOHId="1"		IdxInFiber="10"/>
-					<Diamond_ch id="4"		hw_id="0x114"		FEDId="17"		GOHId="2"		IdxInFiber="3"/>     
-					<Diamond_ch id="5"		hw_id="0x11D"		FEDId="17"		GOHId="2"		IdxInFiber="12"/>
-<!--				<Diamond_ch id="6"		hw_id="0x"		FEDId="17"		GOHId=""		IdxInFiber=""/>		-->
-<!--				<Diamond_ch id="7"		hw_id="0x"		FEDId="17"		GOHId=""		IdxInFiber=""/>		-->
-					<Diamond_ch id="8"		hw_id="0x108"		FEDId="17"		GOHId="1"		IdxInFiber="7"/>
-					<Diamond_ch id="9"		hw_id="0x120"		FEDId="17"		GOHId="2"		IdxInFiber="15"/>
-					<Diamond_ch id="10"		hw_id="0x117"		FEDId="17"		GOHId="2"		IdxInFiber="6"/>
-					<Diamond_ch id="11"		hw_id="0x102"		FEDId="17"		GOHId="1"		IdxInFiber="1"/>
-<!--				<Diamond_ch id="12"		hw_id="0x"		FEDId="17"		GOHId=""		IdxInFiber=""/>		-->
-				</rp_plane_diamond>			
-				<rp_plane_diamond id="2"> 
-					<Diamond_ch id="1"		hw_id="0x104"		FEDId="17"		GOHId="1"		IdxInFiber="3"/>
-					<Diamond_ch id="2"		hw_id="0x10D"		FEDId="17"		GOHId="1"		IdxInFiber="12"/>
-					<Diamond_ch id="3"		hw_id="0x10A"		FEDId="17"		GOHId="1"		IdxInFiber="9"/>
-					<Diamond_ch id="4"		hw_id="0x113"		FEDId="17"		GOHId="2"		IdxInFiber="2"/>     
-					<Diamond_ch id="5"		hw_id="0x11C"		FEDId="17"		GOHId="2"		IdxInFiber="11"/>
-<!--				<Diamond_ch id="6"		hw_id="0x"		FEDId="17"		GOHId=""		IdxInFiber=""/>		-->
-<!--				<Diamond_ch id="7"		hw_id="0x"		FEDId="17"		GOHId=""		IdxInFiber=""/>		-->
-<!--				<Diamond_ch id="8"		hw_id="0x"		FEDId="17"		GOHId=""		IdxInFiber=""/>		-->
-					<Diamond_ch id="9"		hw_id="0x11F"		FEDId="17"		GOHId="2"		IdxInFiber="14"/>
-					<Diamond_ch id="10"		hw_id="0x116"		FEDId="17"		GOHId="2"		IdxInFiber="5"/>
-					<Diamond_ch id="11"		hw_id="0x110"		FEDId="17"		GOHId="1"		IdxInFiber="15"/>
-					<Diamond_ch id="12"		hw_id="0x106"		FEDId="17"		GOHId="1"		IdxInFiber="5"/>
-				</rp_plane_diamond>
-<!--			<rp_plane_diamond id="3"> 
-					<Diamond_ch id="1"		hw_id="0x"		FEDId="17"		GOHId=""		IdxInFiber=""/>
-					<Diamond_ch id="2"		hw_id="0x"		FEDId="17"		GOHId=""		IdxInFiber=""/>
-					<Diamond_ch id="3"		hw_id="0x"		FEDId="17"		GOHId=""		IdxInFiber=""/>
-					<Diamond_ch id="4"		hw_id="0x"		FEDId="17"		GOHId=""		IdxInFiber=""/>     
-					<Diamond_ch id="5"		hw_id="0x"		FEDId="17"		GOHId=""		IdxInFiber=""/>
-					<Diamond_ch id="6"		hw_id="0x"		FEDId="17"		GOHId=""		IdxInFiber=""/>
-					<Diamond_ch id="7"		hw_id="0x"		FEDId="17"		GOHId=""		IdxInFiber=""/>
-					<Diamond_ch id="8"		hw_id="0x"		FEDId="17"		GOHId=""		IdxInFiber=""/>
-					<Diamond_ch id="9"		hw_id="0x"		FEDId="17"		GOHId=""		IdxInFiber=""/>
-					<Diamond_ch id="10"		hw_id="0x"		FEDId="17"		GOHId=""		IdxInFiber=""/>
-					<Diamond_ch id="11"		hw_id="0x"		FEDId="17"		GOHId=""		IdxInFiber=""/>
-					<Diamond_ch id="12"		hw_id="0x"		FEDId="17"		GOHId=""		IdxInFiber=""/>
-				</rp_plane_diamond>																						-->
-				<rp_plane_diamond id="4"> 
-					<Diamond_ch id="1"		hw_id="0x103"		FEDId="17"		GOHId="1"		IdxInFiber="2"/>
-					<Diamond_ch id="2"		hw_id="0x10C"		FEDId="17"		GOHId="1"		IdxInFiber="11"/>
-					<Diamond_ch id="3"		hw_id="0x118"		FEDId="17"		GOHId="2"		IdxInFiber="7"/>
-					<Diamond_ch id="4"		hw_id="0x112"		FEDId="17"		GOHId="2"		IdxInFiber="1"/>     
-					<Diamond_ch id="5"		hw_id="0x11B"		FEDId="17"		GOHId="2"		IdxInFiber="10"/>
-<!--				<Diamond_ch id="6"		hw_id="0x"		FEDId="17"		GOHId=""		IdxInFiber=""/>		-->
-<!--				<Diamond_ch id="7"		hw_id="0x"		FEDId="17"		GOHId=""		IdxInFiber=""/>		-->
-					<Diamond_ch id="8"		hw_id="0x11A"		FEDId="17"		GOHId="2"		IdxInFiber="9"/>
-					<Diamond_ch id="9"		hw_id="0x11E"		FEDId="17"		GOHId="2"		IdxInFiber="13"/>
-					<Diamond_ch id="10"		hw_id="0x115"		FEDId="17"		GOHId="2"		IdxInFiber="4"/>
-					<Diamond_ch id="11"		hw_id="0x10F"		FEDId="17"		GOHId="1"		IdxInFiber="14"/>
-					<Diamond_ch id="12"		hw_id="0x107"		FEDId="17"		GOHId="1"		IdxInFiber="6"/>
-				</rp_plane_diamond>
-			</rp_detector_set>
-		</station>
-	</arm>
-	<arm id="2">
-		<station id="1">
-			<rp_detector_set id="1">
-				<rp_plane_diamond id="1"> 
-					<Diamond_ch id="1"		hw_id="0x305"		FEDId="18"		GOHId="1"		IdxInFiber="4"/>
-					<Diamond_ch id="2"		hw_id="0x30E"		FEDId="18"		GOHId="1"		IdxInFiber="13"/>
-					<Diamond_ch id="3"		hw_id="0x30B"		FEDId="18"		GOHId="1"		IdxInFiber="10"/>
-					<Diamond_ch id="4"		hw_id="0x314"		FEDId="18"		GOHId="2"		IdxInFiber="3"/>     
-					<Diamond_ch id="5"		hw_id="0x31D"		FEDId="18"		GOHId="2"		IdxInFiber="12"/>
-<!--				<Diamond_ch id="6"		hw_id="0x"		FEDId="18"		GOHId=""		IdxInFiber=""/>		-->
-<!--				<Diamond_ch id="7"		hw_id="0x"		FEDId="18"		GOHId=""		IdxInFiber=""/>		-->
-<!--				<Diamond_ch id="8"		hw_id="0x"		FEDId="18"		GOHId=""		IdxInFiber=""/>		-->
-					<Diamond_ch id="9"		hw_id="0x320"		FEDId="18"		GOHId="2"		IdxInFiber="15"/>
-					<Diamond_ch id="10"		hw_id="0x317"		FEDId="18"		GOHId="2"		IdxInFiber="6"/>
-					<Diamond_ch id="11"		hw_id="0x302"		FEDId="18"		GOHId="1"		IdxInFiber="1"/>
-					<Diamond_ch id="12"		hw_id="0x308"		FEDId="18"		GOHId="1"		IdxInFiber="7"/>
-				</rp_plane_diamond>			
-				<rp_plane_diamond id="2"> 
-					<Diamond_ch id="1"		hw_id="0x304"		FEDId="18"		GOHId="1"		IdxInFiber="3"/>
-					<Diamond_ch id="2"		hw_id="0x30D"		FEDId="18"		GOHId="1"		IdxInFiber="12"/>
-					<Diamond_ch id="3"		hw_id="0x30A"		FEDId="18"		GOHId="1"		IdxInFiber="9"/>
-					<Diamond_ch id="4"		hw_id="0x313"		FEDId="18"		GOHId="2"		IdxInFiber="2"/>     
-					<Diamond_ch id="5"		hw_id="0x31C"		FEDId="18"		GOHId="2"		IdxInFiber="11"/>
-<!--				<Diamond_ch id="6"		hw_id="0x"		FEDId="18"		GOHId=""		IdxInFiber=""/>		-->
-<!--				<Diamond_ch id="7"		hw_id="0x"		FEDId="18"		GOHId=""		IdxInFiber=""/>		-->
-<!--				<Diamond_ch id="8"		hw_id="0x"		FEDId="18"		GOHId=""		IdxInFiber=""/>		-->
-					<Diamond_ch id="9"		hw_id="0x31F"		FEDId="18"		GOHId="2"		IdxInFiber="14"/>
-					<Diamond_ch id="10"		hw_id="0x316"		FEDId="18"		GOHId="2"		IdxInFiber="5"/>
-					<Diamond_ch id="11"		hw_id="0x310"		FEDId="18"		GOHId="1"		IdxInFiber="15"/>
-					<Diamond_ch id="12"		hw_id="0x307"		FEDId="18"		GOHId="1"		IdxInFiber="6"/>
-				</rp_plane_diamond>
-				<rp_plane_diamond id="3"> 
-					<Diamond_ch id="1"		hw_id="0x303"		FEDId="18"		GOHId="1"		IdxInFiber="2"/>
-					<Diamond_ch id="2"		hw_id="0x30C"		FEDId="18"		GOHId="1"		IdxInFiber="11"/>
-					<Diamond_ch id="3"		hw_id="0x318"		FEDId="18"		GOHId="2"		IdxInFiber="7"/>
-					<Diamond_ch id="4"		hw_id="0x312"		FEDId="18"		GOHId="2"		IdxInFiber="1"/>     
-					<Diamond_ch id="5"		hw_id="0x31B"		FEDId="18"		GOHId="2"		IdxInFiber="10"/>
-<!--				<Diamond_ch id="6"		hw_id="0x"		FEDId="18"		GOHId=""		IdxInFiber=""/>		-->
-<!--				<Diamond_ch id="7"		hw_id="0x"		FEDId="18"		GOHId=""		IdxInFiber=""/>		-->
-<!--				<Diamond_ch id="8"		hw_id="0x"		FEDId="18"		GOHId=""		IdxInFiber=""/>		-->
-					<Diamond_ch id="9"		hw_id="0x31E"		FEDId="18"		GOHId="2"		IdxInFiber="13"/>
-					<Diamond_ch id="10"		hw_id="0x315"		FEDId="18"		GOHId="2"		IdxInFiber="4"/>
-					<Diamond_ch id="11"		hw_id="0x30F"		FEDId="18"		GOHId="1"		IdxInFiber="14"/>
-					<Diamond_ch id="12"		hw_id="0x306"		FEDId="18"		GOHId="1"		IdxInFiber="5"/>
-				</rp_plane_diamond>
-				<rp_plane_diamond id="4"> 
-<!--				<Diamond_ch id="1"		hw_id="0x"		FEDId="18"		GOHId=""		IdxInFiber=""/>		-->
-<!--				<Diamond_ch id="2"		hw_id="0x"		FEDId="18"		GOHId=""		IdxInFiber=""/>		-->
-<!--				<Diamond_ch id="3"		hw_id="0x"		FEDId="18"		GOHId=""		IdxInFiber=""/>		-->
-<!--				<Diamond_ch id="4"		hw_id="0x"		FEDId="18"		GOHId=""		IdxInFiber=""/>		-->
-<!--				<Diamond_ch id="5"		hw_id="0x"		FEDId="18"		GOHId=""		IdxInFiber=""/>		-->
-<!--				<Diamond_ch id="6"		hw_id="0x"		FEDId="18"		GOHId=""		IdxInFiber=""/>		-->
-<!--				<Diamond_ch id="7"		hw_id="0x"		FEDId="18"		GOHId=""		IdxInFiber=""/>		-->
-					<Diamond_ch id="8"		hw_id="0x31A"		FEDId="18"		GOHId="2"		IdxInFiber="9"/>
-<!--				<Diamond_ch id="9"		hw_id="0x"		FEDId="18"		GOHId=""		IdxInFiber=""/>		-->
-<!--				<Diamond_ch id="10"		hw_id="0x"		FEDId="18"		GOHId=""		IdxInFiber=""/>		-->
-<!--				<Diamond_ch id="11"		hw_id="0x"		FEDId="18"		GOHId=""		IdxInFiber=""/>		-->
-<!--				<Diamond_ch id="12"		hw_id="0x"		FEDId="18"		GOHId=""		IdxInFiber=""/>		-->
-				</rp_plane_diamond>
-			</rp_detector_set>
-		</station>
-	</arm>
-			
-     
-			
+  <arm id="1">
+    <station id="1">
+      <rp_detector_set id="1">
+	<rp_plane_diamond id="1"> 
+	  <Diamond_ch id="1"		hw_id="0x105"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="1"		IdxInFiber="4"/>
+	  <Diamond_ch id="2"		hw_id="0x10E"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="1"		IdxInFiber="13"/>
+	  <Diamond_ch id="3"		hw_id="0x10B"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="1"		IdxInFiber="10"/>
+	  <Diamond_ch id="4"		hw_id="0x114"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="2"		IdxInFiber="3"/>     
+	  <Diamond_ch id="5"		hw_id="0x11D"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="2"		IdxInFiber="12"/>
+          <!--
+	     <Diamond_ch id="6"		hw_id="0x"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+             <Diamond_ch id="7"		hw_id="0x"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+	     -->
+	  <Diamond_ch id="8"		hw_id="0x108"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="1"		IdxInFiber="7"/>
+	  <Diamond_ch id="9"		hw_id="0x120"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="2"		IdxInFiber="15"/>
+	  <Diamond_ch id="10"		hw_id="0x117"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="2"		IdxInFiber="6"/>
+	  <Diamond_ch id="11"		hw_id="0x102"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="1"		IdxInFiber="1"/>
+          <!--
+	     <Diamond_ch id="12"	hw_id="0x"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+	     -->
+	</rp_plane_diamond>			
+	<rp_plane_diamond id="2"> 
+	  <Diamond_ch id="1"		hw_id="0x104"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="1"		IdxInFiber="3"/>
+	  <Diamond_ch id="2"		hw_id="0x10D"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="1"		IdxInFiber="12"/>
+	  <Diamond_ch id="3"		hw_id="0x10A"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="1"		IdxInFiber="9"/>
+	  <Diamond_ch id="4"		hw_id="0x113"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="2"		IdxInFiber="2"/>     
+	  <Diamond_ch id="5"		hw_id="0x11C"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="2"		IdxInFiber="11"/>
+          <!--
+	     <Diamond_ch id="6"		hw_id="0x"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+	     <Diamond_ch id="7"		hw_id="0x"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+             <Diamond_ch id="8"		hw_id="0x"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+	     -->
+	  <Diamond_ch id="9"		hw_id="0x11F"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="2"		IdxInFiber="14"/>
+	  <Diamond_ch id="10"		hw_id="0x116"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="2"		IdxInFiber="5"/>
+	  <Diamond_ch id="11"		hw_id="0x110"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="1"		IdxInFiber="15"/>
+	  <Diamond_ch id="12"		hw_id="0x106"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="1"		IdxInFiber="5"/>
+	</rp_plane_diamond>
+        <!--
+	   <rp_plane_diamond id="3"> 
+	     <Diamond_ch id="1"		hw_id="0x"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+	     <Diamond_ch id="2"		hw_id="0x"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+	     <Diamond_ch id="3"		hw_id="0x"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+	     <Diamond_ch id="4"		hw_id="0x"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>     
+	     <Diamond_ch id="5"		hw_id="0x"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+	     <Diamond_ch id="6"		hw_id="0x"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+	     <Diamond_ch id="7"		hw_id="0x"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+	     <Diamond_ch id="8"		hw_id="0x"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+	     <Diamond_ch id="9"		hw_id="0x"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+	     <Diamond_ch id="10"	hw_id="0x"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+	     <Diamond_ch id="11"	hw_id="0x"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+	     <Diamond_ch id="12"	hw_id="0x"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+	   </rp_plane_diamond>
+           -->
+	<rp_plane_diamond id="4"> 
+	  <Diamond_ch id="1"		hw_id="0x103"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="1"		IdxInFiber="2"/>
+	  <Diamond_ch id="2"		hw_id="0x10C"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="1"		IdxInFiber="11"/>
+	  <Diamond_ch id="3"		hw_id="0x118"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="2"		IdxInFiber="7"/>
+	  <Diamond_ch id="4"		hw_id="0x112"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="2"		IdxInFiber="1"/>     
+	  <Diamond_ch id="5"		hw_id="0x11B"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="2"		IdxInFiber="10"/>
+          <!--
+	     <Diamond_ch id="6"		hw_id="0x"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+             <Diamond_ch id="7"		hw_id="0x"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+	     -->
+	  <Diamond_ch id="8"		hw_id="0x11A"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="2"		IdxInFiber="9"/>
+	  <Diamond_ch id="9"		hw_id="0x11E"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="2"		IdxInFiber="13"/>
+	  <Diamond_ch id="10"		hw_id="0x115"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="2"		IdxInFiber="4"/>
+	  <Diamond_ch id="11"		hw_id="0x10F"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="1"		IdxInFiber="14"/>
+	  <Diamond_ch id="12"		hw_id="0x107"		SubSystemId="4"	FEDId="17"	OptoRxId="3"	GOHId="1"		IdxInFiber="6"/>
+	</rp_plane_diamond>
+      </rp_detector_set>
+    </station>
+  </arm>
+  <arm id="2">
+    <station id="1">
+      <rp_detector_set id="1">
+	<rp_plane_diamond id="1"> 
+	  <Diamond_ch id="1"		hw_id="0x305"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="1"		IdxInFiber="4"/>
+	  <Diamond_ch id="2"		hw_id="0x30E"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="1"		IdxInFiber="13"/>
+	  <Diamond_ch id="3"		hw_id="0x30B"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="1"		IdxInFiber="10"/>
+	  <Diamond_ch id="4"		hw_id="0x314"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="2"		IdxInFiber="3"/>     
+	  <Diamond_ch id="5"		hw_id="0x31D"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="2"		IdxInFiber="12"/>
+          <!--
+	     <Diamond_ch id="6"		hw_id="0x"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+             <Diamond_ch id="7"		hw_id="0x"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+             <Diamond_ch id="8"		hw_id="0x"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+	     -->
+	  <Diamond_ch id="9"		hw_id="0x320"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="2"		IdxInFiber="15"/>
+	  <Diamond_ch id="10"		hw_id="0x317"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="2"		IdxInFiber="6"/>
+	  <Diamond_ch id="11"		hw_id="0x302"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="1"		IdxInFiber="1"/>
+	  <Diamond_ch id="12"		hw_id="0x308"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="1"		IdxInFiber="7"/>
+	</rp_plane_diamond>			
+	<rp_plane_diamond id="2"> 
+	  <Diamond_ch id="1"		hw_id="0x304"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="1"		IdxInFiber="3"/>
+	  <Diamond_ch id="2"		hw_id="0x30D"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="1"		IdxInFiber="12"/>
+	  <Diamond_ch id="3"		hw_id="0x30A"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="1"		IdxInFiber="9"/>
+	  <Diamond_ch id="4"		hw_id="0x313"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="2"		IdxInFiber="2"/>     
+	  <Diamond_ch id="5"		hw_id="0x31C"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="2"		IdxInFiber="11"/>
+          <!--
+	     <Diamond_ch id="6"		hw_id="0x"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+	     <Diamond_ch id="7"		hw_id="0x"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+             <Diamond_ch id="8"		hw_id="0x"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+	     -->
+	  <Diamond_ch id="9"		hw_id="0x31F"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="2"		IdxInFiber="14"/>
+	  <Diamond_ch id="10"		hw_id="0x316"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="2"		IdxInFiber="5"/>
+	  <Diamond_ch id="11"		hw_id="0x310"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="1"		IdxInFiber="15"/>
+	  <Diamond_ch id="12"		hw_id="0x307"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="1"		IdxInFiber="6"/>
+	</rp_plane_diamond>
+	<rp_plane_diamond id="3"> 
+	  <Diamond_ch id="1"		hw_id="0x303"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="1"		IdxInFiber="2"/>
+	  <Diamond_ch id="2"		hw_id="0x30C"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="1"		IdxInFiber="11"/>
+	  <Diamond_ch id="3"		hw_id="0x318"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="2"		IdxInFiber="7"/>
+	  <Diamond_ch id="4"		hw_id="0x312"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="2"		IdxInFiber="1"/>     
+	  <Diamond_ch id="5"		hw_id="0x31B"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="2"		IdxInFiber="10"/>
+          <!--
+	     <Diamond_ch id="6"		hw_id="0x"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+             <Diamond_ch id="7"		hw_id="0x"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+             <Diamond_ch id="8"		hw_id="0x"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+	     -->
+	  <Diamond_ch id="9"		hw_id="0x31E"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="2"		IdxInFiber="13"/>
+	  <Diamond_ch id="10"		hw_id="0x315"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="2"		IdxInFiber="4"/>
+	  <Diamond_ch id="11"		hw_id="0x30F"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="1"		IdxInFiber="14"/>
+	  <Diamond_ch id="12"		hw_id="0x306"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="1"		IdxInFiber="5"/>
+	</rp_plane_diamond>
+	<rp_plane_diamond id="4"> 
+          <!--
+	     <Diamond_ch id="1"		hw_id="0x"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+             <Diamond_ch id="2"		hw_id="0x"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+             <Diamond_ch id="3"		hw_id="0x"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+             <Diamond_ch id="4"		hw_id="0x"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+             <Diamond_ch id="5"		hw_id="0x"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+             <Diamond_ch id="6"		hw_id="0x"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+             <Diamond_ch id="7"		hw_id="0x"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+	     -->
+	  <Diamond_ch id="8"		hw_id="0x31A"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId="2"		IdxInFiber="9"/>
+          <!--
+	     <Diamond_ch id="9"		hw_id="0x"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+             <Diamond_ch id="10"	hw_id="0x"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+             <Diamond_ch id="11"	hw_id="0x"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+             <Diamond_ch id="12"	hw_id="0x"		SubSystemId="4"	FEDId="18"	OptoRxId="3"	GOHId=""		IdxInFiber=""/>
+	     -->
+	</rp_plane_diamond>
+      </rp_detector_set>
+    </station>
+  </arm>		
 </top>
