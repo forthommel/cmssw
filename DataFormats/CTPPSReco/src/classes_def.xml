@@ -31,4 +31,33 @@
   <class name="edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack>>"/>
   <class name="edm::DetSetVector<TotemRPLocalTrack::FittedRecHit>"/>
   <class name="edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack::FittedRecHit>>"/>
+
+  <class name="reco::ProtonTrack" ClassVersion="10">
+    <version ClassVersion="10" checksum="2862653591"/>
+  </class>
+  <class name="std::vector<reco::ProtonTrack>"/>
+  <class name="edm::Wrapper<reco::ProtonTrack>"/>
+  <class name="edm::Wrapper<std::vector<reco::ProtonTrack> >"/>
+  <class name="edm::Ref<std::vector<reco::ProtonTrack> >"/>
+  <class name="edm::RefProd<std::vector<reco::ProtonTrack> >"/>
+  <class name="edm::Ptr<reco::ProtonTrack>"/>
+  <class name="edm::Wrapper<edm::Ptr<reco::ProtonTrack> >"/>
+  <class name="edm::PtrVector<reco::ProtonTrack>"/>
+  <class name="edm::Wrapper<edm::PtrVector<reco::ProtonTrack> >"/>
+
+  <class name="reco::Proton" ClassVersion="10">
+    <version ClassVersion="10" checksum="326301172"/>
+  </class>
+  <class name="std::vector<reco::Proton>"/>
+  <class name="edm::Wrapper<reco::Proton>"/>
+  <class name="edm::Wrapper<std::vector<reco::Proton> >"/>
+  <class name="edm::Ref<std::vector<reco::Proton> >"/>
+  <class name="edm::RefProd<std::vector<reco::Proton> >"/>
+  <class name="edm::Ptr<reco::Proton>"/>
+  <class name="edm::Wrapper<edm::Ptr<reco::Proton> >"/>
+  <class name="edm::PtrVector<reco::Proton>"/>
+  <class name="edm::Wrapper<edm::PtrVector<reco::Proton> >"/>
+
+  <class name="edm::Ptr<reco::Vertex>"/> 
+
 </lcgdict>

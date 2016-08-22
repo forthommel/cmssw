@@ -1,6 +1,8 @@
 <use name="FWCore/Framework"/>
+<!--<use name="DataFormats/CTPPSDetId"/>-->
+<use name="DataFormats/TotemRPDetId"/>
 <use name="root"/>
-
+<use name="CLHEP"/>
 <export>
   <lib name="1"/>
 </export>
