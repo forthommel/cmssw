@@ -25,13 +25,13 @@ namespace reco {
 
         inline const ProtonTrack* nearTrack() const {
             for ( std::vector< ProtonTrack >::const_iterator it = tracks_.begin(); it != tracks_.end(); it++ ) {
-                if ( it->detId().detector()==ProtonTrack::NearStation ) return &(*it);
+                if ( it->detId().romanPot()==ProtonTrack::NearStation ) return &(*it);
             }
             return 0;
         }
         inline const ProtonTrack* farTrack() const {
             for ( std::vector< ProtonTrack >::const_iterator it = tracks_.begin(); it != tracks_.end(); it++ ) {
-                if ( it->detId().detector()==ProtonTrack::FarStation ) return &(*it);
+                if ( it->detId().romanPot()==ProtonTrack::FarStation ) return &(*it);
             }
             return 0;
         }

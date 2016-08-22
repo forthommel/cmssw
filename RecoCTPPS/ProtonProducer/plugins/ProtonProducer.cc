@@ -38,7 +38,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoCTPPS/ProtonProducer/interface/ProtonKinematicsUtils.h"
+#include "RecoCTPPS/ProtonProducer/interface/XiInterpolator.h"
 
 #include <iostream>
 
@@ -81,6 +81,7 @@ ProtonProducer::produce( edm::Event &evt, const edm::EventSetup & )
     std::auto_ptr< std::vector<reco::Proton> > protonColl( new std::vector<reco::Proton> );
 
     xiInterp_->setAlignmentConstants( evt.id().run() ); // run-based alignment corrections
+    xiInterp_->setCalibrationConstants( evt.id().run() ); // run-based calibration parameters
 
     std::vector<reco::ProtonTrack> fl_tracks, fr_tracks, nl_tracks, nr_tracks;
     for ( edm::DetSetVector<TotemRPLocalTrack>::const_iterator rp = prptracks->begin(); rp != prptracks->end(); rp++ ) {
@@ -90,21 +91,22 @@ ProtonProducer::produce( edm::Event &evt, const edm::EventSetup & )
 
             reco::ProtonTrack frpp = reco::ProtonTrack( det_id, *proton );
 
-/*std::cout << ">>> " << det_id << " ---> station:" << frpp.station() << " side:" << frpp.side() << std::endl;
-std::cout << "     (" << frpp.decDetId() << ") >>>>>>>> " << frpp.detId() << std::endl;*/
-
             const reco::ProtonTrack::Station st = frpp.station();
             const reco::ProtonTrack::Side side = frpp.side();
 
-            if      ( st==reco::ProtonTrack::FarStation  && side==reco::ProtonTrack::LeftSide )  fl_tracks.push_back( frpp );
-            else if ( st==reco::ProtonTrack::FarStation  && side==reco::ProtonTrack::RightSide ) fr_tracks.push_back( frpp );
-            else if ( st==reco::ProtonTrack::NearStation && side==reco::ProtonTrack::LeftSide )  nl_tracks.push_back( frpp );
-            else if ( st==reco::ProtonTrack::NearStation && side==reco::ProtonTrack::RightSide ) nr_tracks.push_back( frpp );
+            if ( st==reco::ProtonTrack::FarStation ) {
+                if ( side==reco::ProtonTrack::LeftSide ) { fl_tracks.push_back( frpp ); }
+                else if ( side==reco::ProtonTrack::RightSide ) { fr_tracks.push_back( frpp ); }
+            }
+            else if ( st==reco::ProtonTrack::NearStation ) {
+                if ( side==reco::ProtonTrack::LeftSide ) { nl_tracks.push_back( frpp ); }
+                else if ( side==reco::ProtonTrack::RightSide ) { nr_tracks.push_back( frpp ); }
+            }
         }
     }
-    /*cerr << "number of tracks reconstructed:" << endl
-         << "  left side:  near pot:" << nl_tracks.size() << ", far pot: " << fl_tracks.size() << endl
-         << "  right side: near pot:" << nr_tracks.size() << ", far pot: " << fr_tracks.size() << endl;*/
+    /*std::cerr << "number of tracks reconstructed:" << std::endl
+              << "  left side:  near pot:" << nl_tracks.size() << ", far pot: " << fl_tracks.size() << std::endl
+              << "  right side: near pot:" << nr_tracks.size() << ", far pot: " << fr_tracks.size() << std::endl;*/
 
     reconstructOneArm( nl_tracks, fl_tracks, reco::ProtonTrack::LeftSide, *protonColl );
     reconstructOneArm( nr_tracks, fr_tracks, reco::ProtonTrack::RightSide, *protonColl );
@@ -129,8 +131,6 @@ ProtonProducer::reconstructOneArm( const std::vector<reco::ProtonTrack>& near_co
             else                { xiInterp_->computeXiLinear( proton, &xi, &err_xi ); }
             proton.setXi( xi, err_xi );
 
-std::cerr << "---> xi=" << xi << " +/- " << err_xi << std::endl;
-
             if ( proton.isValid() ) out_coll.push_back( proton );
         }
 
@@ -146,15 +146,13 @@ std::cerr << "---> xi=" << xi << " +/- " << err_xi << std::endl;
             else                { xiInterp_->computeXiLinear( proton, &xi, &err_xi ); }
             proton.setXi( xi, err_xi );
 
-std::cerr << "---> xi=" << xi << " +/- " << err_xi << std::endl;
-
             if ( proton.isValid() ) out_coll.push_back( proton );
             continue;
         }
 
         // associate a minimum-distance far pot track to this near pot track
         reco::ProtonTrack ft_sel;
-        min_distance = 999.;
+        min_distance = 99999.;
         for ( std::vector<reco::ProtonTrack>::const_iterator trk_f = far_coll.begin(); trk_f != far_coll.end(); trk_f++ ) {
             float dist = ProtonUtils::tracksDistance( *trk_n, *trk_f );
             if ( dist<min_distance ) {
@@ -169,8 +167,6 @@ std::cerr << "---> xi=" << xi << " +/- " << err_xi << std::endl;
         if ( useXiInterp_ ) { xiInterp_->computeXiSpline( proton, &xi, &err_xi ); }
         else                { xiInterp_->computeXiLinear( proton, &xi, &err_xi ); }
         proton.setXi( xi, err_xi );
-
-std::cerr << "---> xi=" << xi << " +/- " << err_xi << std::endl;
 
         if ( proton.isValid() ) out_coll.push_back( proton );
     }
