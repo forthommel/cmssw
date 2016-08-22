@@ -37,6 +37,7 @@
   </class>
   <class name="std::vector<reco::ProtonTrack>"/>
   <class name="edm::Wrapper<reco::ProtonTrack>"/>
+  <class name="edm::Wrapper<std::vector<reco::ProtonTrack> >"/>
   <class name="edm::Ref<std::vector<reco::ProtonTrack> >"/>
   <class name="edm::RefProd<std::vector<reco::ProtonTrack> >"/>
   <class name="edm::Ptr<reco::ProtonTrack>"/>
@@ -49,11 +50,14 @@
   </class>
   <class name="std::vector<reco::Proton>"/>
   <class name="edm::Wrapper<reco::Proton>"/>
+  <class name="edm::Wrapper<std::vector<reco::Proton> >"/>
   <class name="edm::Ref<std::vector<reco::Proton> >"/>
   <class name="edm::RefProd<std::vector<reco::Proton> >"/>
   <class name="edm::Ptr<reco::Proton>"/>
   <class name="edm::Wrapper<edm::Ptr<reco::Proton> >"/>
   <class name="edm::PtrVector<reco::Proton>"/>
   <class name="edm::Wrapper<edm::PtrVector<reco::Proton> >"/>
+
+  <class name="edm::Ptr<reco::Vertex>"/> 
 
 </lcgdict>

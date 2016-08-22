@@ -86,12 +86,12 @@ ProtonProducer::produce( edm::Event &evt, const edm::EventSetup & )
     for ( edm::DetSetVector<TotemRPLocalTrack>::const_iterator rp = prptracks->begin(); rp != prptracks->end(); rp++ ) {
         const unsigned int det_id = rp->detId();
         for ( edm::DetSet<TotemRPLocalTrack>::const_iterator proton = rp->begin(); proton != rp->end(); proton++ ) {
-            if (!proton->isValid()) continue;
+            if ( !proton->isValid() ) continue;
 
             reco::ProtonTrack frpp = reco::ProtonTrack( det_id, *proton );
 
-std::cout << ">>> " << det_id << " ---> station:" << frpp.station() << " side:" << frpp.side() << std::endl;
-std::cout << "     (" << frpp.decDetId() << ") >>>>>>>> " << frpp.detId() << std::endl;
+/*std::cout << ">>> " << det_id << " ---> station:" << frpp.station() << " side:" << frpp.side() << std::endl;
+std::cout << "     (" << frpp.decDetId() << ") >>>>>>>> " << frpp.detId() << std::endl;*/
 
             const reco::ProtonTrack::Station st = frpp.station();
             const reco::ProtonTrack::Side side = frpp.side();
@@ -129,6 +129,8 @@ ProtonProducer::reconstructOneArm( const std::vector<reco::ProtonTrack>& near_co
             else                { xiInterp_->computeXiLinear( proton, &xi, &err_xi ); }
             proton.setXi( xi, err_xi );
 
+std::cerr << "---> xi=" << xi << " +/- " << err_xi << std::endl;
+
             if ( proton.isValid() ) out_coll.push_back( proton );
         }
 
@@ -143,6 +145,8 @@ ProtonProducer::reconstructOneArm( const std::vector<reco::ProtonTrack>& near_co
             if ( useXiInterp_ ) { xiInterp_->computeXiSpline( proton, &xi, &err_xi ); }
             else                { xiInterp_->computeXiLinear( proton, &xi, &err_xi ); }
             proton.setXi( xi, err_xi );
+
+std::cerr << "---> xi=" << xi << " +/- " << err_xi << std::endl;
 
             if ( proton.isValid() ) out_coll.push_back( proton );
             continue;
@@ -165,6 +169,8 @@ ProtonProducer::reconstructOneArm( const std::vector<reco::ProtonTrack>& near_co
         if ( useXiInterp_ ) { xiInterp_->computeXiSpline( proton, &xi, &err_xi ); }
         else                { xiInterp_->computeXiLinear( proton, &xi, &err_xi ); }
         proton.setXi( xi, err_xi );
+
+std::cerr << "---> xi=" << xi << " +/- " << err_xi << std::endl;
 
         if ( proton.isValid() ) out_coll.push_back( proton );
     }

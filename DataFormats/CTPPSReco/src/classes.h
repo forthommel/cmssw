@@ -5,6 +5,9 @@
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/Ref.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 #include "DataFormats/CTPPSReco/interface/TotemRPCluster.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPRecHit.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPUVPattern.h"
@@ -44,6 +47,7 @@ namespace DataFormats_CTPPSReco {
     reco::ProtonTrack pt;
     std::vector<reco::ProtonTrack> vec_pt;
     edm::Wrapper<reco::ProtonTrack> wrp_pt;
+    edm::Wrapper<std::vector<reco::ProtonTrack> > wrp_vec_pt;
     edm::Ref<std::vector<reco::ProtonTrack> > ref_vec_pt;
     edm::RefProd<std::vector<reco::ProtonTrack> > refprod_vec_pt;
     edm::Ptr<reco::ProtonTrack> ptr_pt;
@@ -54,6 +58,7 @@ namespace DataFormats_CTPPSReco {
     reco::Proton pr;
     std::vector<reco::Proton> vec_pr;
     edm::Wrapper<reco::Proton> wrp_pr;
+    edm::Wrapper<std::vector<reco::Proton> > wrp_vec_pr;
     edm::Ref<std::vector<reco::Proton> > ref_vec_pr;
     edm::RefProd<std::vector<reco::Proton> > refprod_vec_pr;
     edm::Ptr<reco::Proton> ptr_pr;
