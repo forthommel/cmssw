@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-demo = cms.EDProducer('RecoCTPPS'
+protons = cms.EDProducer('RecoCTPPS'
+    
 )

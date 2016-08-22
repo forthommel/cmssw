@@ -1,178 +1,148 @@
-// -*- C++ -*-
-//
-// Package:    RecoRomanPot/RecoCTPPS
-// Class:      RecoCTPPS
-// 
-/**\class RecoCTPPS RecoCTPPS.cc RecoRomanPot/RecoCTPPS/plugins/RecoCTPPS.cc
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
-//
-// Original Author:  Laurent Forthomme
-//         Created:  Mon, 22 Aug 2016 12:03:55 GMT
-//
-//
-
-
 // system include files
 #include <memory>
-
 // user include files
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/CTPPSReco/interface/TotemRPLocalTrack.h"
+#include "DataFormats/CTPPSReco/interface/Proton.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/StreamID.h"
 
+#include "RecoRomanPot/RecoCTPPS/interface/ProtonKinematicsUtils.h"
 
-//
-// class declaration
-//
+#include <iostream>
 
-class RecoCTPPS : public edm::stream::EDProducer<> {
-   public:
-      explicit RecoCTPPS(const edm::ParameterSet&);
-      ~RecoCTPPS();
+class ProtonProducer : public edm::EDProducer
+{
+    public:
+        ProtonProducer( const edm::ParameterSet & );
+        ~ProtonProducer();
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    private:
+        void produce( edm::Event &, const edm::EventSetup & );
+        void reconstructOneArm( const std::vector<reco::ProtonTrack>&, const std::vector<reco::ProtonTrack>&, const reco::ProtonTrack::Side&, std::vector<reco::Proton>& );
 
-   private:
-      virtual void beginStream(edm::StreamID) override;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endStream() override;
+        edm::EDGetTokenT< edm::DetSetVector<TotemRPLocalTrack> > localTracksToken_;
 
-      //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+        bool useXiInterp_;
+        ProtonUtils::XiInterpolator* xiInterp_;
 
-      // ----------member data ---------------------------
 };
 
-//
-// constants, enums and typedefs
-//
-
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-RecoCTPPS::RecoCTPPS(const edm::ParameterSet& iConfig)
+ProtonProducer::ProtonProducer( const edm::ParameterSet &iConfig ):
+    localTracksToken_( consumes< edm::DetSetVector<TotemRPLocalTrack> >( iConfig.getParameter<edm::InputTag>( "protonTag" ) ) ),
+    useXiInterp_( iConfig.getParameter<bool>( "useXiInterpolation" ) ), xiInterp_( 0 )
 {
-   //register your products
-/* Examples
-   produces<ExampleData2>();
-
-   //if do put with a label
-   produces<ExampleData2>("label");
- 
-   //if you want to put into the Run
-   produces<ExampleData2,InRun>();
-*/
-   //now do what ever other initialization is needed
-  
+    produces< std::vector<reco::Proton> >();
+    xiInterp_ = new ProtonUtils::XiInterpolator;
+    if ( useXiInterp_ ) { xiInterp_->loadInterpolationGraphs( iConfig.getParameter<edm::FileInPath>( "xiInterpolationFile" ).fullPath().c_str() ); }
 }
 
+ProtonProducer::~ProtonProducer() {
+    if ( xiInterp_ ) delete xiInterp_;
+}
 
-RecoCTPPS::~RecoCTPPS()
+void
+ProtonProducer::produce( edm::Event &evt, const edm::EventSetup & )
 {
- 
-   // do anything here that needs to be done at destruction time
-   // (e.g. close files, deallocate resources etc.)
+    edm::Handle< edm::DetSetVector<TotemRPLocalTrack> >  prptracks;
+    evt.getByToken( localTracksToken_, prptracks );
 
+    std::auto_ptr< std::vector<reco::Proton> > protonColl( new std::vector<reco::Proton> );
+
+    xiInterp_->setAlignmentConstants( evt.id().run() ); // run-based alignment corrections
+
+    std::vector<reco::ProtonTrack> fl_tracks, fr_tracks, nl_tracks, nr_tracks;
+    for ( edm::DetSetVector<TotemRPLocalTrack>::const_iterator rp = prptracks->begin(); rp != prptracks->end(); rp++ ) {
+        const unsigned int det_id = rp->detId();
+        for ( edm::DetSet<TotemRPLocalTrack>::const_iterator proton = rp->begin(); proton != rp->end(); proton++ ) {
+            if (!proton->isValid()) continue;
+
+            reco::ProtonTrack frpp = reco::ProtonTrack( det_id, *proton );
+
+std::cout << ">>> " << det_id << " ---> station:" << frpp.station() << " side:" << frpp.side() << std::endl;
+std::cout << "     (" << frpp.decDetId() << ") >>>>>>>> " << frpp.detId() << std::endl;
+
+            const reco::ProtonTrack::Station st = frpp.station();
+            const reco::ProtonTrack::Side side = frpp.side();
+
+            if      ( st==reco::ProtonTrack::FarStation  && side==reco::ProtonTrack::LeftSide )  fl_tracks.push_back( frpp );
+            else if ( st==reco::ProtonTrack::FarStation  && side==reco::ProtonTrack::RightSide ) fr_tracks.push_back( frpp );
+            else if ( st==reco::ProtonTrack::NearStation && side==reco::ProtonTrack::LeftSide )  nl_tracks.push_back( frpp );
+            else if ( st==reco::ProtonTrack::NearStation && side==reco::ProtonTrack::RightSide ) nr_tracks.push_back( frpp );
+        }
+    }
+    /*cerr << "number of tracks reconstructed:" << endl
+         << "  left side:  near pot:" << nl_tracks.size() << ", far pot: " << fl_tracks.size() << endl
+         << "  right side: near pot:" << nr_tracks.size() << ", far pot: " << fr_tracks.size() << endl;*/
+
+    reconstructOneArm( nl_tracks, fl_tracks, reco::ProtonTrack::LeftSide, *protonColl );
+    reconstructOneArm( nr_tracks, fr_tracks, reco::ProtonTrack::RightSide, *protonColl );
+
+    evt.put( protonColl );
 }
 
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 void
-RecoCTPPS::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+ProtonProducer::reconstructOneArm( const std::vector<reco::ProtonTrack>& near_coll,
+                                   const std::vector<reco::ProtonTrack>& far_coll,
+                                   const reco::ProtonTrack::Side& side,
+                                   std::vector<reco::Proton>& out_coll )
 {
-   using namespace edm;
-/* This is an event example
-   //Read 'ExampleData' from the Event
-   Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
+    float min_distance = 999., xi = 0., err_xi = 0.;
+    reco::Proton proton;
 
-   //Use the ExampleData to create an ExampleData2 which 
-   // is put into the Event
-   std::unique_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
-   iEvent.put(std::move(pOut));
-*/
+    if ( near_coll.size()==0 ) {
+        for ( std::vector<reco::ProtonTrack>::const_iterator trk_f=far_coll.begin(); trk_f!=far_coll.end(); trk_f++ ) {
+            proton = reco::Proton( *trk_f, side );
 
-/* this is an EventSetup example
-   //Read SetupData from the SetupRecord in the EventSetup
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-*/
- 
-}
+            if ( useXiInterp_ ) { xiInterp_->computeXiSpline( proton, &xi, &err_xi ); }
+            else                { xiInterp_->computeXiLinear( proton, &xi, &err_xi ); }
+            proton.setXi( xi, err_xi );
 
-// ------------ method called once each stream before processing any runs, lumis or events  ------------
-void
-RecoCTPPS::beginStream(edm::StreamID)
-{
-}
+            if ( proton.isValid() ) out_coll.push_back( proton );
+        }
 
-// ------------ method called once each stream after processing all runs, lumis and events  ------------
-void
-RecoCTPPS::endStream() {
-}
+        return;
+    }
 
-// ------------ method called when starting to processes a run  ------------
-/*
-void
-RecoCTPPS::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
- 
-// ------------ method called when ending the processing of a run  ------------
-/*
-void
-RecoCTPPS::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
- 
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void
-RecoCTPPS::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
- 
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void
-RecoCTPPS::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
- 
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-RecoCTPPS::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+    for ( std::vector<reco::ProtonTrack>::const_iterator trk_n = near_coll.begin(); trk_n != near_coll.end(); trk_n++ ) {
+        // checks if far pot tracks are reconstructed
+        if ( far_coll.size()==0 ) {
+            proton = reco::Proton( *trk_n, side );
+
+            if ( useXiInterp_ ) { xiInterp_->computeXiSpline( proton, &xi, &err_xi ); }
+            else                { xiInterp_->computeXiLinear( proton, &xi, &err_xi ); }
+            proton.setXi( xi, err_xi );
+
+            if ( proton.isValid() ) out_coll.push_back( proton );
+            continue;
+        }
+
+        // associate a minimum-distance far pot track to this near pot track
+        reco::ProtonTrack ft_sel;
+        min_distance = 999.;
+        for ( std::vector<reco::ProtonTrack>::const_iterator trk_f = far_coll.begin(); trk_f != far_coll.end(); trk_f++ ) {
+            float dist = ProtonUtils::tracksDistance( *trk_n, *trk_f );
+            if ( dist<min_distance ) {
+                ft_sel = *trk_f;
+                min_distance = dist;
+            }
+        }
+        if ( !ft_sel.isValid() ) continue;
+
+        proton = reco::Proton( *trk_n, ft_sel, side );
+
+        if ( useXiInterp_ ) { xiInterp_->computeXiSpline( proton, &xi, &err_xi ); }
+        else                { xiInterp_->computeXiLinear( proton, &xi, &err_xi ); }
+        proton.setXi( xi, err_xi );
+
+        if ( proton.isValid() ) out_coll.push_back( proton );
+    }
 }
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(RecoCTPPS);
+DEFINE_FWK_MODULE( ProtonProducer );
