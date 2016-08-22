@@ -1,11 +1,36 @@
+// -*- C++ -*-
+//
+// Package:    RecoCTPPS/ProtonProducer
+// Class:      ProtonProducer
+//
+/**\class ProtonProducer ProtonProducer.cc RecoCTPPS/ProtonProducer/plugins/ProtonProducer.cc
+
+ Description: Forward proton reconstruction
+
+ Implementation:
+     This implementation only relies on the information collected from
+     CT-PPS strips detectors (Summer 2016 data taking)
+*/
+//
+// Original Author:  Laurent Forthomme, Jan Kaspar
+//         Created:  Mon, 22 Aug 2016 12:03:55 GMT
+//
+//
+//
+
 // system include files
+
 #include <memory>
+
 // user include files
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+
 #include "DataFormats/CTPPSReco/interface/TotemRPLocalTrack.h"
 #include "DataFormats/CTPPSReco/interface/Proton.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
