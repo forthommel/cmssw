@@ -13,7 +13,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoRomanPot/RecoCTPPS/interface/ProtonKinematicsUtils.h"
+#include "RecoCTPPS/ProtonProducer/interface/ProtonKinematicsUtils.h"
 
 #include <iostream>
 
