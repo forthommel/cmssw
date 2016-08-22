@@ -24,14 +24,14 @@ namespace reco {
         inline ProtonTrack::Side side() const { return side_; }
 
         inline const ProtonTrack* nearTrack() const {
-            for ( std::map< TotemRPDetId, ProtonTrack >::const_iterator it = tracks_map_.begin(); it != tracks_map_.end(); it++ ) {
-                if ( it->first.detector()==ProtonTrack::NearStation ) return &(it->second);
+            for ( std::vector< ProtonTrack >::const_iterator it = tracks_.begin(); it != tracks_.end(); it++ ) {
+                if ( it->detId().detector()==ProtonTrack::NearStation ) return &(*it);
             }
             return 0;
         }
         inline const ProtonTrack* farTrack() const {
-            for ( std::map< TotemRPDetId, ProtonTrack >::const_iterator it = tracks_map_.begin(); it != tracks_map_.end(); it++ ) {
-                if ( it->first.detector()==ProtonTrack::FarStation ) return &(it->second);
+            for ( std::vector< ProtonTrack >::const_iterator it = tracks_.begin(); it != tracks_.end(); it++ ) {
+                if ( it->detId().detector()==ProtonTrack::FarStation ) return &(*it);
             }
             return 0;
         }
@@ -73,7 +73,7 @@ namespace reco {
 
         bool valid_;
 
-        std::map< TotemRPDetId, ProtonTrack > tracks_map_;
+        std::vector< ProtonTrack > tracks_;
 
         ProtonTrack::Side side_;
 
