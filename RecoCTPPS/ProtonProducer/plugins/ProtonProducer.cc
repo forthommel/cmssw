@@ -38,6 +38,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "RecoCTPPS/ProtonProducer/interface/FillNumberLUTHandler.h"
+#include "RecoCTPPS/ProtonProducer/interface/AlignmentLUTHandler.h"
 #include "RecoCTPPS/ProtonProducer/interface/XiInterpolator.h"
 
 #include <iostream>
@@ -57,6 +59,9 @@ class ProtonProducer : public edm::EDProducer
         bool useXiInterp_;
         ProtonUtils::XiInterpolator* xiInterp_;
 
+        CTPPSAlCa::FillNumberLUTHandler* fillLUTHandler_;
+        CTPPSAlCa::AlignmentLUTHandler* alignmentLUTHandler_;
+
 };
 
 ProtonProducer::ProtonProducer( const edm::ParameterSet &iConfig ):
@@ -66,10 +71,16 @@ ProtonProducer::ProtonProducer( const edm::ParameterSet &iConfig ):
     produces< std::vector<reco::Proton> >();
     xiInterp_ = new ProtonUtils::XiInterpolator;
     if ( useXiInterp_ ) { xiInterp_->loadInterpolationGraphs( iConfig.getParameter<edm::FileInPath>( "xiInterpolationFile" ).fullPath().c_str() ); }
+
+    fillLUTHandler_ = new CTPPSAlCa::FillNumberLUTHandler( iConfig.getParameter<edm::FileInPath>( "fillNumLUTFile" ).fullPath().c_str() );
+    alignmentLUTHandler_ = new CTPPSAlCa::AlignmentLUTHandler( iConfig.getParameter<edm::FileInPath>( "alignmentLUTFile" ).fullPath().c_str() );
+
 }
 
 ProtonProducer::~ProtonProducer() {
     if ( xiInterp_ ) delete xiInterp_;
+    if ( fillLUTHandler_ ) delete fillLUTHandler_;
+    if ( alignmentLUTHandler_ ) delete alignmentLUTHandler_;
 }
 
 void
@@ -80,7 +91,11 @@ ProtonProducer::produce( edm::Event &evt, const edm::EventSetup & )
 
     std::auto_ptr< std::vector<reco::Proton> > protonColl( new std::vector<reco::Proton> );
 
-    xiInterp_->setAlignmentConstants( evt.id().run() ); // run-based alignment corrections
+    const unsigned short fill_num = fillLUTHandler_->getFillNumber( evt.id().run() );
+
+    //std::cerr << "fill number for run=" << evt.id().run() << ": " << fill_num << std::endl;
+
+    xiInterp_->setAlignmentConstants( alignmentLUTHandler_->getAlignmentConstants( fill_num ) ); // fill-based alignment corrections
     xiInterp_->setCalibrationConstants( evt.id().run() ); // run-based calibration parameters
 
     std::vector<reco::ProtonTrack> fl_tracks, fr_tracks, nl_tracks, nr_tracks;
