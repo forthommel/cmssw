@@ -29,7 +29,8 @@ process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
 process.p = cms.Path(
     process.totemTriggerRawToDigi *
     process.totemRPRawToDigi *
-    process.recoCTPPS
+    process.recoCTPPS *
+    process.protons
 )
 
 # output configuration
