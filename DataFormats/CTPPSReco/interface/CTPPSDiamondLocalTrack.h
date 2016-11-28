@@ -23,8 +23,8 @@ class CTPPSDiamondLocalTrack
       tx_( 0. ), tx_sigma_( 0. ),
       ty_( 0. ), ty_sigma_( 0. ),
       chi_squared_( 0. ),
-      valid_( false ) {;}
-    virtual ~CTPPSDiamondLocalTrack() {;}
+      valid_( false ) {}
+    virtual ~CTPPSDiamondLocalTrack() {}
 
     //--- spatial get'ters
 

@@ -17,11 +17,11 @@ class CTPPSDiamondRecHit
     CTPPSDiamondRecHit() :
       x_( 0. ), x_width_( 0. ), y_( 0. ), y_width_( 0. ),
       t_( 0. ), tot_( 0. ),
-      ts_index_( 0 ) {;}
+      ts_index_( 0 ) {}
     CTPPSDiamondRecHit(double x, double x_width, double y, double y_width, double t, double tot, int oot_idx) :
       x_( x ), x_width_( x_width ), y_( y ), y_width_( y_width ),
       t_( t ), tot_( tot ),
-      ts_index_( oot_idx ) {;}
+      ts_index_( oot_idx ) {}
 
     inline double getX() const { return x_; }
     inline double getXWidth() const { return x_width_; }
