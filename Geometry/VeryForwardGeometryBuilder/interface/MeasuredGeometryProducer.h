@@ -8,13 +8,18 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
  
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/graphwalker.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/src/LogicalPart.h"
 
 #include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionsData.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
+
+#include "Geometry/VeryForwardGeometryBuilder/interface/DDDTotemRPCommon.h"
 
 #include <TMatrixD.h>
 
@@ -44,8 +49,8 @@ class MeasuredGeometryProducer
       evRotationStoreState = DDRotation::StoreT::instance().readOnly();
       DDExpandedView *expandedView = new DDExpandedView(compactView);
       // traverse the tree until name and ns are mached
-      const string &name = part.name().name();
-      const string &ns = part.name().ns();
+      const std::string& name = part.name().name();
+      const std::string& ns = part.name().ns();
       bool noMatch = true;
 
       noMatch = false;

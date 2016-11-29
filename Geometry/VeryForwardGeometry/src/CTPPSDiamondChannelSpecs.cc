@@ -11,7 +11,7 @@
 CTPPSDiamondChannelSpecs::CTPPSDiamondChannelSpecs( SubDetector subdet, const std::string& name ) :
   GeomDetType( name, subdet )
 {
-  px_topo_ = new RectangularPixelTopology(  );
+  //px_topo_ = new RectangularPixelTopology(  );
 }
 
 CTPPSDiamondChannelSpecs::~CTPPSDiamondChannelSpecs()

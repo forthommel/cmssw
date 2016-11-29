@@ -21,7 +21,10 @@
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 #include "Geometry/Records/interface/VeryForwardMeasuredGeometryRecord.h"
 
+#include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/MeasuredGeometryProducer.h"
+
+#include "Geometry/VeryForwardGeometry/interface/CTPPSDiamondGeometry.h"
 
 class CTPPSGeometryESModule : public edm::ESProducer
 {
@@ -58,5 +61,9 @@ CTPPSGeometryESModule::produce( const MyRecord& iRecord )
 std::unique_ptr<CTPPSDiamondGeometry>
 CTPPSGeometryESModule::produceMeasuredDiamondGeometry( const VeryForwardMeasuredGeometryRecord& iRecord )
 {
+  edm::ESHandle<DetGeomDesc> gGeomDesc;
+  iRecord.get( gGeomDesc );
+
+  return std::make_unique<CTPPSDiamondGeometry>( gGeomDesc.product() );
 }
 

@@ -12,6 +12,8 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+
 class CTPPSDiamondChannelSpecs : public GeomDetType
 {
   public:

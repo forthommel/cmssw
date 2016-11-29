@@ -9,28 +9,49 @@
 #ifndef Geometry_VeryForwardGeometry_CTPPSDiamondGeometry_h
 #define Geometry_VeryForwardGeometry_CTPPSDiamondGeometry_h
 
-#include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Geometry/VeryForwardGeometry/interface/CTPPSDiamondPlane.h"
 
-#include <map>
+#include "Geometry/VeryForwardGeometry/interface/CTPPSDiamondPlane.h"
+#include "Geometry/VeryForwardGeometry/interface/CTPPSDiamondChannel.h"
+
+#include "DataFormats/DetId/interface/DetId.h"
 
 //----------------------------------------------------------------------------------------------------
+
+class GeomDetType;
 
 class CTPPSDiamondGeometry : public TrackingGeometry
 {
   public:
-    CTPPSDiamondGeometry() {}
-    virtual ~CTPPSDiamondGeometry() {}
+    CTPPSDiamondGeometry();
+    virtual ~CTPPSDiamondGeometry();
 
+    const DetTypeContainer& detTypes() const override;
+    const DetUnitContainer& detUnits() const override;
+    const DetContainer& dets() const override;
+    const DetIdContainer& detUnitIds() const override;
+    const DetIdContainer& detIds() const override;
+    const GeomDetUnit* idToDetUnit( DetId ) const override;
     const GeomDet* idToDet( DetId ) const override;
 
-    const CTPPSDiamondPlane* plane( const CTPPSDiamondDetId& );
-    void add( const CTPPSDiamondPlane* );
+    void add( CTPPSDiamondPlane* );
+    const std::vector<const CTPPSDiamondPlane*>& planes() const { return all_planes_; }
+    const CTPPSDiamondPlane* plane( const CTPPSDiamondDetId& ) const;
+
+    void add( CTPPSDiamondChannel* );
+    const std::vector<const CTPPSDiamondChannel*>& channels() const { return all_channels_; }
+    const CTPPSDiamondChannel* channel( const CTPPSDiamondDetId& ) const;
 
   private:
+    DetUnitContainer channels_;
+    DetTypeContainer channels_types_;
+    DetContainer dets_;
+    DetIdContainer channels_ids_, dets_ids_;
 
     mapIdToDet mapping_;
+
+    std::vector<const CTPPSDiamondPlane*> all_planes_; // owned
+    std::vector<const CTPPSDiamondChannel*> all_channels_; // NOT owned (belong to the planes)
 };
 
 #endif
