@@ -26,9 +26,11 @@ class CTPPSDiamondChannel : public GeomDet
 
     /// Plane this pixel belongs to
     const CTPPSDiamondPlane* plane() const { return plane_; }
-    //const Topology& topology() const;
+    const Topology& topology() const { return ch_spec_->topology(); }
+    const PixelTopology& specificTopology() const { return ch_spec_->specificTopology(); }
 
   private:
+    /// Pointer to parent plane
     const CTPPSDiamondPlane* plane_; // NOT owned
 };
 
