@@ -12,6 +12,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "Geometry/VeryForwardGeometry/interface/CTPPSDiamondChannel.h"
+#include "Geometry/VeryForwardGeometry/interface/CTPPSDiamondChannelSpecs.h"
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 
@@ -21,12 +22,16 @@ class CTPPSDiamondPlane : public GeomDet
     typedef std::vector<const CTPPSDiamondChannel*> ChannelRefs;
 
   public:
-    CTPPSDiamondPlane( const BoundPlane::BoundPlanePointer bp, CTPPSDiamondDetId detid ) :
-      GeomDet( bp ) {
+    CTPPSDiamondPlane( const BoundPlane::BoundPlanePointer bp, CTPPSDiamondDetId detid, CTPPSDiamondChannelSpecs* specs ) :
+      GeomDet( bp ), ch_spec_( specs ) {
       setDetId( detid );
     }
     ~CTPPSDiamondPlane();
 
+    const Topology& topology() const { return ch_spec_->topology(); }
+    const PixelTopology& specificTopology() const { return ch_spec_->specificTopology(); }
+    const GeomDetType& type() const { return ( *ch_spec_ ); }
+    
     const CTPPSDiamondDetId id() const { return CTPPSDiamondDetId( geographicalId().rawId() ); }
 
     virtual std::vector<const GeomDet*> components() const { return std::vector<const GeomDet*>( channels_.begin(), channels_.end() ); }
@@ -39,6 +44,8 @@ class CTPPSDiamondPlane : public GeomDet
     const CTPPSDiamondChannel* channel( int ) const;
 
   private:
+    CTPPSDiamondChannelSpecs* ch_spec_;
+
     ChannelRefs channels_;
 };
 

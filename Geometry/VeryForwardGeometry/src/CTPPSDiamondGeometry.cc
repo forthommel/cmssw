@@ -55,36 +55,6 @@ CTPPSDiamondGeometry::channel( const CTPPSDiamondDetId& id ) const
 
 //---------------------------------------------------------------------------
 
-const CTPPSDiamondGeometry::DetTypeContainer&
-CTPPSDiamondGeometry::detTypes() const
-{
-  return channels_types_;
-}
-
-const CTPPSDiamondGeometry::DetUnitContainer&
-CTPPSDiamondGeometry::detUnits() const
-{
-  return channels_;
-}
-
-const CTPPSDiamondGeometry::DetContainer&
-CTPPSDiamondGeometry::dets() const
-{
-  return dets_;
-}
-
-const CTPPSDiamondGeometry::DetIdContainer&
-CTPPSDiamondGeometry::detUnitIds() const
-{
-  return channels_ids_;
-}
-
-const CTPPSDiamondGeometry::DetIdContainer&
-CTPPSDiamondGeometry::detIds() const
-{
-  return dets_ids_;
-}
-
 const GeomDetUnit*
 CTPPSDiamondGeometry::idToDetUnit( DetId id ) const
 {

@@ -10,9 +10,10 @@
 #define Geometry_VeryForwardGeometry_CTPPSDiamondChannelSpecs_h
 
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
-
+//#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+
+#include "Geometry/VeryForwardGeometry/interface/CTPPSDiamondTopology.h"
 
 class CTPPSDiamondChannelSpecs : public GeomDetType
 {
