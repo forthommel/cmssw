@@ -35,10 +35,6 @@ class CTPPSGeometryESModule : public edm::ESProducer
 
     std::shared_ptr<CTPPSDiamondGeometry> produceDiamondGeometry( const VeryForwardRealGeometryRecord& );
 
-    std::shared_ptr<CTPPSDiamondGeometry> produceMeasuredDiamondGeometry( const VeryForwardMeasuredGeometryRecord& );
-    //std::shared_ptr<CTPPSDiamondGeometry> produceRealDiamondGeometry( const VeryForwardRealGeometryRecord& );
-    std::shared_ptr<CTPPSDiamondGeometry> produceMisalignedDiamondGeometry( const VeryForwardMisalignedGeometryRecord& );
-
   private:
 
 };
@@ -48,9 +44,6 @@ CTPPSGeometryESModule::CTPPSGeometryESModule( const edm::ParameterSet& iConfig )
   // tell the FW that data is being produced
   //setWhatProduced( this );
   setWhatProduced( this, &CTPPSGeometryESModule::produceDiamondGeometry );
-  /*setWhatProduced( this, &CTPPSGeometryESModule::produceMeasuredDiamondGeometry );
-  setWhatProduced( this, &CTPPSGeometryESModule::produceRealDiamondGeometry );
-  setWhatProduced( this, &CTPPSGeometryESModule::produceMisalignedDiamondGeometry );*/
 }
 
 CTPPSGeometryESModule::~CTPPSGeometryESModule()
@@ -71,12 +64,3 @@ CTPPSGeometryESModule::produceDiamondGeometry( const VeryForwardRealGeometryReco
   return products( pMyType );*/
 }
 
-/*std::shared_ptr<CTPPSDiamondGeometry>
-CTPPSGeometryESModule::produceMeasuredDiamondGeometry( const VeryForwardMeasuredGeometryRecord& iRecord )
-{
-  edm::ESHandle<DetGeomDesc> gGeomDesc;
-  iRecord.get( gGeomDesc );
-
-  return std::shared_ptr<CTPPSDiamondGeometry>( gGeomDesc.product() );
-  //return std::make_unique<CTPPSDiamondGeometry>();
-}*/
