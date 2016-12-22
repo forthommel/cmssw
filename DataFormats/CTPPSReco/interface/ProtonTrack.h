@@ -2,8 +2,7 @@
 #define DataFormats_CTPPSReco_ProtonTrack_h
 
 #include "DataFormats/CTPPSReco/interface/TotemRPLocalTrack.h"
-#include "DataFormats/TotemRPDetId/interface/TotemRPDetId.h" //FIXME will move to...
-//#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
+#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 
 namespace reco {
 
@@ -11,19 +10,19 @@ namespace reco {
     {
 
     public:
-        enum Station { NearStation = 2, FarStation = 3 };
+        enum RomanPot { NearHorizontal = 2, FarHorizontal = 3 };
         enum Side { LeftSide = 0, RightSide = 1 };
 
         ProtonTrack();
-        ProtonTrack( unsigned int, const TotemRPLocalTrack & );
+        ProtonTrack( const TotemRPDetId&, const TotemRPLocalTrack& );
         ~ProtonTrack();
 
         ProtonTrack *clone() const { return ( new ProtonTrack( *this ) ); }
 
-        inline unsigned int decDetId() const { return TotemRPDetId::rawToDecId( det_id_ ); }
-        inline TotemRPDetId detId() const { return det_id_; }
+        inline unsigned int decDetId() const { return det_id_.rawId(); }
+        inline const TotemRPDetId& detId() const { return det_id_; }
 
-        inline Station station() const { return static_cast<Station>( det_id_.romanPot() ); } //FIXME shouldn't it be detector()?
+        inline RomanPot rp() const { return static_cast<RomanPot>( det_id_.rp() ); }
         inline Side side() const { return static_cast<Side>( det_id_.arm() );  }
 
     private:

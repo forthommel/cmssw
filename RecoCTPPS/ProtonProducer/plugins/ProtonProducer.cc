@@ -9,7 +9,7 @@
 
  Implementation:
      This implementation only relies on the information collected from
-     CT-PPS strips detectors (Summer 2016 data taking)
+     CT-PPS strips detectors (2016 data taking)
 */
 //
 // Original Author:  Laurent Forthomme, Jan Kaspar
@@ -89,44 +89,43 @@ ProtonProducer::produce( edm::Event &evt, const edm::EventSetup & )
     edm::Handle< edm::DetSetVector<TotemRPLocalTrack> >  prptracks;
     evt.getByToken( localTracksToken_, prptracks );
 
-    std::auto_ptr< std::vector<reco::Proton> > protonColl( new std::vector<reco::Proton> );
+    std::unique_ptr< std::vector<reco::Proton> > protonColl( new std::vector<reco::Proton> );
 
     const unsigned short fill_num = fillLUTHandler_->getFillNumber( evt.id().run() );
-
-    //std::cerr << "fill number for run=" << evt.id().run() << ": " << fill_num << std::endl;
 
     xiInterp_->setAlignmentConstants( alignmentLUTHandler_->getAlignmentConstants( fill_num ) ); // fill-based alignment corrections
     xiInterp_->setCalibrationConstants( evt.id().run() ); // run-based calibration parameters
 
     std::vector<reco::ProtonTrack> fl_tracks, fr_tracks, nl_tracks, nr_tracks;
     for ( edm::DetSetVector<TotemRPLocalTrack>::const_iterator rp = prptracks->begin(); rp != prptracks->end(); rp++ ) {
-        const unsigned int det_id = rp->detId();
+        const TotemRPDetId det_id( rp->detId()/100, 0, rp->detId()%100 );
+
         for ( edm::DetSet<TotemRPLocalTrack>::const_iterator proton = rp->begin(); proton != rp->end(); proton++ ) {
             if ( !proton->isValid() ) continue;
 
-            reco::ProtonTrack frpp = reco::ProtonTrack( det_id, *proton );
+            reco::ProtonTrack frpp( det_id, *proton );
 
-            const reco::ProtonTrack::Station st = frpp.station();
+            const reco::ProtonTrack::RomanPot st = frpp.rp();
             const reco::ProtonTrack::Side side = frpp.side();
 
-            if ( st==reco::ProtonTrack::FarStation ) {
-                if ( side==reco::ProtonTrack::LeftSide ) { fl_tracks.push_back( frpp ); }
+            if ( st==reco::ProtonTrack::FarHorizontal ) {
+                if ( side==reco::ProtonTrack::LeftSide )       { fl_tracks.push_back( frpp ); }
                 else if ( side==reco::ProtonTrack::RightSide ) { fr_tracks.push_back( frpp ); }
             }
-            else if ( st==reco::ProtonTrack::NearStation ) {
-                if ( side==reco::ProtonTrack::LeftSide ) { nl_tracks.push_back( frpp ); }
+            else if ( st==reco::ProtonTrack::NearHorizontal ) {
+                if ( side==reco::ProtonTrack::LeftSide )       { nl_tracks.push_back( frpp ); }
                 else if ( side==reco::ProtonTrack::RightSide ) { nr_tracks.push_back( frpp ); }
             }
         }
     }
-    /*std::cerr << "number of tracks reconstructed:" << std::endl
-              << "  left side:  near pot:" << nl_tracks.size() << ", far pot: " << fl_tracks.size() << std::endl
-              << "  right side: near pot:" << nr_tracks.size() << ", far pot: " << fr_tracks.size() << std::endl;*/
+    LogDebug("ProtonProducer") << "number of tracks reconstructed:" << std::endl
+      << "  left side:  near pot:" << nl_tracks.size() << ", far pot: " << fl_tracks.size() << std::endl
+      << "  right side: near pot:" << nr_tracks.size() << ", far pot: " << fr_tracks.size() << std::endl;
 
     reconstructOneArm( nl_tracks, fl_tracks, reco::ProtonTrack::LeftSide, *protonColl );
     reconstructOneArm( nr_tracks, fr_tracks, reco::ProtonTrack::RightSide, *protonColl );
 
-    evt.put( protonColl );
+    evt.put( std::move( protonColl ) );
 }
 
 void
