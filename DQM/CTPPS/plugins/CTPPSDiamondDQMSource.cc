@@ -282,7 +282,7 @@ CTPPSDiamondDQMSource::DigitizerPlots::DigitizerPlots( DQMStore::IBooker& ibooke
   std::string path, title;
   const unsigned short digi_id = CTPPSDiamondDetId( id ).plane()/2; //FIXME
   CTPPSDiamondDetId( id ).rpName( path, CTPPSDiamondDetId::nPath );
-  path += "/digitizer" + std::to_string( digi_id );
+  ibooker.setCurrentFolder( path+"/digitizer"+std::to_string( digi_id ) );
 
   CTPPSDiamondDetId( id ).rpName( title, CTPPSDiamondDetId::nFull );
   title += "/digitizer" + std::to_string( digi_id );
