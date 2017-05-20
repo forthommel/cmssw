@@ -11,5 +11,5 @@ ctppsDiamondDQMSource = cms.EDAnalyzer("CTPPSDiamondDQMSource",
     excludeMultipleHits = cms.bool(True),
     minimumStripAngleForTomography = cms.double(1e-3),
   
-    verbosity = cms.untracked.uint32(10),
+    verbosity = cms.untracked.uint32(0),
 )

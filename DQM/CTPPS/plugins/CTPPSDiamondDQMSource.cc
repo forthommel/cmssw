@@ -280,14 +280,14 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots( DQMStore::IBooker& ibooker, unsigned 
 CTPPSDiamondDQMSource::DigitizerPlots::DigitizerPlots( DQMStore::IBooker& ibooker, unsigned int id )
 {
   std::string path, title;
-  const unsigned short digi_id = CTPPSDiamondDetId( id ).plane()%2; //FIXME
+  const unsigned short digi_id = CTPPSDiamondDetId( id ).plane()/2; //FIXME
   CTPPSDiamondDetId( id ).rpName( path, CTPPSDiamondDetId::nPath );
-  path += "/digitizer";
-  path += digi_id;
+  path += "/digitizer" + std::to_string( digi_id );
 
   CTPPSDiamondDetId( id ).rpName( title, CTPPSDiamondDetId::nFull );
-  title += "/digitizer";
-  title += digi_id;
+  title += "/digitizer" + std::to_string( digi_id );
+
+std::cout << "building a digitizer plotter for title=" << title << " at path=" << path << std::endl;
 
   hptdcErrorFlags = ibooker.book1D( "HPTDC Errors", title+" HPTDC Errors", 16, -0.5, 16.5 );
   for ( unsigned short error_index=1; error_index<16; ++error_index )
