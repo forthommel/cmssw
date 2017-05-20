@@ -287,8 +287,6 @@ CTPPSDiamondDQMSource::DigitizerPlots::DigitizerPlots( DQMStore::IBooker& ibooke
   CTPPSDiamondDetId( id ).rpName( title, CTPPSDiamondDetId::nFull );
   title += "/digitizer" + std::to_string( digi_id );
 
-std::cout << "building a digitizer plotter for title=" << title << " at path=" << path << std::endl;
-
   hptdcErrorFlags = ibooker.book1D( "HPTDC Errors", title+" HPTDC Errors", 16, -0.5, 16.5 );
   for ( unsigned short error_index=1; error_index<16; ++error_index )
     hptdcErrorFlags->getTH1F()->GetXaxis()->SetBinLabel( error_index, HPTDCErrorFlags::getHPTDCErrorName( error_index-1 ).c_str() );
