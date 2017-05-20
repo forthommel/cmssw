@@ -59,6 +59,7 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
     static const int CTPPS_DIAMOND_RP_ID;
     static const int CTPPS_NEAR_RP_ID;
     static const int CTPPS_FAR_RP_ID;
+    static const int CTPPS_DIAMOND_NUM_OF_DIGI_BOARDS;
     static const int CTPPS_DIAMOND_NUM_OF_PLANES;
     static const int CTPPS_DIAMOND_NUM_OF_CHANNELS;
     static const int CTPPS_FED_ID_45;
@@ -124,6 +125,18 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
     std::unordered_map<unsigned int, PotPlots> potPlots_;
     int EC_difference_56_, EC_difference_45_;
 
+    /// plots related to one digitizer board
+    struct DigitizerPlots
+    {
+      MonitorElement* hptdcErrorFlags = NULL;
+      MonitorElement* activity_per_bx = NULL, *activity_per_bx_short = NULL;
+
+      DigitizerPlots() {}
+      DigitizerPlots( DQMStore::IBooker&, unsigned int );
+    };
+
+    std::unordered_map<unsigned int, DigitizerPlots> digiPlots_;
+
     /// plots related to one Diamond plane
     struct PlanePlots
     {
@@ -175,6 +188,7 @@ const int       CTPPSDiamondDQMSource::CTPPS_DIAMOND_STATION_ID = 1;
 const int       CTPPSDiamondDQMSource::CTPPS_DIAMOND_RP_ID = 6;
 const int       CTPPSDiamondDQMSource::CTPPS_NEAR_RP_ID = 2;
 const int       CTPPSDiamondDQMSource::CTPPS_FAR_RP_ID = 3;
+const int       CTPPSDiamondDQMSource::CTPPS_DIAMOND_NUM_OF_DIGI_BOARDS = 2;
 const int       CTPPSDiamondDQMSource::CTPPS_DIAMOND_NUM_OF_PLANES = 4;
 const int       CTPPSDiamondDQMSource::CTPPS_DIAMOND_NUM_OF_CHANNELS = 12;
 const int       CTPPSDiamondDQMSource::CTPPS_FED_ID_56 = 582;
@@ -221,7 +235,7 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots( DQMStore::IBooker& ibooker, unsigned 
   activity_per_fedbx_short = ibooker.book1D( "activity per FED BX (short)", title+" activity per FED BX (short);Event.BX", 102, -1.5, 100. + 0.5 );
 
   hitDistribution2d = ibooker.book2D( "hits in planes", title+" hits in planes;plane number;x (mm)", 10, -0.5, 4.5, 19./DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );
-  hitDistribution2dOOT= ibooker.book2D( "hits with OOT in planes", title+" hits with OOT in planes;plane number + 0.25 OOT;x (mm)", 17, -0.25, 4, 19./DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );
+  hitDistribution2dOOT= ibooker.book2D( "hits with OOT in planes", title+" hits with OOT in planes;plane number + 0.2 OOT;x (mm)", 21, -0.2, 4, 19./DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );
   activePlanes = ibooker.book1D( "active planes", title+" active planes;number of active planes", 6, -0.5, 5.5 );
 
   trackDistribution = ibooker.book1D( "tracks", title+" tracks;x (mm)", 19./DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );
@@ -260,6 +274,30 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots( DQMStore::IBooker& ibooker, unsigned 
   clock_Digi3_le = ibooker.book1D( "clock3 leading edge", title+" clock3;leading edge (ns)", 201, -100, 100 );
   clock_Digi3_te = ibooker.book1D( "clock3 trailing edge", title+" clock3;trailing edge (ns)", 201, -100, 100 );
 }
+
+//----------------------------------------------------------------------------------------------------
+
+CTPPSDiamondDQMSource::DigitizerPlots::DigitizerPlots( DQMStore::IBooker& ibooker, unsigned int id )
+{
+  std::string path, title;
+  const unsigned short digi_id = CTPPSDiamondDetId( id ).plane()%2; //FIXME
+  CTPPSDiamondDetId( id ).rpName( path, CTPPSDiamondDetId::nPath );
+  path += "/digitizer";
+  path += digi_id;
+
+  CTPPSDiamondDetId( id ).rpName( title, CTPPSDiamondDetId::nFull );
+  title += "/digitizer";
+  title += digi_id;
+
+  hptdcErrorFlags = ibooker.book1D( "HPTDC Errors", title+" HPTDC Errors", 16, -0.5, 16.5 );
+  for ( unsigned short error_index=1; error_index<16; ++error_index )
+    hptdcErrorFlags->getTH1F()->GetXaxis()->SetBinLabel( error_index, HPTDCErrorFlags::getHPTDCErrorName( error_index-1 ).c_str() );
+  hptdcErrorFlags->getTH1F()->GetXaxis()->SetBinLabel( 16, "MH" );
+
+  activity_per_bx = ibooker.book1D( "activity per BX", title+" activity per BX;Event.BX", 4002, -1.5, 4000. + 0.5 );
+  activity_per_bx_short = ibooker.book1D( "activity per BX (short)", title+" activity per BX (short);Event.BX", 102, -1.5, 100. + 0.5 );
+}
+
 
 //----------------------------------------------------------------------------------------------------
 
@@ -353,9 +391,13 @@ CTPPSDiamondDQMSource::bookHistograms( DQMStore::IBooker& ibooker, const edm::Ru
   for ( unsigned short arm = 0; arm < CTPPS_NUM_OF_ARMS; ++arm ) {
     const CTPPSDiamondDetId rpId( arm, CTPPS_DIAMOND_STATION_ID, CTPPS_DIAMOND_RP_ID );
     potPlots_[rpId] = PotPlots( ibooker, rpId );
+    for ( unsigned short db = 0; db < CTPPS_DIAMOND_NUM_OF_DIGI_BOARDS; ++db ) {
+      const CTPPSDiamondDetId plId( arm, CTPPS_DIAMOND_STATION_ID, CTPPS_DIAMOND_RP_ID, db*2 );
+      digiPlots_[plId] = DigitizerPlots( ibooker, plId );
+    }
     for ( unsigned short pl = 0; pl < CTPPS_DIAMOND_NUM_OF_PLANES; ++pl ) {
       const CTPPSDiamondDetId plId( arm, CTPPS_DIAMOND_STATION_ID, CTPPS_DIAMOND_RP_ID, pl );
-      planePlots_[plId] = PlanePlots( ibooker, plId);
+      planePlots_[plId] = PlanePlots( ibooker, plId );
       for ( unsigned short ch = 0; ch < CTPPS_DIAMOND_NUM_OF_CHANNELS; ++ch ) {
         const CTPPSDiamondDetId chId( arm, CTPPS_DIAMOND_STATION_ID, CTPPS_DIAMOND_RP_ID, pl, ch );
         channelPlots_[chId] = ChannelPlots( ibooker, chId );
@@ -572,6 +614,8 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
     CTPPSDiamondDetId detId_pot( rechits.detId() );
     detId_pot.setPlane( 0 );
     detId_pot.setChannel( 0 );
+    CTPPSDiamondDetId detId_digi( detId_pot );
+    detId_digi.setPlane( detId_pot.plane()-detId_pot.plane()%2 ); //FIXME
     const CTPPSDiamondDetId detId( rechits.detId() );
 
     for ( const auto& rechit : rechits ) {
@@ -596,7 +640,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
       startBin = hitHistoOOTTmpYAxis->FindBin( rechit.getX() - 0.5*rechit.getXWidth() );
       numOfBins = rechit.getXWidth()/DISPLAY_RESOLUTION_FOR_HITS_MM;
       for ( int i=0; i<numOfBins; ++i) {
-        hitHistoOOTTmp->Fill( detId.plane() + 0.25 * rechit.getOOTIndex(), hitHistoOOTTmpYAxis->GetBinCenter(startBin+i) );
+        hitHistoOOTTmp->Fill( detId.plane() + 0.2 * rechit.getOOTIndex(), hitHistoOOTTmpYAxis->GetBinCenter(startBin+i) );
       }
 
       potPlots_[detId_pot].leadingEdgeCumulativePot->Fill( rechit.getT() );
@@ -611,6 +655,8 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
         case 1: {
           potPlots_[detId_pot].activity_per_bx->Fill( event.bunchCrossing() );
           potPlots_[detId_pot].activity_per_bx_short->Fill( event.bunchCrossing() );
+          digiPlots_[detId_digi].activity_per_bx->Fill( event.bunchCrossing() );
+          digiPlots_[detId_digi].activity_per_bx_short->Fill( event.bunchCrossing() );
         } break;
         case 2: {
           potPlots_[detId_pot].activity_per_bx_plus1->Fill( event.bunchCrossing() );
