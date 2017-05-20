@@ -280,7 +280,7 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots( DQMStore::IBooker& ibooker, unsigned 
 CTPPSDiamondDQMSource::DigitizerPlots::DigitizerPlots( DQMStore::IBooker& ibooker, unsigned int id )
 {
   std::string path, title;
-  const unsigned short digi_id = CTPPSDiamondDetId( id ).plane()/2; //FIXME
+  const unsigned short digi_id = CTPPSDiamondDetId( id ).plane()/2;
   CTPPSDiamondDetId( id ).rpName( path, CTPPSDiamondDetId::nPath );
   ibooker.setCurrentFolder( path+"/digitizer"+std::to_string( digi_id ) );
 
@@ -545,7 +545,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
       detId_pot.setPlane( 0 );
       detId_pot.setChannel( 0 );
       CTPPSDiamondDetId detId_digi( detId_pot );
-      detId_digi.setPlane( 2*( detId.plane()/2 ) ); //FIXME
+      detId_digi.setPlane( 2*( detId.plane()/2 ) );
       if ( potPlots_.find( detId_pot ) == potPlots_.end() ) continue;
       //Leading without trailing investigation
       if      ( digi.getLeadingEdge() == 0 && digi.getTrailingEdge() == 0 ) potPlots_[detId_pot].leadingWithoutTrailingCumulativePot->Fill( 1 );
@@ -622,7 +622,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
     detId_pot.setPlane( 0 );
     detId_pot.setChannel( 0 );
     CTPPSDiamondDetId detId_digi( detId );
-    detId_digi.setPlane( 2*( detId_digi.plane()/2 ) ); //FIXME
+    detId_digi.setPlane( 2*( detId_digi.plane()/2 ) );
     detId_digi.setChannel( 0 );
 
     for ( const auto& rechit : rechits ) {
