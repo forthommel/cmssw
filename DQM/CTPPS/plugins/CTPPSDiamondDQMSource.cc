@@ -544,6 +544,8 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
     for ( const auto& digi : digis ) {
       detId_pot.setPlane( 0 );
       detId_pot.setChannel( 0 );
+      CTPPSDiamondDetId detId_digi( detId_pot );
+      detId_digi.setPlane( 2*( detId.plane()/2 ) ); //FIXME
       if ( potPlots_.find( detId_pot ) == potPlots_.end() ) continue;
       //Leading without trailing investigation
       if      ( digi.getLeadingEdge() == 0 && digi.getTrailingEdge() == 0 ) potPlots_[detId_pot].leadingWithoutTrailingCumulativePot->Fill( 1 );
@@ -564,8 +566,14 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
       // HPTDC Errors
       const HPTDCErrorFlags hptdcErrors = digi.getHPTDCErrorFlags();
       for ( unsigned short hptdcErrorIndex = 1; hptdcErrorIndex < 16; ++hptdcErrorIndex )
-        if ( hptdcErrors.getErrorId( hptdcErrorIndex-1 ) ) potPlots_[detId_pot].HPTDCErrorFlags_cumulative->Fill( hptdcErrorIndex );
-      if ( digi.getMultipleHit() ) potPlots_[detId_pot].HPTDCErrorFlags_cumulative->Fill( 16 );
+        if ( hptdcErrors.getErrorId( hptdcErrorIndex-1 ) ) {
+          potPlots_[detId_pot].HPTDCErrorFlags_cumulative->Fill( hptdcErrorIndex );
+          digiPlots_[detId_digi].hptdcErrorFlags->Fill( hptdcErrorIndex );
+        }
+      if ( digi.getMultipleHit() ) {
+        potPlots_[detId_pot].HPTDCErrorFlags_cumulative->Fill( 16 );
+        digiPlots_[detId_digi].hptdcErrorFlags->Fill( 16 );
+      }
     }
   }
 
@@ -609,12 +617,13 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
   std::unordered_map<unsigned int, std::set<unsigned int> > planes;
 
   for ( const auto& rechits : *diamondRecHits ) {
-    CTPPSDiamondDetId detId_pot( rechits.detId() );
+    const CTPPSDiamondDetId detId( rechits.detId() );
+    CTPPSDiamondDetId detId_pot( detId );
     detId_pot.setPlane( 0 );
     detId_pot.setChannel( 0 );
-    CTPPSDiamondDetId detId_digi( detId_pot );
-    detId_digi.setPlane( detId_pot.plane()-detId_pot.plane()%2 ); //FIXME
-    const CTPPSDiamondDetId detId( rechits.detId() );
+    CTPPSDiamondDetId detId_digi( detId );
+    detId_digi.setPlane( 2*( detId_digi.plane()/2 ) ); //FIXME
+    detId_digi.setChannel( 0 );
 
     for ( const auto& rechit : rechits ) {
       if ( excludeMultipleHits_ && rechit.getMultipleHits() > 0 ) continue;
