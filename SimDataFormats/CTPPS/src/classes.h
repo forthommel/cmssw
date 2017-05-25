@@ -1,7 +1,7 @@
 #include "SimDataFormats/CTPPS/interface/CTPPSSimProtonTrack.h"
 #include "SimDataFormats/CTPPS/interface/CTPPSSimHit.h"
 #include "SimDataFormats/CTPPS/interface/LHCOpticsApproximator.h"
-#include "SimDataFormats/CTPPS/interface/LHCApertureApproximator.h"
+//#include "SimDataFormats/CTPPS/interface/LHCApertureApproximator.h"
 #include "SimDataFormats/CTPPS/interface/TMultiDimFet.h"
 
 #include "DataFormats/Common/interface/Wrapper.h"

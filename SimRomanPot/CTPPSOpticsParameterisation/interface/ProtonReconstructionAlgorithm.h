@@ -7,7 +7,7 @@
 #include "DataFormats/Common/interface/PtrVector.h"
 
 #include "SimDataFormats/CTPPS/interface/LHCOpticsApproximator.h"
-#include "SimDataFormats/CTPPS/interface/LHCApertureApproximator.h"
+//#include "SimDataFormats/CTPPS/interface/LHCApertureApproximator.h"
 #include "SimDataFormats/CTPPS/interface/CTPPSSimProtonTrack.h"
 #include "SimDataFormats/CTPPS/interface/CTPPSSimHit.h"
 

@@ -33,7 +33,7 @@
 #include "SimDataFormats/CTPPS/interface/CTPPSSimProtonTrack.h"
 #include "SimDataFormats/CTPPS/interface/CTPPSSimHit.h"
 #include "SimDataFormats/CTPPS/interface/LHCOpticsApproximator.h"
-#include "SimDataFormats/CTPPS/interface/LHCApertureApproximator.h"
+//#include "SimDataFormats/CTPPS/interface/LHCApertureApproximator.h"
 
 #include "SimRomanPot/CTPPSOpticsParameterisation/interface/ProtonReconstructionAlgorithm.h"
 
@@ -84,6 +84,7 @@ CTPPSOpticsParameterisation::CTPPSOpticsParameterisation( const edm::ParameterSe
 {
   produces< std::vector<CTPPSSimHit> >();
 
+  std::cout << "---> loading optics" <<  std::endl;
   // load optics
   TFile *f_in_optics_beam1 = TFile::Open( opticsFileBeam1_.fullPath().c_str() );
   optics_[102] = (LHCOpticsApproximator *) f_in_optics_beam1->Get("ip5_to_station_150_h_1_lhcb1");
@@ -91,6 +92,7 @@ CTPPSOpticsParameterisation::CTPPSOpticsParameterisation( const edm::ParameterSe
   TFile *f_in_optics_beam2 = TFile::Open( opticsFileBeam2_.fullPath().c_str() );
   optics_[2] = (LHCOpticsApproximator *) f_in_optics_beam2->Get("ip5_to_station_150_h_1_lhcb2");
   optics_[3] = (LHCOpticsApproximator *) f_in_optics_beam2->Get("ip5_to_station_150_h_2_lhcb2");
+  std::cout << "---> passed optics initialisation" <<  std::endl;
 }
 
 
@@ -189,6 +191,8 @@ CTPPSOpticsParameterisation::transportProtonTrack( const CTPPSSimProtonTrack& in
   for ( const auto& rp : detectorPackages_ ) {
     const unsigned int raw_detid = rp.getParameter<unsigned int>( "rpId" );
     const TotemRPDetId detid( TotemRPDetId::decToRawId( raw_detid*10 ) ); //FIXME workaround for strips in 2016
+
+std::cout << "---> will simulate pot " << detid << std::endl;
 
     // convert physics kinematics to the LHC reference frame
     double th_x = in_trk.direction().x();

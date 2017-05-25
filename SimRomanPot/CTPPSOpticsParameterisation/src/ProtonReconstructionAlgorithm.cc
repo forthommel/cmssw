@@ -22,14 +22,25 @@ ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm( const edm::Paramet
 
     const std::string &ofName = it.second;
 
-    std::cout << "retrieving " << ofName.c_str() << " in " << optics_file << std::endl;
+    std::cout << "retrieving " << pot_id << "\t" << rpId << ":" << ofName.c_str() << " in " << optics_file << std::endl;
 
-    LHCOpticsApproximator* of_orig = dynamic_cast<LHCOpticsApproximator*>( f_in_optics->Get( ofName.c_str() ) );
+f_in_optics->ls();
 
-    if (of_orig == NULL) throw cms::Exception("ProtonReconstructionAlgorithm") << "Can't load object " << ofName;
+std::cout << "after ls" << std::endl;
+
+    TObject* of_orig = f_in_optics->Get( ofName.c_str() );
+    if ( !of_orig ) //throw cms::Exception("ProtonReconstructionAlgorithm") << "Can't load object " << ofName;
+std::cout << "----> failed!" << std::endl;
+std::cout << "---> not failed!" << std::endl;
+
+    LHCOpticsApproximator* ttt = dynamic_cast<LHCOpticsApproximator*>( of_orig );
+std::cout << "still ok" << std::endl;
 
     RPOpticsData rpod;
-    rpod.optics = new LHCOpticsApproximator( *of_orig );
+    //rpod.optics = new LHCOpticsApproximator( *dynamic_cast<LHCOpticsApproximator*>( of_orig ) );
+    rpod.optics = new LHCOpticsApproximator( *ttt );
+
+std::cout << "----> object retrieved" << std::endl;
 
     // build auxiliary optical functions
     double crossing_angle = 0.;
