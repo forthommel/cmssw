@@ -100,42 +100,31 @@ ProtonReconstructionAlgorithm::~ProtonReconstructionAlgorithm()
 //----------------------------------------------------------------------------------------------------
 
 CTPPSSimProtonTrack
-ProtonReconstructionAlgorithm::Reconstruct( const std::vector<CTPPSSimHit>& hits ) const
+ProtonReconstructionAlgorithm::Reconstruct( const std::vector< edm::Ptr<CTPPSSimHit> >& hits ) const
 {
-  CTPPSSimProtonTrack pd;
+  if ( hits.size()<2 ) return CTPPSSimProtonTrack();
 
-  if ( hits.size()<2 ) return pd;
-
-  // check optics is available for all tracks
-  /*for ( const auto& hit : hits ) {
-    auto oit = m_rp_optics_.find( hit.potId().detectorDecId()/10 ); //FIXME
-    if ( oit==m_rp_optics_.end() ) {
-      edm::LogProblem("ProtonReconstructionAlgorithm") << "Reconstruct > optics not available for RP " << hit.potId();
-      return pd;
-    }
-  }*/
-
-  // rough estimate of xi (mean of all xi's)
+  // first loop to extract a rough estimate of xi (mean of all xi's)
   double S_xi0 = 0., S_1 = 0.;
 
   for ( const auto& hit : hits ) {
-    auto oit = m_rp_optics_.find( hit.potId() );
+    auto oit = m_rp_optics_.find( hit->potId() );
     if ( oit==m_rp_optics_.end() ) continue;
-    double xi = oit->second.s_xi_vs_x->Eval( hit.getX0() );
+    double xi = oit->second.s_xi_vs_x->Eval( hit->getX0() );
     S_1 += 1.;
     S_xi0 += xi;
   }
   const double xi_0 = S_xi0 / S_1;
 
-  // rough estimate of th_y and vtx_y
+  // second loop to extract a rough estimate of th_y and vtx_y
   double y[2], v_y[2], L_y[2];
   unsigned int y_idx = 0;
   for ( const auto& hit : hits ) {
     if ( y_idx>1 ) break;
-    auto oit = m_rp_optics_.find( hit.potId() );
+    auto oit = m_rp_optics_.find( hit->potId() );
     if ( oit==m_rp_optics_.end() ) continue;
 
-    y[y_idx] = hit.getY0()-oit->second.s_y0_vs_xi->Eval( xi_0 );
+    y[y_idx] = hit->getY0()-oit->second.s_y0_vs_xi->Eval( xi_0 );
     v_y[y_idx] = oit->second.s_v_y_vs_xi->Eval( xi_0 );
     L_y[y_idx] = oit->second.s_L_y_vs_xi->Eval( xi_0 );
 
@@ -145,19 +134,15 @@ ProtonReconstructionAlgorithm::Reconstruct( const std::vector<CTPPSSimHit>& hits
   const double det = v_y[0] * L_y[1] - L_y[0] * v_y[1];
   const double vtx_y_0 = (L_y[1] * y[0] - L_y[0] * y[1]) / det;
   const double th_y_0 = (v_y[0] * y[1] - v_y[1] * y[0]) / det;
-  //printf("    vtx_y_0 = %.3f mm\n", vtx_y_0 * 1E3);
-  //printf("    th_y_0 = %.1f urad\n", th_y_0 * 1E6);
 
   // minimisation
-  fitter_->Config().ParSettings(0).Set("xi", xi_0, 0.005);
-  fitter_->Config().ParSettings(1).Set("th_x", 0., 20E-6);
-  fitter_->Config().ParSettings(2).Set("th_y", th_y_0, 1E-6);
-  fitter_->Config().ParSettings(3).Set("vtx_y", vtx_y_0, 1E-6);
+  fitter_->Config().ParSettings( 0 ).Set( "xi", xi_0, 0.005 );
+  fitter_->Config().ParSettings( 1 ).Set( "th_x", 0., 20.e-6 );
+  fitter_->Config().ParSettings( 2 ).Set( "th_y", th_y_0, 1.e-6 );
+  fitter_->Config().ParSettings( 3 ).Set( "vtx_y", vtx_y_0, 1.e-6 );
 
-  // TODO: this breaks the const-ness ??
   chiSquareCalculator_->tracks = &hits;
   chiSquareCalculator_->m_rp_optics = &m_rp_optics_;
-
 
   fitter_->FitFCN();
 
@@ -165,12 +150,7 @@ ProtonReconstructionAlgorithm::Reconstruct( const std::vector<CTPPSSimHit>& hits
   const ROOT::Fit::FitResult& result = fitter_->Result();
   const double* fitParameters = result.GetParams();
 
-  pd.setValid( true );
-  pd.setVertex( Local3DPoint( 0., fitParameters[3], 0. ) );
-  pd.setDirection( Local3DVector( fitParameters[1], fitParameters[2], 0. ) );
-  pd.setXi( fitParameters[0] );
-
-  return pd;
+  return CTPPSSimProtonTrack( Local3DPoint( 0., fitParameters[3], 0. ), Local3DVector( fitParameters[1], fitParameters[2], 0. ), fitParameters[0] );
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -188,10 +168,10 @@ ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() ( const double* p
   // calculate chi^2
   double S2 = 0.;
 
-  for ( auto& it : *tracks ) {
+  for ( auto& hit : *tracks ) {
     double crossing_angle = 0.;
     double vtx0_y = 0.;
-    const TotemRPDetId detid( TotemRPDetId::decToRawId( it.potId() ) );
+    const TotemRPDetId detid( TotemRPDetId::decToRawId( hit->potId() ) );
 
     // determine LHC sector from RP id
     if ( detid.arm()==0 ) {
@@ -215,8 +195,8 @@ ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() ( const double* p
     const double &y = kin_out[2];
 
     // calculate chi^2 constributions
-    const double x_diff_norm = ( x-it.getX0() ) / it.getX0Sigma();
-    const double y_diff_norm = ( y-it.getY0() ) / it.getY0Sigma();
+    const double x_diff_norm = ( x-hit->getX0() ) / hit->getX0Sigma();
+    const double y_diff_norm = ( y-hit->getY0() ) / hit->getY0Sigma();
 
     // increase chi^2
     S2 += x_diff_norm*x_diff_norm + y_diff_norm*y_diff_norm;

@@ -22,6 +22,8 @@ process.RandomNumberGeneratorService.lhcBeamProducer = cms.PSet(
     initialSeed = cms.untracked.uint32(1),
     #engineName = cms.untracked.string('TRandom3'),
 )
+# for detectors resolution smearing
+process.RandomNumberGeneratorService.ctppsOpticsParameterisation = cms.PSet( initialSeed = cms.untracked.uint32(1), )
 
  
 process.p = cms.Path(

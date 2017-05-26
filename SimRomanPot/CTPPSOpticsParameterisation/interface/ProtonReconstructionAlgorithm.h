@@ -4,7 +4,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/Common/interface/PtrVector.h"
+#include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 
 #include "SimDataFormats/CTPPS/interface/LHCOpticsApproximator.h"
@@ -29,7 +29,7 @@ class ProtonReconstructionAlgorithm
     ProtonReconstructionAlgorithm( const edm::ParameterSet&, std::unordered_map<unsigned int, std::string>, const std::string& );
     ~ProtonReconstructionAlgorithm();
 
-    CTPPSSimProtonTrack Reconstruct( const std::vector<CTPPSSimHit>& tracks ) const;
+    CTPPSSimProtonTrack Reconstruct( const std::vector< edm::Ptr<CTPPSSimHit> >& tracks ) const;
 
   private:
     /// optics data associated with 1 RP
@@ -50,7 +50,7 @@ class ProtonReconstructionAlgorithm
           beamConditions_( bc ), check_apertures( aper ), invert_beam_coord_systems( invert ) {}
         double operator() ( const double* ) const;
 
-        const std::vector<CTPPSSimHit>* tracks;
+        const std::vector< edm::Ptr<CTPPSSimHit> >* tracks;
         const std::map<TotemRPDetId,RPOpticsData>* m_rp_optics;
 
       private:
