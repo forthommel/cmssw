@@ -77,21 +77,36 @@ CTPPSOpticsParameterisation::CTPPSOpticsParameterisation( const edm::ParameterSe
   //simulateDetectorsResolution_( iConfig.getParameter<bool>( "simulateDetectorsResolution" ) ),
   opticsFileBeam1_( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam1" ) ),
   opticsFileBeam2_( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam2" ) ),
-  detectorPackages_( iConfig.getParameter< std::vector<edm::ParameterSet> >( "detectorPackages" ) ),
-  // reconstruction algorithms
-  prAlgo45_( std::make_unique<ProtonReconstructionAlgorithm>( beamConditions_, opticsFileBeam2_.fullPath() ) ),
-  prAlgo56_( std::make_unique<ProtonReconstructionAlgorithm>( beamConditions_, opticsFileBeam1_.fullPath() ) )
+  detectorPackages_( iConfig.getParameter< std::vector<edm::ParameterSet> >( "detectorPackages" ) )
 {
   produces< std::vector<CTPPSSimHit> >();
+  produces< std::vector<CTPPSSimProtonTrack> >();
+
+  TFile *f_in_optics_beam1 = TFile::Open( opticsFileBeam1_.fullPath().c_str() );
+  TFile *f_in_optics_beam2 = TFile::Open( opticsFileBeam2_.fullPath().c_str() );
 
   std::cout << "---> loading optics" <<  std::endl;
-  // load optics
-  TFile *f_in_optics_beam1 = TFile::Open( opticsFileBeam1_.fullPath().c_str() );
-  optics_[102] = (LHCOpticsApproximator *) f_in_optics_beam1->Get("ip5_to_station_150_h_1_lhcb1");
-  optics_[103] = (LHCOpticsApproximator *) f_in_optics_beam1->Get("ip5_to_station_150_h_2_lhcb1");
-  TFile *f_in_optics_beam2 = TFile::Open( opticsFileBeam2_.fullPath().c_str() );
-  optics_[2] = (LHCOpticsApproximator *) f_in_optics_beam2->Get("ip5_to_station_150_h_1_lhcb2");
-  optics_[3] = (LHCOpticsApproximator *) f_in_optics_beam2->Get("ip5_to_station_150_h_2_lhcb2");
+
+  // load optics and interpolators
+  std::unordered_map<unsigned int,std::string> pots_45, pots_56;
+  for ( const auto& rp : detectorPackages_ ) {
+    const std::string interp_name = rp.getParameter<std::string>( "interpolatorName" );
+    const unsigned int raw_detid = rp.getParameter<unsigned int>( "potId" );
+    TotemRPDetId detid( TotemRPDetId::decToRawId( raw_detid*10 ) ); //FIXME
+    if ( detid.arm()==0 ) {
+      pots_45.insert( std::make_pair( raw_detid, interp_name ) );
+      optics_.insert( std::make_pair( raw_detid, dynamic_cast<LHCOpticsApproximator*>( f_in_optics_beam2->Get( interp_name.c_str() ) ) ) );
+    }
+    if ( detid.arm()==1 ) {
+      pots_56.insert( std::make_pair( raw_detid, interp_name ) );
+      optics_.insert( std::make_pair( raw_detid, dynamic_cast<LHCOpticsApproximator*>( f_in_optics_beam1->Get( interp_name.c_str() ) ) ) );
+    }
+  }
+
+  // reconstruction algorithms
+  prAlgo45_ = std::make_unique<ProtonReconstructionAlgorithm>( beamConditions_, pots_45, opticsFileBeam2_.fullPath() );
+  prAlgo56_ = std::make_unique<ProtonReconstructionAlgorithm>( beamConditions_, pots_56, opticsFileBeam1_.fullPath() );
+
   std::cout << "---> passed optics initialisation" <<  std::endl;
 }
 
@@ -105,6 +120,7 @@ void
 CTPPSOpticsParameterisation::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
   std::unique_ptr< std::vector<CTPPSSimHit> > pOut( new std::vector<CTPPSSimHit> );
+  std::unique_ptr< std::vector<CTPPSSimProtonTrack> > pTracks( new std::vector<CTPPSSimProtonTrack> );
 
   edm::Handle< edm::View<CTPPSSimProtonTrack> > tracks;
   iEvent.getByToken( tracksToken_, tracks );
@@ -115,6 +131,11 @@ CTPPSOpticsParameterisation::produce( edm::Event& iEvent, const edm::EventSetup&
     transportProtonTrack( trk, hits );
     //FIXME add an association map proton track <-> sim hits
     std::cout << "---> "  << hits.size() << " hits" << std::endl;
+    for ( const auto& hit : hits ) {
+      pOut->push_back( hit );
+    }
+    pTracks->emplace_back( prAlgo45_->Reconstruct( hits ) );
+    pTracks->emplace_back( prAlgo56_->Reconstruct( hits ) );
   }
   /*ProtonData proton_45 = prAlgo45_->Reconstruct(sector45, tracks_45);
   ProtonData proton_56 = prAlgo56_->Reconstruct(sector45, tracks_56);
@@ -172,6 +193,7 @@ CTPPSOpticsParameterisation::produce( edm::Event& iEvent, const edm::EventSetup&
   }*/
 
   iEvent.put( std::move( pOut ) );
+  iEvent.put( std::move( pTracks ) );
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -189,10 +211,8 @@ CTPPSOpticsParameterisation::transportProtonTrack( const CTPPSSimProtonTrack& in
 
   // transport the proton into each pot
   for ( const auto& rp : detectorPackages_ ) {
-    const unsigned int raw_detid = rp.getParameter<unsigned int>( "rpId" );
+    const unsigned int raw_detid = rp.getParameter<unsigned int>( "potId" );
     const TotemRPDetId detid( TotemRPDetId::decToRawId( raw_detid*10 ) ); //FIXME workaround for strips in 2016
-
-std::cout << "---> will simulate pot " << detid << std::endl;
 
     // convert physics kinematics to the LHC reference frame
     double th_x = in_trk.direction().x();

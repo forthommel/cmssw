@@ -311,9 +311,9 @@ void LHCOpticsApproximator::Train(TTree *inp_tree, std::string data_prefix, poly
     if(prec)
       best_precision = prec[i];
     out_polynomials[i]->FindParameterization(best_precision);
-    std::cout<<"Out variable "<<coord_names[i]<<" polynomial"<<std::endl;
-    out_polynomials[i]->PrintPolynomialsSpecial("M");
-    std::cout<<std::endl;
+    //std::cout<<"Out variable "<<coord_names[i]<<" polynomial"<<std::endl;
+    //out_polynomials[i]->PrintPolynomialsSpecial("M");
+    //std::cout<<std::endl;
   }
 
   trained_ = true;

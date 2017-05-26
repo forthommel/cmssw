@@ -2129,7 +2129,6 @@ void TMultiDimFet::PrintPolynomialsSpecial(Option_t *option) const
    //   M        Pretty print formula
    //
    Int_t i = 0;
-   Int_t j = 0;
 
    TString opt(option);
    opt.ToLower();

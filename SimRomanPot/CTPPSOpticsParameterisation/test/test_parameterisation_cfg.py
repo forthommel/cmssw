@@ -6,7 +6,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("Configuration.StandardSequences.Services_cff")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10),
+    input = cms.untracked.int32(500),
 )
 
 process.source = cms.Source('EmptySource')
