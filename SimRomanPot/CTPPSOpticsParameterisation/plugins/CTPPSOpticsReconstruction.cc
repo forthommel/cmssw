@@ -74,7 +74,8 @@ CTPPSOpticsReconstruction::CTPPSOpticsReconstruction( const edm::ParameterSet& i
   opticsFileBeam2_( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam2" ) ),
   detectorPackages_( iConfig.getParameter< std::vector<edm::ParameterSet> >( "detectorPackages" ) )
 {
-  produces< std::vector<CTPPSSimProtonTrack> >();
+  produces< std::vector<CTPPSSimProtonTrack> >( "sector45" );
+  produces< std::vector<CTPPSSimProtonTrack> >( "sector56" );
 
   auto f_in_optics_beam1 = std::make_unique<TFile>( opticsFileBeam1_.fullPath().c_str() ),
        f_in_optics_beam2 = std::make_unique<TFile>( opticsFileBeam2_.fullPath().c_str() );
@@ -106,16 +107,18 @@ CTPPSOpticsReconstruction::~CTPPSOpticsReconstruction()
 void
 CTPPSOpticsReconstruction::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-  std::unique_ptr< std::vector<CTPPSSimProtonTrack> > pOut( new std::vector<CTPPSSimProtonTrack> );
+  std::unique_ptr< std::vector<CTPPSSimProtonTrack> > pOut45( new std::vector<CTPPSSimProtonTrack> );
+  std::unique_ptr< std::vector<CTPPSSimProtonTrack> > pOut56( new std::vector<CTPPSSimProtonTrack> );
 
   edm::Handle< edm::View<CTPPSSimHit> > hits;
   iEvent.getByToken( hitsToken_, hits );
 
   // run reconstruction
-  pOut->emplace_back( prAlgo45_->Reconstruct( hits->ptrs() ) );
-  pOut->emplace_back( prAlgo56_->Reconstruct( hits->ptrs() ) );
+  pOut45->emplace_back( prAlgo45_->Reconstruct( hits->ptrs() ) );
+  pOut56->emplace_back( prAlgo56_->Reconstruct( hits->ptrs() ) );
 
-  iEvent.put( std::move( pOut ) );
+  iEvent.put( std::move( pOut45 ), "sector45" );
+  iEvent.put( std::move( pOut56 ), "sector56" );
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
