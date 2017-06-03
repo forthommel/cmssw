@@ -29,6 +29,10 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
@@ -38,6 +42,9 @@
 
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
+
+#include "TH1.h"
+#include "TH2.h"
 
 class CTPPSDiamondTimingValidation : public edm::one::EDAnalyzer<edm::one::SharedResources>
 {
@@ -52,16 +59,28 @@ class CTPPSDiamondTimingValidation : public edm::one::EDAnalyzer<edm::one::Share
     virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
     virtual void endJob() override;
 
+    edm::EDGetTokenT<reco::BeamSpot > beamSpotToken_;
     edm::EDGetTokenT< edm::View<reco::Vertex> > verticesToken_;
     edm::EDGetTokenT< edm::DetSetVector<CTPPSDiamondRecHit> > diamRecHitsToken_;
     edm::EDGetTokenT< edm::DetSetVector<CTPPSDiamondLocalTrack> > diamTracksToken_;
+
+    TH1D* h_vtxz_diff_ootm1_, *h_vtxz_diff_oot0_, *h_vtxz_diff_ootp1_;
+    TH2D* h2_vtxz_ootm1_, *h2_vtxz_oot0_, *h2_vtxz_ootp1_;
 };
 
 CTPPSDiamondTimingValidation::CTPPSDiamondTimingValidation( const edm::ParameterSet& iConfig ) :
+  beamSpotToken_( consumes<reco::BeamSpot>( iConfig.getParameter<edm::InputTag>( "beamSpotTag" ) ) ),
   verticesToken_( consumes< edm::View<reco::Vertex> >( iConfig.getParameter<edm::InputTag>( "verticesTag" ) ) ),
   diamRecHitsToken_( consumes< edm::DetSetVector<CTPPSDiamondRecHit> >( iConfig.getParameter<edm::InputTag>( "diamondRecHitsTag" ) ) ),
   diamTracksToken_( consumes< edm::DetSetVector<CTPPSDiamondLocalTrack> >( iConfig.getParameter<edm::InputTag>( "diamondLocalTracksTag" ) ) )
 {
+  edm::Service<TFileService> fs;
+  h_vtxz_diff_ootm1_ = fs->make<TH1D>( "vtxz_diff_ootm1", "OOT-1;z_{pp} - (vertex z - beam spot z_{0}) (cm);Events", 400, -2., 2. );
+  h_vtxz_diff_oot0_ = fs->make<TH1D>( "vtxz_diff_oot0", "no OOT;z_{pp} - (vertex z - beam spot z_{0}) (cm);Events", 400, -2., 2. );
+  h_vtxz_diff_ootp1_ = fs->make<TH1D>( "vtxz_diff_ootp1", "OOT+1;z_{pp} - (vertex z - beam spot z_{0}) (cm);Events", 400, -2., 2. );
+  h2_vtxz_ootm1_ = fs->make<TH2D>( "vtxz_corr_ootm1", "OOT-1;Vertex z - beam spot z_{0} (cm);z_{pp} (cm)", 400, -2., 2., 400, -2., 2. );
+  h2_vtxz_oot0_ = fs->make<TH2D>( "vtxz_corr_oot0", "no OOT;Vertex z - beam spot z_{0} (cm);z_{pp} (cm)", 400, -2., 2., 400, -2., 2. );
+  h2_vtxz_ootp1_ = fs->make<TH2D>( "vtxz_corr_ootp1", "OOT+1;Vertex z - beam spot z_{0} (cm);z_{pp} (cm)", 400, -2., 2., 400, -2., 2. );
 }
 
 
@@ -71,6 +90,9 @@ CTPPSDiamondTimingValidation::~CTPPSDiamondTimingValidation()
 void
 CTPPSDiamondTimingValidation::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
+  edm::Handle<reco::BeamSpot> beamspot;
+  iEvent.getByToken( beamSpotToken_, beamspot );
+
   edm::Handle< edm::View<reco::Vertex> > vertices;
   iEvent.getByToken( verticesToken_, vertices );
 
@@ -88,19 +110,32 @@ CTPPSDiamondTimingValidation::analyze( const edm::Event& iEvent, const edm::Even
     }
   }
 
-  std::vector<double> reco_z;
+  std::vector<double> reco_z_ootm1, reco_z_oot0, reco_z_ootp1;
   for ( const auto& rh_45 : rechits_45 ) {
     const double t_45 = rh_45.getT();
     for ( const auto& rh_56 : rechits_56 ) {
+      if ( rh_56.getOOTIndex()!=rh_45.getOOTIndex() ) continue; //FIXME too tight?
       const double t_56 = rh_56.getT();
-      reco_z.push_back( ( t_45-t_56 ) / CLHEP::ns * CLHEP::c_light * 0.5 );
+      if ( rh_56.getOOTIndex()==-1 ) reco_z_ootm1.push_back( ( t_45-t_56 ) * ( CLHEP::nanosecond / CLHEP::second ) * CLHEP::c_light * 0.5 * ( CLHEP::m / CLHEP::cm ) );
+      if ( rh_56.getOOTIndex()==0 ) reco_z_oot0.push_back( ( t_45-t_56 ) * ( CLHEP::nanosecond / CLHEP::second ) * CLHEP::c_light * 0.5 * ( CLHEP::m / CLHEP::cm ) );
+      if ( rh_56.getOOTIndex()==+1 ) reco_z_ootp1.push_back( ( t_45-t_56 ) * ( CLHEP::nanosecond / CLHEP::second ) * CLHEP::c_light * 0.5 * ( CLHEP::m / CLHEP::cm ) );
     }
   }
 
   for ( const auto& vtx : *vertices ) {
-    const double vtx_z = vtx.z();
-    for ( const auto& z_pp : reco_z ) {
-      std::cout << vtx_z << " >> " << z_pp << std::endl;
+    const double vtx_z = vtx.z() - beamspot->z0();
+    for ( const auto& z_pp : reco_z_ootm1 ) {
+      //std::cout << vtx_z << " >> " << z_pp << std::endl;
+      h_vtxz_diff_ootm1_->Fill( z_pp-vtx_z );
+      h2_vtxz_ootm1_->Fill( vtx_z, z_pp );
+    }
+    for ( const auto& z_pp : reco_z_oot0 ) {
+      h_vtxz_diff_oot0_->Fill( z_pp-vtx_z );
+      h2_vtxz_oot0_->Fill( vtx_z, z_pp );
+    }
+    for ( const auto& z_pp : reco_z_ootp1 ) {
+      h_vtxz_diff_ootp1_->Fill( z_pp-vtx_z );
+      h2_vtxz_ootp1_->Fill( vtx_z, z_pp );
     }
   }
 }
