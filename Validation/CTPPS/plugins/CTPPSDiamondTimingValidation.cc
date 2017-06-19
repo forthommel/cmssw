@@ -59,6 +59,8 @@ class CTPPSDiamondTimingValidation : public edm::one::EDAnalyzer<edm::one::Share
     virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
     virtual void endJob() override;
 
+    static const float ns_to_s_, m_to_cm_;
+
     edm::EDGetTokenT<reco::BeamSpot > beamSpotToken_;
     edm::EDGetTokenT< edm::View<reco::Vertex> > verticesToken_;
     edm::EDGetTokenT< edm::DetSetVector<CTPPSDiamondRecHit> > diamRecHitsToken_;
@@ -67,6 +69,9 @@ class CTPPSDiamondTimingValidation : public edm::one::EDAnalyzer<edm::one::Share
     TH1D* h_vtxz_diff_ootm1_, *h_vtxz_diff_oot0_, *h_vtxz_diff_ootp1_;
     TH2D* h2_vtxz_ootm1_, *h2_vtxz_oot0_, *h2_vtxz_ootp1_;
 };
+
+const float CTPPSDiamondTimingValidation::ns_to_s_ = CLHEP::nanosecond / CLHEP::second;
+const float CTPPSDiamondTimingValidation::m_to_cm_ = CLHEP::m / CLHEP::cm;
 
 CTPPSDiamondTimingValidation::CTPPSDiamondTimingValidation( const edm::ParameterSet& iConfig ) :
   beamSpotToken_( consumes<reco::BeamSpot>( iConfig.getParameter<edm::InputTag>( "beamSpotTag" ) ) ),
@@ -116,9 +121,10 @@ CTPPSDiamondTimingValidation::analyze( const edm::Event& iEvent, const edm::Even
     for ( const auto& rh_56 : rechits_56 ) {
       if ( rh_56.getOOTIndex()!=rh_45.getOOTIndex() ) continue; //FIXME too tight?
       const double t_56 = rh_56.getT();
-      if ( rh_56.getOOTIndex()==-1 ) reco_z_ootm1.push_back( ( t_45-t_56 ) * ( CLHEP::nanosecond / CLHEP::second ) * CLHEP::c_light * 0.5 * ( CLHEP::m / CLHEP::cm ) );
-      if ( rh_56.getOOTIndex()==0 ) reco_z_oot0.push_back( ( t_45-t_56 ) * ( CLHEP::nanosecond / CLHEP::second ) * CLHEP::c_light * 0.5 * ( CLHEP::m / CLHEP::cm ) );
-      if ( rh_56.getOOTIndex()==+1 ) reco_z_ootp1.push_back( ( t_45-t_56 ) * ( CLHEP::nanosecond / CLHEP::second ) * CLHEP::c_light * 0.5 * ( CLHEP::m / CLHEP::cm ) );
+      const double t_diff = ( t_45-t_56 ) * ns_to_s_ * CLHEP::c_light * 0.5 * m_to_cm_;
+      if ( rh_56.getOOTIndex()==-1 ) reco_z_ootm1.push_back( t_diff );
+      if ( rh_56.getOOTIndex()==0 ) reco_z_oot0.push_back( t_diff );
+      if ( rh_56.getOOTIndex()==+1 ) reco_z_ootp1.push_back( t_diff );
     }
   }
 
