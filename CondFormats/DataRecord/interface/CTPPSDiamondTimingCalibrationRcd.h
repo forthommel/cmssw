@@ -1,0 +1,8 @@
+#ifndef CTPPSDiamondTimingCalibrationRcd_CTPPSDiamondTimingCalibrationRcd_h
+#define CTPPSDiamondTimingCalibrationRcd_CTPPSDiamondTimingCalibrationRcd_h
+
+#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+
+class CTPPSDiamondTimingCalibrationRcd : public edm::eventsetup::EventSetupRecordImplementation<CTPPSDiamondTimingCalibrationRcd> {};
+
+#endif
