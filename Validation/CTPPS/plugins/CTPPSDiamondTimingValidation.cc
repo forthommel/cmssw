@@ -80,12 +80,12 @@ CTPPSDiamondTimingValidation::CTPPSDiamondTimingValidation( const edm::Parameter
   diamTracksToken_( consumes< edm::DetSetVector<CTPPSDiamondLocalTrack> >( iConfig.getParameter<edm::InputTag>( "diamondLocalTracksTag" ) ) )
 {
   edm::Service<TFileService> fs;
-  h_vtxz_diff_ootm1_ = fs->make<TH1D>( "vtxz_diff_ootm1", "OOT-1;z_{pp} - (vertex z - beam spot z_{0}) (cm);Events", 400, -2., 2. );
-  h_vtxz_diff_oot0_ = fs->make<TH1D>( "vtxz_diff_oot0", "no OOT;z_{pp} - (vertex z - beam spot z_{0}) (cm);Events", 400, -2., 2. );
-  h_vtxz_diff_ootp1_ = fs->make<TH1D>( "vtxz_diff_ootp1", "OOT+1;z_{pp} - (vertex z - beam spot z_{0}) (cm);Events", 400, -2., 2. );
-  h2_vtxz_ootm1_ = fs->make<TH2D>( "vtxz_corr_ootm1", "OOT-1;Vertex z - beam spot z_{0} (cm);z_{pp} (cm)", 400, -2., 2., 400, -2., 2. );
-  h2_vtxz_oot0_ = fs->make<TH2D>( "vtxz_corr_oot0", "no OOT;Vertex z - beam spot z_{0} (cm);z_{pp} (cm)", 400, -2., 2., 400, -2., 2. );
-  h2_vtxz_ootp1_ = fs->make<TH2D>( "vtxz_corr_ootp1", "OOT+1;Vertex z - beam spot z_{0} (cm);z_{pp} (cm)", 400, -2., 2., 400, -2., 2. );
+  h_vtxz_diff_ootm1_ = fs->make<TH1D>( "vtxz_diff_ootm1", "OOT-1;z_{pp} - vertex z (cm);Events", 400, -2., 2. );
+  h_vtxz_diff_oot0_ = fs->make<TH1D>( "vtxz_diff_oot0", "no OOT;z_{pp} - vertex z (cm);Events", 400, -2., 2. );
+  h_vtxz_diff_ootp1_ = fs->make<TH1D>( "vtxz_diff_ootp1", "OOT+1;z_{pp} - vertex z (cm);Events", 400, -2., 2. );
+  h2_vtxz_ootm1_ = fs->make<TH2D>( "vtxz_corr_ootm1", "OOT-1;Vertex z (cm);z_{pp} (cm)", 400, -2., 2., 400, -2., 2. );
+  h2_vtxz_oot0_ = fs->make<TH2D>( "vtxz_corr_oot0", "no OOT;Vertex z (cm);z_{pp} (cm)", 400, -2., 2., 400, -2., 2. );
+  h2_vtxz_ootp1_ = fs->make<TH2D>( "vtxz_corr_ootp1", "OOT+1;Vertex z (cm);z_{pp} (cm)", 400, -2., 2., 400, -2., 2. );
 }
 
 
@@ -129,7 +129,8 @@ CTPPSDiamondTimingValidation::analyze( const edm::Event& iEvent, const edm::Even
   }
 
   for ( const auto& vtx : *vertices ) {
-    const double vtx_z = vtx.z() - beamspot->z0();
+    //const double vtx_z = vtx.z() - beamspot->z0();
+    const double vtx_z = vtx.z();
     for ( const auto& z_pp : reco_z_ootm1 ) {
       //std::cout << vtx_z << " >> " << z_pp << std::endl;
       h_vtxz_diff_ootm1_->Fill( z_pp-vtx_z );

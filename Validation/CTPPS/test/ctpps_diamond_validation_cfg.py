@@ -27,6 +27,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 
+process.load('Validation.CTPPS.ctppsDiamondTimingCalibration_cfi')
 process.load('Validation.CTPPS.ctppsDiamondTimingValidation_cfi')
 
 process.TFileService = cms.Service("TFileService",
@@ -34,5 +35,6 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.p = cms.Path(
-    process.ctppsDiamondTimingValidation
+    process.ctppsDiamondTimingCalibration
+    #process.ctppsDiamondTimingValidation
 )
