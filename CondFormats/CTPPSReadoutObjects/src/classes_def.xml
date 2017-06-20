@@ -11,4 +11,9 @@
     <class name="CTPPSPixelROCAnalysisMask"  class_version="0"/>
     <class name="std::map<uint32_t, CTPPSPixelROCAnalysisMask>"/>
 
+  <!-- diamond objects -->
+  <class name="CTPPSDiamondTimingCalibration" class_version="0"/>
+  <class name="std::map<unsigned int,double>"/>
+  <class name="std::pair<unsigned int,double>"/>
+
 </lcgdict>
