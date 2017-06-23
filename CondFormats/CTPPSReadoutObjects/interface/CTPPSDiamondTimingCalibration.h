@@ -4,15 +4,21 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/Serialization/interface/Serializable.h"
 
+#include <map>
+#include <set>
+
 class CTPPSDiamondTimingCalibration
 {
   public:
+    CTPPSDiamondTimingCalibration() {}
+    ~CTPPSDiamondTimingCalibration() {}
+
     std::map<unsigned int,double> offsets;
-    void insert( const unsigned int& chan, const double& offs );
+    std::map<unsigned int,double> widths;
+    void insert( const unsigned int& chan, const double& offset, const double& width );
     std::set<unsigned int> channels() const;
 
-  private:
-    COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

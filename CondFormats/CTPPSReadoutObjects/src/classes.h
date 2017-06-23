@@ -14,7 +14,6 @@ namespace CondFormats_CTPPSReadoutObjects
   struct dictionary
   {
     CTPPSDiamondTimingCalibration dtc;
-    std::map<unsigned int,double> dtc_offs;
-    std::pair<unsigned int,double> dtc_offs_pair;
+    std::map<unsigned int,double> dtc_map;
   };
 }
