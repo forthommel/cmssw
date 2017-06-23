@@ -1,5 +1,5 @@
 #include "CondFormats/CTPPSReadoutObjects/src/headers.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSDiamondTimingCalibration.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSTimingCalibration.h"
 #include <map>
 
 namespace CondFormats_CTPPSPixelObjects {
@@ -13,7 +13,7 @@ namespace CondFormats_CTPPSReadoutObjects
 {
   struct dictionary
   {
-    CTPPSDiamondTimingCalibration dtc;
+    CTPPSTimingCalibration dtc;
     std::map<unsigned int,double> dtc_map;
   };
 }

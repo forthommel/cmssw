@@ -6,9 +6,9 @@
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelAnalysisMask.h"
 #include "CondFormats/DataRecord/interface/CTPPSPixelAnalysisMaskRcd.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSDiamondTimingCalibration.h"
-#include "CondFormats/DataRecord/interface/CTPPSDiamondTimingCalibrationRcd.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSTimingCalibration.h"
+#include "CondFormats/DataRecord/interface/CTPPSTimingCalibrationRcd.h"
  
 REGISTER_PLUGIN(CTPPSPixelDAQMappingRcd,CTPPSPixelDAQMapping);
 REGISTER_PLUGIN(CTPPSPixelAnalysisMaskRcd,CTPPSPixelAnalysisMask);
-REGISTER_PLUGIN( CTPPSDiamondTimingCalibrationRcd, CTPPSDiamondTimingCalibration );
+REGISTER_PLUGIN( CTPPSTimingCalibrationRcd, CTPPSTimingCalibration );

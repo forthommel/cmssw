@@ -52,7 +52,7 @@ namespace cond {
       FETCH_PAYLOAD_CASE( CSCRecoDigiParameters )
       FETCH_PAYLOAD_CASE( CTPPSPixelDAQMapping )
       FETCH_PAYLOAD_CASE( CTPPSPixelAnalysisMask )
-      FETCH_PAYLOAD_CASE( CTPPSDiamondTimingCalibration );
+      FETCH_PAYLOAD_CASE( CTPPSTimingCalibration );
       FETCH_PAYLOAD_CASE( CastorChannelQuality )
       FETCH_PAYLOAD_CASE( CastorElectronicsMap )
       FETCH_PAYLOAD_CASE( CastorGainWidths )

@@ -38,6 +38,11 @@
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 
+// database connection
+#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSTimingCalibration.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+
+// plotting
 #include "TH1.h"
 #include "TH2.h"
 #include "TFitResult.h"
@@ -123,6 +128,13 @@ CTPPSDiamondTimingCalibration::beginJob()
 void 
 CTPPSDiamondTimingCalibration::endJob() 
 {
+  std::shared_ptr<CTPPSTimingCalibration> pOut( new CTPPSTimingCalibration );
+
+  edm::Service<cond::service::PoolDBOutputService> poolService;
+  if ( !poolService.isAvailable() ) {
+    throw cms::Exception("CTPPSDiamondTimingCalibration") << "PoolDBService required.";
+  }
+
   for ( unsigned short arm_i=0; arm_i<num_arms; arm_i++ ) {
     for ( unsigned short pl_i=0; pl_i<num_planes; pl_i++ ) {
       for ( unsigned short ch_i=0; ch_i<num_channels; ch_i++ ) {
@@ -139,6 +151,8 @@ CTPPSDiamondTimingCalibration::endJob()
       }
     }
   }
+
+  poolService->writeOne( pOut.get(), poolService->currentTime(), "CTPPSTimingCalibrationRcd" );
 }
 
 void

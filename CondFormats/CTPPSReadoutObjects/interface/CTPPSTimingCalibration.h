@@ -1,5 +1,5 @@
-#ifndef CondFormats_CTPPSReadoutObjects_CTPPSDiamondTimingCalibration_h
-#define CondFormats_CTPPSReadoutObjects_CTPPSDiamondTimingCalibration_h
+#ifndef CondFormats_CTPPSReadoutObjects_CTPPSTimingCalibration_h
+#define CondFormats_CTPPSReadoutObjects_CTPPSTimingCalibration_h
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/Serialization/interface/Serializable.h"
@@ -7,12 +7,9 @@
 #include <map>
 #include <set>
 
-class CTPPSDiamondTimingCalibration
+class CTPPSTimingCalibration
 {
   public:
-    CTPPSDiamondTimingCalibration() {}
-    ~CTPPSDiamondTimingCalibration() {}
-
     std::map<unsigned int,double> offsets;
     std::map<unsigned int,double> widths;
     void insert( const unsigned int& chan, const double& offset, const double& width );
