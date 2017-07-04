@@ -4,7 +4,7 @@ from SimRomanPot.CTPPSOpticsParameterisation.ctppsDetectorPackages_cff import de
 from SimRomanPot.CTPPSOpticsParameterisation.lhcBeamConditions_cff import lhcBeamConditions_2016PreTS2
 
 ctppsOpticsParameterisation = cms.EDProducer('CTPPSOpticsParameterisation',
-    beamParticlesTag = cms.InputTag('lhcBeamProducer', 'unsmeared'),
+    beamParticlesTag = cms.InputTag('genParticles'),
     beamConditions = lhcBeamConditions_2016PreTS2,
 
     detectorPackages = detectorPackages_2016PreTS2,

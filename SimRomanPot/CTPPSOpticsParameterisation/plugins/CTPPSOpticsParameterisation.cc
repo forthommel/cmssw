@@ -32,17 +32,18 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
 #include "SimDataFormats/CTPPS/interface/LHCOpticsApproximator.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "CLHEP/Random/RandGauss.h"
 
 #include <unordered_map>
 
-class CTPPSOpticsParameterisation : public edm::stream::EDProducer<> {
+class CTPPSOpticsParameterisation : public edm::stream::EDProducer<>
+{
   public:
     explicit CTPPSOpticsParameterisation( const edm::ParameterSet& );
     ~CTPPSOpticsParameterisation();
@@ -60,9 +61,9 @@ class CTPPSOpticsParameterisation : public edm::stream::EDProducer<> {
     };
 
     virtual void produce( edm::Event&, const edm::EventSetup& ) override;
-    void transportProtonTrack( const HepMC::GenParticle*, std::vector<CTPPSLocalTrackLite>& );
+    void transportProtonTrack( const reco::GenParticle&, std::vector<CTPPSLocalTrackLite>& );
 
-    edm::EDGetTokenT<edm::HepMCProduct> protonsToken_;
+    edm::EDGetTokenT< edm::View<reco::GenParticle> > protonsToken_;
 
     edm::ParameterSet beamConditions_;
     double sqrtS_;
@@ -83,7 +84,7 @@ class CTPPSOpticsParameterisation : public edm::stream::EDProducer<> {
 };
 
 CTPPSOpticsParameterisation::CTPPSOpticsParameterisation( const edm::ParameterSet& iConfig ) :
-  protonsToken_( consumes<edm::HepMCProduct>( iConfig.getParameter<edm::InputTag>( "beamParticlesTag" ) ) ),
+  protonsToken_( consumes< edm::View<reco::GenParticle> >( iConfig.getParameter<edm::InputTag>( "beamParticlesTag" ) ) ),
   beamConditions_             ( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ) ),
   sqrtS_                      ( beamConditions_.getParameter<double>( "sqrtS" ) ),
   halfCrossingAngleSector45_  ( beamConditions_.getParameter<double>( "halfCrossingAngleSector45" ) ),
@@ -130,14 +131,14 @@ CTPPSOpticsParameterisation::produce( edm::Event& iEvent, const edm::EventSetup&
     rnd_ = &( rng->getEngine( iEvent.streamID() ) );
   }
 
-  edm::Handle<edm::HepMCProduct> protons;
+  edm::Handle< edm::View<reco::GenParticle> > protons;
   iEvent.getByToken( protonsToken_, protons );
-  const HepMC::GenEvent& evt = protons->getHepMCData();
 
   // run simulation
-  for ( HepMC::GenEvent::particle_const_iterator p=evt.particles_begin(); p!=evt.particles_end(); ++p ) {
+  for ( const auto& part : *protons ) {
     std::vector<CTPPSLocalTrackLite> tracks;
-    transportProtonTrack( *p, tracks );
+    if ( part.status()!=1 || part.pdgId()!=2212 ) continue; //FIXME only transport stable protons
+    transportProtonTrack( part, tracks );
     //FIXME add an association map proton track <-> sim tracks
     for ( const auto& trk : tracks ) {
       pOut->push_back( trk );
@@ -148,7 +149,7 @@ CTPPSOpticsParameterisation::produce( edm::Event& iEvent, const edm::EventSetup&
 }
 
 void
-CTPPSOpticsParameterisation::transportProtonTrack( const HepMC::GenParticle* in_trk, std::vector<CTPPSLocalTrackLite>& out_tracks )
+CTPPSOpticsParameterisation::transportProtonTrack( const reco::GenParticle& in_trk, std::vector<CTPPSLocalTrackLite>& out_tracks )
 {
   /// implemented according to LHCOpticsApproximator::Transport_m_GeV
   /// xi is positive for diffractive protons, thus proton momentum p = (1-xi) * p_nom
@@ -156,28 +157,29 @@ CTPPSOpticsParameterisation::transportProtonTrack( const HepMC::GenParticle* in_
 
   // transport the proton into each pot
   for ( const auto& rp : pots_ ) {
-    const HepMC::FourVector mom = in_trk->momentum();
+    const math::XYZVector mom = in_trk.momentum();
 
     // first check the side
     if ( rp.detid.arm()==0 && mom.z()<0. ) continue;
     if ( rp.detid.arm()==1 && mom.z()>0. ) continue;
 
-    const HepMC::GenVertex* vtx = in_trk->production_vertex();
+    const math::XYZPoint vtx = in_trk.vertex();
+
     // convert physics kinematics to the LHC reference frame
     double th_x = atan2( mom.x(), mom.z() ), th_y = atan2( mom.y(), mom.z() );
     if ( mom.z()<0. ) { th_x = M_PI-th_x; th_y = M_PI-th_y; }
-    double vtx_x = vtx->position().x(), vtx_y = vtx->position().y();
+
+    double vtx_x = vtx.x(), vtx_y = vtx.y();
     if ( rp.detid.arm()==0 ) {
       th_x += halfCrossingAngleSector45_;
       vtx_y += yOffsetSector45_;
     }
-
     if ( rp.detid.arm()==1 ) {
       th_x += halfCrossingAngleSector56_;
       vtx_y += yOffsetSector56_;
     }
 
-    const double xi = 1.-mom.e()/( sqrtS_*0.5 );
+    const double xi = 1.-in_trk.energy()/( sqrtS_*0.5 );
 
     // transport proton to its corresponding RP
     double kin_in[5] = { vtx_x, th_x * ( 1.-xi ), vtx_y, th_y * ( 1.-xi ), -xi };
@@ -185,6 +187,7 @@ CTPPSOpticsParameterisation::transportProtonTrack( const HepMC::GenParticle* in_
 
     bool proton_transported = rp.approximator->Transport( kin_in, kin_out, checkApertures_, invertBeamCoordinatesSystem_ );
 
+std::cout << "proton_transported: " << proton_transported << std::endl; for (unsigned short i=0;i<5;i++) std::cout << "in[" << i << "]: " << kin_in[i] << std::endl;
     // stop if proton not transportable
     if ( !proton_transported ) return;
 
