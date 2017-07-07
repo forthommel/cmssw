@@ -76,10 +76,11 @@ ProtonReco::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
   iEvent.getByToken( tracksToken_, tracks );
 
   for ( const auto& trk : *tracks ) {
+    const unsigned int rp_id = trk.getRPId();
     double xi, err_xi;
-    double x_rp = trk.getX() + run_align_.at( 0/*FIXME*/ ).x;
-    algo_->reconstruct( trk.getRPId(), x_rp, xi, err_xi );
-    pOut->emplace_back( trk.getRPId(), xi, err_xi );
+    double x_rp = trk.getX() + run_align_.at( rp_id ).x; //FIXME units??
+    algo_->reconstruct( rp_id, x_rp, xi, err_xi );
+    pOut->emplace_back( rp_id, xi, err_xi );
   }
 
   iEvent.put( std::move( pOut ) ); 
@@ -88,7 +89,7 @@ ProtonReco::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 void
 ProtonReco::beginRun( const edm::Run&, const edm::EventSetup& )
 {
-  int fill = 0;
+  int fill = 0; //FIXME LUT from run
   run_align_ = align_->get( fill );
 }
  

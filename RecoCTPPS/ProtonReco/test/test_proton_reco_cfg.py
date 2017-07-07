@@ -9,18 +9,19 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
     fileNames = cms.untracked.vstring(
-        'file:myfile.root'
+        'file:ctppsSim.root'
     )
 )
 
-process.myProducerLabel = cms.EDProducer('ProtonReco'
-)
+process.load('RecoCTPPS.ProtonReco.protons_cfi')
 
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('myOutputFile.root')
 )
 
   
-process.p = cms.Path(process.myProducerLabel)
+process.p = cms.Path(
+    process.protons
+)
 
 process.e = cms.EndPath(process.out)
