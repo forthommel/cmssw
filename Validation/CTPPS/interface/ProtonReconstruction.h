@@ -16,7 +16,7 @@ namespace ctpps
         const std::string filename = iConfig.getParameter<edm::FileInPath>( "filename" ).fullPath();
         auto file = std::make_unique<TFile>( filename.c_str() );
         for ( const auto& pot : iConfig.getParameter< std::vector<edm::ParameterSet> >( "interpolationCurves" ) ) {
-          splines_[pot.getParameter<unsigned int>( "potId" )] = std::make_shared<TSpline>( dynamic_cast<TSpline*>( file->Get( iConfig.getParameter<std::string>( "splineName" ).c_str() )->Clone() ) );
+          splines_[pot.getParameter<unsigned int>( "potId" )] = std::make_shared<TSpline3>( *dynamic_cast<TSpline3*>( file->Get( iConfig.getParameter<std::string>( "splineName" ).c_str() )->Clone() ) );
         }
       }
 
@@ -38,7 +38,7 @@ namespace ctpps
       }
 
     private:
-      std::map<unsigned int,std::shared_ptr<TSpline> > splines_;
+      std::map<unsigned int,std::shared_ptr<TSpline3> > splines_;
       const double si_x_alignment_; // in m, alignment uncertainty
       const double si_x_neglected_angle_; // in m, to (approximately) account for the neglected angular term in proton transport
       const double si_rel_D_; // 1, relative uncertainty of dispersion
