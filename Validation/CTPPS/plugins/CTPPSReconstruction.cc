@@ -33,9 +33,9 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
-#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
+#include "DataFormats/CTPPSReco/interface/Proton.h"
 
-#include "Validation/CTPPS/interface/ProtonReconstruction.h"
+#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 
 #include "TH1D.h"
 #include "TH2D.h"
@@ -56,11 +56,11 @@ class CTPPSReconstruction : public edm::one::EDAnalyzer<edm::one::SharedResource
 
     edm::EDGetTokenT< edm::View<reco::GenParticle> > genPartToken_;
     edm::EDGetTokenT< edm::View<CTPPSLocalTrackLite> > tracksToken_;
+    edm::EDGetTokenT< edm::View<reco::Proton> > protonsToken_;
 
     //edm::ParameterSet beamConditions_;
     double sqrtS_;
     std::vector<edm::ParameterSet> detectorPackages_;
-    std::unique_ptr<ctpps::ProtonReconstruction> xi_reco_;
 
     std::map<unsigned int,TH2D*> m_rp_h2_y_vs_x_;
 };
@@ -68,9 +68,9 @@ class CTPPSReconstruction : public edm::one::EDAnalyzer<edm::one::SharedResource
 CTPPSReconstruction::CTPPSReconstruction( const edm::ParameterSet& iConfig ) :
   genPartToken_( consumes< edm::View<reco::GenParticle> >( iConfig.getParameter<edm::InputTag>( "genPartTag" ) ) ),
   tracksToken_ ( consumes< edm::View<CTPPSLocalTrackLite> >( iConfig.getParameter<edm::InputTag>( "potsTracksTag" ) ) ),
+  protonsToken_( consumes< edm::View<reco::Proton> >( iConfig.getParameter<edm::InputTag>( "protonsTag" ) ) ),
   sqrtS_           ( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ).getParameter<double>( "sqrtS" ) ),
-  detectorPackages_( iConfig.getParameter< std::vector<edm::ParameterSet> >( "detectorPackages" ) ),
-  xi_reco_( std::make_unique<ctpps::ProtonReconstruction>( iConfig ) )
+  detectorPackages_( iConfig.getParameter< std::vector<edm::ParameterSet> >( "detectorPackages" ) )
 {
   usesResource( "TFileService" );
 

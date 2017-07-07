@@ -1,8 +1,9 @@
-#ifndef Validation_CTPPS_ProtonReconstruction_h
-#define Validation_CTPPS_ProtonReconstruction_h
+#ifndef RecoCTPPS_ProtonReco_ProtonReconstruction_h
+#define RecoCTPPS_ProtonReco_ProtonReconstruction_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "TFile.h"
 #include "TSpline.h"
 
 namespace ctpps
