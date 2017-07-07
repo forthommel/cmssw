@@ -21,10 +21,10 @@ process.load('SimRomanPot.CTPPSOpticsParameterisation.ctppsOpticsParameterisatio
 #process.ctppsOpticsParameterisation.beamParticlesTag = cms.InputTag('source')
 #process.ctppsOpticsParameterisation.beamParticlesTag = cms.InputTag('generatorSmeared')
 process.ctppsOpticsParameterisation.beamParticlesTag = cms.InputTag('prunedGenParticles') # miniAOD
-process.ctppsOpticsParameterisation.beamConditions.yOffsetSector45 = cms.double(0.0)
-process.ctppsOpticsParameterisation.beamConditions.yOffsetSector56 = cms.double(0.0)
-process.ctppsOpticsParameterisation.beamConditions.halfCrossingAngleSector45 = cms.double(0.0)
-process.ctppsOpticsParameterisation.beamConditions.halfCrossingAngleSector56 = cms.double(0.0)
+#process.ctppsOpticsParameterisation.beamConditions.yOffsetSector45 = cms.double(0.0)
+#process.ctppsOpticsParameterisation.beamConditions.yOffsetSector56 = cms.double(0.0)
+#process.ctppsOpticsParameterisation.beamConditions.halfCrossingAngleSector45 = cms.double(0.0)
+#process.ctppsOpticsParameterisation.beamConditions.halfCrossingAngleSector56 = cms.double(0.0)
 
 process.out = cms.OutputModule('PoolOutputModule',
     fileName = cms.untracked.string('ctppsSim.root')
