@@ -1,5 +1,6 @@
 <use name="FWCore/PluginManager"/>
 <use name="SimDataFormats/GeneratorProducts"/>
+<use name="DataFormats/HepMCCandidate"/>
 <use name="CommonTools/Utils"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="DataFormats/CTPPSDetId"/>
