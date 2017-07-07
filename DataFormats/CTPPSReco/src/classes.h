@@ -7,6 +7,8 @@
 #include "DataFormats/CTPPSReco/interface/TotemRPUVPattern.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPLocalTrack.h"
 
+#include "DataFormats/CTPPSReco/interface/Proton.h"
+
 #include <vector>
 
 namespace DataFormats_CTPPSReco {
@@ -35,5 +37,10 @@ namespace DataFormats_CTPPSReco {
     edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack>> w_dsv_ft;
     edm::DetSetVector<TotemRPLocalTrack::FittedRecHit> dsv_ft_frh;
     edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack::FittedRecHit>> w_dsv_ft_frh;
+
+    reco::Proton pr;
+    edm::Wrapper<reco::Proton> w_pr;
+    std::vector<reco::Proton> vec_pr;
+    edm::Wrapper<std::vector<reco::Proton> > w_vec_pr;
   };
 }

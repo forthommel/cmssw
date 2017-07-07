@@ -31,4 +31,11 @@
   <class name="edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack>>"/>
   <class name="edm::DetSetVector<TotemRPLocalTrack::FittedRecHit>"/>
   <class name="edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack::FittedRecHit>>"/>
+
+  <class name="reco::Proton" ClassVersion="3">
+    <version ClassVersion="3" checksum="2947593735"/>
+  </class>
+  <class name="edm::Wrapper<reco::Proton>"/>
+  <class name="std::vector<reco::Proton>"/>
+  <class name="edm::Wrapper<std::vector<reco::Proton> >"/>
 </lcgdict>
