@@ -17,7 +17,7 @@ namespace ctpps
         const std::string filename = iConfig.getParameter<edm::FileInPath>( "filename" ).fullPath();
         auto file = std::make_unique<TFile>( filename.c_str() );
         for ( const auto& pot : iConfig.getParameter< std::vector<edm::ParameterSet> >( "interpolationCurves" ) ) {
-          splines_[pot.getParameter<unsigned int>( "potId" )] = std::make_shared<TSpline3>( *dynamic_cast<TSpline3*>( file->Get( iConfig.getParameter<std::string>( "splineName" ).c_str() )->Clone() ) );
+          splines_[pot.getParameter<unsigned int>( "potId" )] = std::make_shared<TSpline3>( *dynamic_cast<TSpline3*>( file->Get( pot.getParameter<std::string>( "splineName" ).c_str() )->Clone() ) );
         }
       }
 

@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process('VALID')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load("Configuration.StandardSequences.Services_cff")
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('RecoCTPPS.ProtonReco.protons_cfi')
 process.load('Validation.CTPPS.ctppsReconstruction_cfi')
 
 process.maxEvents = cms.untracked.PSet(
@@ -24,5 +25,6 @@ process.TFileService = cms.Service('TFileService',
 )
 
 process.p = cms.Path(
+    process.protons *
     process.ctppsReconstruction
 )

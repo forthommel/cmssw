@@ -57,10 +57,12 @@ class ProtonReco : public edm::stream::EDProducer<> {
 
 ProtonReco::ProtonReco( const edm::ParameterSet& iConfig ) :
   tracksToken_( consumes<edm::View<CTPPSLocalTrackLite> >( iConfig.getParameter<edm::InputTag>( "tracksTag" ) ) ),
-  algo_( std::make_unique<ctpps::ProtonReconstruction>( iConfig.getParameter<edm::ParameterSet>( "protonRecoAlgo" ) ) ),
-  align_( std::make_unique<ctpps::Alignment>( iConfig.getParameter<edm::FileInPath>( "alignmentFile" ).fullPath().c_str() ) )
+  algo_( std::make_unique<ctpps::ProtonReconstruction>( iConfig.getParameter<edm::ParameterSet>( "protonRecoAlgo" ) ) )
 {
   produces<std::vector<reco::Proton> >();
+  if ( iConfig.exists( "alignmentFile" ) ) {
+    align_ = std::make_unique<ctpps::Alignment>( iConfig.getParameter<edm::FileInPath>( "alignmentFile" ).fullPath().c_str() );
+  }
 }
 
 
@@ -78,7 +80,8 @@ ProtonReco::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
   for ( const auto& trk : *tracks ) {
     const unsigned int rp_id = trk.getRPId();
     double xi, err_xi;
-    double x_rp = trk.getX() + run_align_.at( rp_id ).x; //FIXME units??
+    const double x_shift = ( align_ ) ? run_align_.at( rp_id ).x : 0.; 
+    double x_rp = trk.getX() + x_shift; //FIXME units??
     algo_->reconstruct( rp_id, x_rp, xi, err_xi );
     pOut->emplace_back( rp_id, xi, err_xi );
   }
@@ -90,7 +93,7 @@ void
 ProtonReco::beginRun( const edm::Run&, const edm::EventSetup& )
 {
   int fill = 0; //FIXME LUT from run
-  run_align_ = align_->get( fill );
+  if ( align_ ) run_align_ = align_->get( fill );
 }
  
 void

@@ -63,6 +63,7 @@ class CTPPSReconstruction : public edm::one::EDAnalyzer<edm::one::SharedResource
     std::vector<edm::ParameterSet> detectorPackages_;
 
     std::map<unsigned int,TH2D*> m_rp_h2_y_vs_x_;
+    std::map<unsigned int,TH2D*> m_rp_h2_xireco_vs_xigen_;
 };
 
 CTPPSReconstruction::CTPPSReconstruction( const edm::ParameterSet& iConfig ) :
@@ -82,6 +83,7 @@ CTPPSReconstruction::CTPPSReconstruction( const edm::ParameterSet& iConfig ) :
   for ( const auto& det : detectorPackages_ ) {
     const TotemRPDetId pot_id( det.getParameter<unsigned int>( "potId" ) );
     m_rp_h2_y_vs_x_.insert( std::make_pair( pot_id, hm_dir.make<TH2D>( Form( "h2_rp_hits_arm%d_rp%d", pot_id.arm(), pot_id.rp() ) , ";x;y", 300, 0., 30E-3, 200, -10E-3, +10E-3 ) ) );
+    m_rp_h2_xireco_vs_xigen_.insert( std::make_pair( pot_id, hm_dir.make<TH2D>( Form( "h2_rp_xibal_arm%d_rp%d", pot_id.arm(), pot_id.rp() ), ";#xi_{gen};#xi_{reco}", 100, 0., 0.5, 100, 0., 0.5 ) ) );
   }
 }
 
@@ -94,12 +96,31 @@ CTPPSReconstruction::analyze( const edm::Event& iEvent, const edm::EventSetup& )
   edm::Handle< edm::View<reco::GenParticle> > genParticles;
   iEvent.getByToken( genPartToken_, genParticles );
 
-  std::vector<reco::GenParticle> protons;
+  std::vector<reco::GenParticle> sim_protons_45, sim_protons_56;
 
   for ( const auto& part : *genParticles ) {
-    if ( part.status()==1 && part.pdgId()==2212 ) protons.push_back( part );
+    if ( part.status()==1 && part.pdgId()==2212 ) {
+      if ( part.pz()>0. ) sim_protons_45.push_back( part );
+      if ( part.pz()<0. ) sim_protons_56.push_back( part );
+    }
   }
-  std::cout << "number of outgoing protons in the event: " << protons.size() << std::endl;
+  std::cout << "number of simulated outgoing protons in the event:" << std::endl;
+  std::cout << "  sector 45: " << sim_protons_45.size() << std::endl;
+  std::cout << "  sector 56: " << sim_protons_56.size() << std::endl;
+
+  edm::Handle< edm::View<reco::Proton> > reco_protons;
+  iEvent.getByToken( protonsToken_, reco_protons );
+
+  for ( const auto& gen_pro : sim_protons_45 ) {
+    const double gen_xi = 1.-gen_pro.energy()/( sqrtS_*0.5 );
+    for ( const auto& proton : *reco_protons ) {
+      const CTPPSDetId detid( proton.pot() );
+      if ( detid.arm()!=0 ) continue;
+      unsigned short pot_id = 100*detid.arm()+detid.rp();
+      //std::cout << "proton track reconstructed in pot: " << pot_id << std::endl;
+      m_rp_h2_xireco_vs_xigen_[proton.pot()]->Fill( gen_xi, proton.xi() );
+    }
+  }
 
   edm::Handle< edm::View<CTPPSLocalTrackLite> > tracks;
   iEvent.getByToken( tracksToken_, tracks );

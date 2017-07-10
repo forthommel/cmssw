@@ -6,6 +6,7 @@ from SimRomanPot.CTPPSOpticsParameterisation.lhcBeamConditions_cff import lhcBea
 ctppsReconstruction = cms.EDAnalyzer('CTPPSReconstruction',
     genPartTag = cms.InputTag('prunedGenParticles'), # miniAOD
     potsTracksTag = cms.InputTag('ctppsOpticsParameterisation'),
+    protonsTag = cms.InputTag('protons'),
     detectorPackages = detectorPackages_2016PreTS2,
     beamConditions = lhcBeamConditions_2016PreTS2,
 )
