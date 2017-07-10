@@ -200,7 +200,7 @@ CTPPSOpticsParameterisation::transportProtonTrack( const reco::GenParticle& in_t
 
     bool proton_transported = rp.approximator->Transport( kin_in, kin_out, checkApertures_, invertBeamCoordinatesSystem_ );
 
-std::cout << "proton_transported: " << proton_transported << std::endl; for (unsigned short i=0;i<5;i++) std::cout << "in[" << i << "]: " << kin_in[i] << std::endl;
+//std::cout << "proton_transported: " << proton_transported << std::endl; for (unsigned short i=0;i<5;i++) std::cout << "in[" << i << "]: " << kin_in[i] << std::endl;
     // stop if proton not transportable
     if ( !proton_transported ) return;
 

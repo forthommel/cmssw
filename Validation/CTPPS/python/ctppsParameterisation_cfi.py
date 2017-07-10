@@ -4,7 +4,7 @@ from SimRomanPot.CTPPSOpticsParameterisation.ctppsDetectorPackages_cff import de
 from SimRomanPot.CTPPSOpticsParameterisation.lhcBeamConditions_cff import lhcBeamConditions_2016PreTS2
 
 ctppsParameterisation = cms.EDAnalyzer('CTPPSParameterisation',
-    genProtonsTag = cms.InputTag('lhcBeamProducer', 'unsmeared'),
+    genPartTag = cms.InputTag('genParticles'),
     recoProtons45Tag = cms.InputTag('ctppsOpticsReconstruction', 'sector45'),
     recoProtons56Tag = cms.InputTag('ctppsOpticsReconstruction', 'sector56'),
     potsTracksTag = cms.InputTag('ctppsOpticsParameterisation'),

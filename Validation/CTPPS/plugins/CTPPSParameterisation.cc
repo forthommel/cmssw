@@ -33,10 +33,9 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "SimDataFormats/CTPPS/interface/CTPPSSimProtonTrack.h"
-
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "TH1D.h"
 #include "TH2D.h"
@@ -58,7 +57,7 @@ class CTPPSParameterisation : public edm::one::EDAnalyzer<edm::one::SharedResour
     virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
     virtual void endJob() override;
 
-    edm::EDGetTokenT<edm::HepMCProduct> genProtonsToken_;
+    edm::EDGetTokenT< edm::View<reco::GenParticle> > genPartToken_;
     edm::EDGetTokenT< edm::View<CTPPSSimProtonTrack> > recoProtons45Token_, recoProtons56Token_;
     edm::EDGetTokenT< edm::View<CTPPSLocalTrackLite> > tracksToken_;
 
@@ -79,7 +78,7 @@ class CTPPSParameterisation : public edm::one::EDAnalyzer<edm::one::SharedResour
 };
 
 CTPPSParameterisation::CTPPSParameterisation( const edm::ParameterSet& iConfig ) :
-  genProtonsToken_   ( consumes<edm::HepMCProduct>( iConfig.getParameter<edm::InputTag>( "genProtonsTag" ) ) ),
+  genPartToken_      ( consumes< edm::View<reco::GenParticle> >( iConfig.getParameter<edm::InputTag>( "genPartTag" ) ) ),
   recoProtons45Token_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtons45Tag" ) ) ),
   recoProtons56Token_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtons56Tag" ) ) ),
   tracksToken_       ( consumes< edm::View<CTPPSLocalTrackLite> >( iConfig.getParameter<edm::InputTag>( "potsTracksTag" ) ) ),
@@ -149,25 +148,23 @@ CTPPSParameterisation::analyze( const edm::Event& iEvent, const edm::EventSetup&
     m_rp_h2_y_vs_x_[det_id.rawId()]->Fill( trk.getX(), trk.getY() );
   }
 
-  edm::Handle<edm::HepMCProduct> protons;
-  iEvent.getByToken( genProtonsToken_, protons );
-  const HepMC::GenEvent& evt = protons->getHepMCData();
-  if ( evt.particles_size()>1 ) {
+  edm::Handle< edm::View<reco::GenParticle> > gen_particles;
+  iEvent.getByToken( genPartToken_, gen_particles );
+  /*if ( gen_particles->size()>1 ) {
     throw cms::Exception("CTPPSParameterisation") << "Not yet supporting multiple generated protons per event";
-  }
+  }*/
 
   edm::Handle< edm::View<CTPPSSimProtonTrack> > reco_protons[2];
   iEvent.getByToken( recoProtons45Token_, reco_protons[0] );
   iEvent.getByToken( recoProtons56Token_, reco_protons[1] );
 
-  for ( HepMC::GenEvent::particle_const_iterator p=evt.particles_begin(); p!=evt.particles_end(); ++p ) {
-    const HepMC::GenParticle* gen_pro = *p;
-    const HepMC::FourVector& gen_pos = gen_pro->production_vertex()->position();
+  for ( const auto& gen_part : *gen_particles ) {
+    if ( gen_part.status()!=1 || gen_part.pdgId()!=2212 ) continue;
 
-    const double gen_xi = 1.-gen_pro->momentum().e()/( sqrtS_*0.5 );
-    const double gen_th_x = atan2( gen_pro->momentum().px(), gen_pro->momentum().pz() );
-    const double gen_th_y = atan2( gen_pro->momentum().py(), gen_pro->momentum().pz() );
-    const double gen_vtx_x = gen_pos.x(), gen_vtx_y = gen_pos.y();
+    const double gen_xi = 1.-gen_part.energy()/sqrtS_*2.;
+    const double gen_th_x = atan2( gen_part.px(), gen_part.pz() );
+    const double gen_th_y = atan2( gen_part.py(), gen_part.pz() );
+    const double gen_vtx_x = gen_part.vx(), gen_vtx_y = gen_part.vy();
 
     h_gen_vtx_x_->Fill( gen_vtx_x );
     h_gen_vtx_y_->Fill( gen_vtx_y );
@@ -175,36 +172,35 @@ CTPPSParameterisation::analyze( const edm::Event& iEvent, const edm::EventSetup&
     h_gen_th_y_->Fill( gen_th_y );
     h_gen_xi_->Fill( gen_xi );
 
-    for ( unsigned short i=0; i<2; ++i ) {
-      for ( const auto& rec_pro : *reco_protons[i] ) {
-        const double rec_xi = rec_pro.xi();
+    const unsigned short side_id = ( gen_part.pz()>0 ) ? 0 : 1;
+    for ( const auto& rec_pro : *reco_protons[side_id] ) {
+      const double rec_xi = rec_pro.xi();
 
-        //std::cout << "(" << reco_protons[i]->size() << ")--> sector " << i << ": " << gen_xi << " / " << rec_xi << std::endl;
+      //std::cout << "(" << reco_protons[side_id]->size() << ")--> sector " << i << ": " << gen_xi << " / " << rec_xi << std::endl;
 
-        const double de_vtx_x = rec_pro.vertex().x()-gen_vtx_x;
-        const double de_vtx_y = rec_pro.vertex().y()-gen_vtx_y;
-        const double de_th_x = rec_pro.direction().x()-gen_th_x;
-        const double de_th_y = rec_pro.direction().y()-gen_th_y;
-        const double de_xi = rec_xi-gen_xi;
+      const double de_vtx_x = rec_pro.vertex().x()-gen_vtx_x;
+      const double de_vtx_y = rec_pro.vertex().y()-gen_vtx_y;
+      const double de_th_x = rec_pro.direction().x()-gen_th_x;
+      const double de_th_y = rec_pro.direction().y()-gen_th_y;
+      const double de_xi = rec_xi-gen_xi;
 
-        h_de_vtx_x_[i]->Fill( de_vtx_x );
-        h_de_vtx_y_[i]->Fill( de_vtx_y );
-        h_de_th_x_[i]->Fill( de_th_x );
-        h_de_th_y_[i]->Fill( de_th_y );
-        h_de_xi_[i]->Fill( de_xi );
+      h_de_vtx_x_[side_id]->Fill( de_vtx_x );
+      h_de_vtx_y_[side_id]->Fill( de_vtx_y );
+      h_de_th_x_[side_id]->Fill( de_th_x );
+      h_de_th_y_[side_id]->Fill( de_th_y );
+      h_de_xi_[side_id]->Fill( de_xi );
 
-        h2_de_vtx_x_vs_de_xi_[i]->Fill( de_xi, de_vtx_x );
-        h2_de_vtx_y_vs_de_xi_[i]->Fill( de_xi, de_vtx_y );
-        h2_de_th_x_vs_de_xi_[i]->Fill( de_xi, de_th_x );
-        h2_de_th_y_vs_de_xi_[i]->Fill( de_xi, de_th_y );
-        h2_de_vtx_y_vs_de_th_y_[i]->Fill( de_th_y, de_vtx_y );
+      h2_de_vtx_x_vs_de_xi_[side_id]->Fill( de_xi, de_vtx_x );
+      h2_de_vtx_y_vs_de_xi_[side_id]->Fill( de_xi, de_vtx_y );
+      h2_de_th_x_vs_de_xi_[side_id]->Fill( de_xi, de_th_x );
+      h2_de_th_y_vs_de_xi_[side_id]->Fill( de_xi, de_th_y );
+      h2_de_vtx_y_vs_de_th_y_[side_id]->Fill( de_th_y, de_vtx_y );
 
-        p_de_vtx_x_vs_xi_[i]->Fill( gen_xi, de_vtx_x );
-        p_de_vtx_y_vs_xi_[i]->Fill( gen_xi, de_vtx_y );
-        p_de_th_x_vs_xi_[i]->Fill( gen_xi, de_th_x );
-        p_de_th_y_vs_xi_[i]->Fill( gen_xi, de_th_y );
-        p_de_xi_vs_xi_[i]->Fill( gen_xi, de_xi );
-      }
+      p_de_vtx_x_vs_xi_[side_id]->Fill( gen_xi, de_vtx_x );
+      p_de_vtx_y_vs_xi_[side_id]->Fill( gen_xi, de_vtx_y );
+      p_de_th_x_vs_xi_[side_id]->Fill( gen_xi, de_th_x );
+      p_de_th_y_vs_xi_[side_id]->Fill( gen_xi, de_th_y );
+      p_de_xi_vs_xi_[side_id]->Fill( gen_xi, de_xi );
     }
   }
 }
