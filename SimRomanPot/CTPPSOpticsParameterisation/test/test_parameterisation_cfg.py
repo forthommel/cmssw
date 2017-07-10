@@ -35,6 +35,8 @@ process.g4SimHits.Generator.HepMCProductLabel = cms.InputTag('lhcBeamProducer', 
 process.load('SimRomanPot.CTPPSOpticsParameterisation.lhcBeamProducer_cfi')
 process.load('SimRomanPot.CTPPSOpticsParameterisation.ctppsOpticsParameterisation_cfi')
 
+process.ctppsOpticsParameterisation.useBeamSpotPosition = cms.bool(False)
+
 process.out = cms.OutputModule('PoolOutputModule',
     fileName = cms.untracked.string('ctppsSim.root')
 )

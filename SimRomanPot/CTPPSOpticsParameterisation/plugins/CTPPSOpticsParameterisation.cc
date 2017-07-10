@@ -62,7 +62,7 @@ class CTPPSOpticsParameterisation : public edm::stream::EDProducer<>
     };
 
     virtual void produce( edm::Event&, const edm::EventSetup& ) override;
-    void transportProtonTrack( const reco::GenParticle&, const reco::BeamSpot&, std::vector<CTPPSLocalTrackLite>& );
+    void transportProtonTrack( const reco::GenParticle&, const math::XYZPoint&, std::vector<CTPPSLocalTrackLite>& );
 
     edm::EDGetTokenT< edm::View<reco::GenParticle> > protonsToken_;
     edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
@@ -76,6 +76,7 @@ class CTPPSOpticsParameterisation : public edm::stream::EDProducer<>
 
     bool checkApertures_;
     bool invertBeamCoordinatesSystem_;
+    bool useBeamSpotPosition_;
 
     edm::FileInPath opticsFileBeam1_, opticsFileBeam2_;
     std::vector<edm::ParameterSet> detectorPackages_;
@@ -87,7 +88,7 @@ class CTPPSOpticsParameterisation : public edm::stream::EDProducer<>
 
 CTPPSOpticsParameterisation::CTPPSOpticsParameterisation( const edm::ParameterSet& iConfig ) :
   protonsToken_ ( consumes< edm::View<reco::GenParticle> >( iConfig.getParameter<edm::InputTag>( "beamParticlesTag" ) ) ),
-  beamSpotToken_( consumes<reco::BeamSpot>( iConfig.getParameter<edm::InputTag>( "beamSpotTag" ) ) ),
+  beamSpotToken_( consumes<reco::BeamSpot>( iConfig.getUntrackedParameter<edm::InputTag>( "beamSpotTag", edm::InputTag( "offlineBeamSpot" ) ) ) ),
   beamConditions_             ( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ) ),
   sqrtS_                      ( beamConditions_.getParameter<double>( "sqrtS" ) ),
   halfCrossingAngleSector45_  ( beamConditions_.getParameter<double>( "halfCrossingAngleSector45" ) ),
@@ -97,6 +98,7 @@ CTPPSOpticsParameterisation::CTPPSOpticsParameterisation( const edm::ParameterSe
   simulateDetectorsResolution_( iConfig.getParameter<bool>( "simulateDetectorsResolution" ) ),
   checkApertures_             ( iConfig.getParameter<bool>( "checkApertures" ) ),
   invertBeamCoordinatesSystem_( iConfig.getParameter<bool>( "invertBeamCoordinatesSystem" ) ),
+  useBeamSpotPosition_        ( iConfig.getParameter<bool>( "useBeamSpotPosition" ) ),
   opticsFileBeam1_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam1" ) ),
   opticsFileBeam2_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam2" ) ),
   detectorPackages_           ( iConfig.getParameter< std::vector<edm::ParameterSet> >( "detectorPackages" ) ),
@@ -137,15 +139,19 @@ CTPPSOpticsParameterisation::produce( edm::Event& iEvent, const edm::EventSetup&
   edm::Handle< edm::View<reco::GenParticle> > protons;
   iEvent.getByToken( protonsToken_, protons );
 
-  edm::Handle<reco::BeamSpot> h_beamspot;
-  iEvent.getByToken( beamSpotToken_, h_beamspot );
-  const reco::BeamSpot& beamspot = *h_beamspot;
+  math::XYZPoint bs_pos( 0.0, 0.0, 0.0 );
+  if ( useBeamSpotPosition_ ) {
+    edm::Handle<reco::BeamSpot> h_beamspot;
+    iEvent.getByToken( beamSpotToken_, h_beamspot );
+    //const reco::BeamSpot& beamspot = *h_beamspot;
+    bs_pos = h_beamspot->position();
+  }
 
   // run simulation
   for ( const auto& part : *protons ) {
     std::vector<CTPPSLocalTrackLite> tracks;
     if ( part.status()!=1 || part.pdgId()!=2212 ) continue; //FIXME only transport stable protons
-    transportProtonTrack( part, beamspot, tracks );
+    transportProtonTrack( part, bs_pos, tracks );
     //FIXME add an association map proton track <-> sim tracks
     for ( const auto& trk : tracks ) {
       pOut->push_back( trk );
@@ -156,7 +162,7 @@ CTPPSOpticsParameterisation::produce( edm::Event& iEvent, const edm::EventSetup&
 }
 
 void
-CTPPSOpticsParameterisation::transportProtonTrack( const reco::GenParticle& in_trk, const reco::BeamSpot& bs, std::vector<CTPPSLocalTrackLite>& out_tracks )
+CTPPSOpticsParameterisation::transportProtonTrack( const reco::GenParticle& in_trk, const math::XYZPoint& bs_pos, std::vector<CTPPSLocalTrackLite>& out_tracks )
 {
   /// implemented according to LHCOpticsApproximator::Transport_m_GeV
   /// xi is positive for diffractive protons, thus proton momentum p = (1-xi) * p_nom
@@ -170,7 +176,7 @@ CTPPSOpticsParameterisation::transportProtonTrack( const reco::GenParticle& in_t
     if ( rp.detid.arm()==0 && mom.z()<0. ) continue;
     if ( rp.detid.arm()==1 && mom.z()>0. ) continue;
 
-    const math::XYZPoint vtx( in_trk.vx()-bs.x0(), in_trk.vy()-bs.y0(), in_trk.vz()-bs.z0() );
+    const math::XYZPoint vtx( in_trk.vx()-bs_pos.x(), in_trk.vy()-bs_pos.y(), in_trk.vz()-bs_pos.z() );
 
     // convert physics kinematics to the LHC reference frame
     double th_x = atan2( mom.x(), mom.z() ), th_y = atan2( mom.y(), mom.z() );
