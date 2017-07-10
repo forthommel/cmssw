@@ -173,8 +173,8 @@ CTPPSOpticsParameterisation::transportProtonTrack( const reco::GenParticle& in_t
     const math::XYZVector mom = in_trk.momentum();
 
     // first check the side
-    if ( rp.detid.arm()==0 && mom.z()<0. ) continue;
-    if ( rp.detid.arm()==1 && mom.z()>0. ) continue;
+    if ( rp.detid.arm()==0 && mom.z()<0.0 ) continue;
+    if ( rp.detid.arm()==1 && mom.z()>0.0 ) continue;
 
     const math::XYZPoint vtx( in_trk.vx()-bs_pos.x(), in_trk.vy()-bs_pos.y(), in_trk.vz()-bs_pos.z() );
 
@@ -192,7 +192,7 @@ CTPPSOpticsParameterisation::transportProtonTrack( const reco::GenParticle& in_t
       vtx_y += yOffsetSector56_;
     }
 
-    const double xi = 1.-in_trk.energy()/( sqrtS_*0.5 );
+    const double xi = 1.-in_trk.energy()/sqrtS_*2.;
 
     // transport proton to its corresponding RP
     double kin_in[5] = { vtx_x, th_x * ( 1.-xi ), vtx_y, th_y * ( 1.-xi ), -xi };
@@ -204,7 +204,7 @@ CTPPSOpticsParameterisation::transportProtonTrack( const reco::GenParticle& in_t
     // stop if proton not transportable
     if ( !proton_transported ) return;
 
-    const double rp_resol = ( simulateDetectorsResolution_ ) ? rp.resolution : 0.;
+    const double rp_resol = ( simulateDetectorsResolution_ ) ? rp.resolution : 0.0;
 
     // simulate detector resolution
     kin_out[0] += CLHEP::RandGauss::shoot( rnd_ ) * rp_resol; // vtx_x

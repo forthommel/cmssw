@@ -87,7 +87,7 @@ process.simulation_step = cms.Path(
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.endjob_step = cms.EndPath(
     process.endOfProcess
-    * process.ctppsParameterisation
+    * process.paramValidation
 )
 process.RAWSIMoutput_step = cms.EndPath(process.RAWSIMoutput)
 

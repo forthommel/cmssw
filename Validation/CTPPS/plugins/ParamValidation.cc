@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:    Validation/CTPPS
-// Class:      CTPPSParameterisation
+// Class:      ParamValidation
 // 
-/**\class CTPPSParameterisation CTPPSParameterisation.cc Validation/CTPPS/test/CTPPSParameterisation.cc
+/**\class ParamValidation ParamValidation.cc Validation/CTPPS/test/ParamValidation.cc
 
  Description: [one line class summary]
 
@@ -45,10 +45,10 @@
 
 #include <map>
 
-class CTPPSParameterisation : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
+class ParamValidation : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   public:
-    explicit CTPPSParameterisation( const edm::ParameterSet& );
-    ~CTPPSParameterisation();
+    explicit ParamValidation( const edm::ParameterSet& );
+    ~ParamValidation();
 
     static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
 
@@ -77,7 +77,7 @@ class CTPPSParameterisation : public edm::one::EDAnalyzer<edm::one::SharedResour
     TProfile* p_de_vtx_x_vs_xi_[2], *p_de_vtx_y_vs_xi_[2], *p_de_th_x_vs_xi_[2], *p_de_th_y_vs_xi_[2], *p_de_xi_vs_xi_[2];
 };
 
-CTPPSParameterisation::CTPPSParameterisation( const edm::ParameterSet& iConfig ) :
+ParamValidation::ParamValidation( const edm::ParameterSet& iConfig ) :
   genPartToken_      ( consumes< edm::View<reco::GenParticle> >( iConfig.getParameter<edm::InputTag>( "genPartTag" ) ) ),
   recoProtons45Token_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtons45Tag" ) ) ),
   recoProtons56Token_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtons56Tag" ) ) ),
@@ -134,11 +134,11 @@ CTPPSParameterisation::CTPPSParameterisation( const edm::ParameterSet& iConfig )
   }
 }
 
-CTPPSParameterisation::~CTPPSParameterisation()
+ParamValidation::~ParamValidation()
 {}
 
 void
-CTPPSParameterisation::analyze( const edm::Event& iEvent, const edm::EventSetup& )
+ParamValidation::analyze( const edm::Event& iEvent, const edm::EventSetup& )
 {
   edm::Handle< edm::View<CTPPSLocalTrackLite> > tracks;
   iEvent.getByToken( tracksToken_, tracks );
@@ -151,7 +151,7 @@ CTPPSParameterisation::analyze( const edm::Event& iEvent, const edm::EventSetup&
   edm::Handle< edm::View<reco::GenParticle> > gen_particles;
   iEvent.getByToken( genPartToken_, gen_particles );
   /*if ( gen_particles->size()>1 ) {
-    throw cms::Exception("CTPPSParameterisation") << "Not yet supporting multiple generated protons per event";
+    throw cms::Exception("ParamValidation") << "Not yet supporting multiple generated protons per event";
   }*/
 
   edm::Handle< edm::View<CTPPSSimProtonTrack> > reco_protons[2];
@@ -206,11 +206,11 @@ CTPPSParameterisation::analyze( const edm::Event& iEvent, const edm::EventSetup&
 }
 
 void
-CTPPSParameterisation::beginJob()
+ParamValidation::beginJob()
 {}
 
 void
-CTPPSParameterisation::endJob()
+ParamValidation::endJob()
 {
 /*
   ProfileToRMSGraph(p_de_vtx_x_vs_xi_45, "g_rms_de_vtx_x_vs_xi_45")->Write();
@@ -228,7 +228,7 @@ CTPPSParameterisation::endJob()
 }
 
 void
-CTPPSParameterisation::fillDescriptions( edm::ConfigurationDescriptions& descriptions ) {
+ParamValidation::fillDescriptions( edm::ConfigurationDescriptions& descriptions ) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -237,5 +237,5 @@ CTPPSParameterisation::fillDescriptions( edm::ConfigurationDescriptions& descrip
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE( CTPPSParameterisation );
+DEFINE_FWK_MODULE( ParamValidation );
 

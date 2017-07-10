@@ -52,5 +52,5 @@ process.p = cms.Path(
 
 process.e = cms.EndPath(
     process.out
-    * process.ctppsParameterisation
+    * process.paramValidation
 )
