@@ -1,22 +1,12 @@
-// -*- C++ -*-
-//
-// Package:    Validation/CTPPS
-// Class:      ParamValidation
-// 
-/**\class ParamValidation ParamValidation.cc Validation/CTPPS/test/ParamValidation.cc
+/****************************************************************************
+ *
+ * This is a part of CTPPS validation software
+ * Authors:
+ *   Jan Kašpar
+ *   Laurent Forthomme
+ *
+ ****************************************************************************/
 
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
-//
-// Original Author:  Laurent Forthomme
-//         Created:  Fri, 26 May 2017 12:42:12 GMT
-//
-//
-//
-//
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"

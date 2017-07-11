@@ -1,21 +1,12 @@
-// -*- C++ -*-
-//
-// Package:    SimRomanPot/CTPPSOpticsParameterisation
-// Class:      CTPPSOpticsParameterisation
-// 
-/**\class CTPPSOpticsParameterisation CTPPSOpticsParameterisation.cc SimRomanPot/CTPPSOpticsParameterisation/plugins/CTPPSOpticsParameterisation.cc
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
-//
-// Original Author:  Laurent Forthomme
-//         Created:  Wed, 24 May 2017 07:40:20 GMT
-//
-//
-
+/****************************************************************************
+ *
+ * This is a part of CTPPS offline software
+ * Authors:
+ *   Leszek Grzanka
+ *   Jan Kašpar
+ *   Laurent Forthomme
+ *
+ ****************************************************************************/
 
 #include <memory>
 
