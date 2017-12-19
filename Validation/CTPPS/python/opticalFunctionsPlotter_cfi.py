@@ -10,7 +10,7 @@ ctppsPlotOpticalFunctions_45 = cms.EDAnalyzer("OpticalFunctionsPlotter",
     vtxY0Sector56 = cms.double(200.e-6),
     beamConditions = Realistic25ns13TeV2016PreTS2CollisionVtxSmearingParameters,
     minXi = cms.double(0.0),
-    maxXi = cms.double(0.151),
+    maxXi = cms.double(0.2),
     xiStep = cms.double(0.001),
 )
 

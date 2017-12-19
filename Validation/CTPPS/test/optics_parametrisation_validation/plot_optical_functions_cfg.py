@@ -25,7 +25,5 @@ process.TFileService = cms.Service('TFileService',
     closeFileFast = cms.untracked.bool(True),
 )
 
-process.p = cms.Path(
-    process.ctppsPlotOpticalFunctions_45
-    * process.ctppsPlotOpticalFunctions_56
-)
+process.p = cms.Path(process.ctppsPlotOpticalFunctions_45*process.ctppsPlotOpticalFunctions_56)
+

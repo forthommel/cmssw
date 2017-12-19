@@ -2,6 +2,7 @@
 
 CrossingAngleVtxGenerator::CrossingAngleVtxGenerator( const edm::ParameterSet& iConfig ) :
   sourceToken_( consumes<edm::HepMCProduct>( iConfig.getParameter<edm::InputTag>( "src" ) ) ),
+  sourceBisToken_( consumes<LHEEventProduct>( iConfig.getParameter<edm::InputTag>( "src" ) ) ),
   vertexSize_               ( iConfig.getParameter<double>( "vertexSize" ) ),
   beamDivergence_           ( iConfig.getParameter<double>( "beamDivergence" ) ),
   halfCrossingAngleSector45_( iConfig.getParameter<double>( "halfCrossingAngleSector45" ) ),
@@ -31,14 +32,31 @@ CrossingAngleVtxGenerator::produce( edm::Event& iEvent, const edm::EventSetup& )
   edm::Service<edm::RandomNumberGenerator> rng;
   rnd_ = &( rng->getEngine( iEvent.streamID() ) );
 
-  edm::Handle<edm::HepMCProduct> HepUnsmearedMCEvt ;
-  iEvent.getByToken( sourceToken_, HepUnsmearedMCEvt );
+  HepMC::GenEvent* genevt = 0;
 
-  // copy the HepMC::GenEvent
-  HepMC::GenEvent* genevt = new HepMC::GenEvent( *HepUnsmearedMCEvt->GetEvent() );
+  edm::Handle<edm::HepMCProduct> HepUnsmearedMCEvt;
+  bool found = iEvent.getByToken( sourceToken_, HepUnsmearedMCEvt );
+  if ( found ) {
+    // copy the HepMC::GenEvent
+    genevt = new HepMC::GenEvent( *HepUnsmearedMCEvt->GetEvent() );
+  }
+  else {
+    edm::Handle<LHEEventProduct> lheEvent;
+    found = iEvent.getByToken( sourceBisToken_, lheEvent );
+    auto event = lheEvent->hepeup();
+
+    genevt = new HepMC::GenEvent;
+    auto vtx = new HepMC::GenVertex;
+    genevt->add_vertex( vtx );
+    for ( unsigned short i = 0; i < event.NUP; ++i ) {
+      if ( event.ISTUP[i] < 0 ) continue;
+      vtx->add_particle_out( new HepMC::GenParticle( HepMC::FourVector( event.PUP[i][0], event.PUP[i][1], event.PUP[i][2], event.PUP[i][3] ), event.IDUP[i], event.ISTUP[i] ) );
+    }
+  }
+  if ( !found ) return;
   std::unique_ptr<edm::HepMCProduct> pEvent( new edm::HepMCProduct( genevt ) );
   pEvent->applyVtxGen( vertexPosition().get() );
-  for ( HepMC::GenEvent::particle_iterator part=genevt->particles_begin(); part!=genevt->particles_end(); ++part ) {
+  for ( HepMC::GenEvent::particle_iterator part = genevt->particles_begin(); part != genevt->particles_end(); ++part ) {
     rotateParticle( *part );
   }
 
@@ -60,24 +78,23 @@ CrossingAngleVtxGenerator::rotateParticle( HepMC::GenParticle* part ) const
   const HepMC::FourVector mom = part->momentum();
 
   // convert physics kinematics to the LHC reference frame
-  double th_x = atan2( mom.x(), fabs( mom.z() ) ), th_y = atan2( mom.y(), fabs( mom.z() ) );
+  double th_x = atan2( mom.x(), mom.z() ), th_y = atan2( mom.y(), mom.z() );
 
-  if ( mom.z()<0.0 ) { th_x = M_PI-th_x; th_y = M_PI-th_y; }
+  // CMS convention
+  if ( mom.z() > 0.0 ) th_x += halfCrossingAngleSector45_;
+  if ( mom.z() < 0.0 ) th_x -= halfCrossingAngleSector56_;
+
+  const short sign = ( mom.z() > 0 ) ? 1 : -1;
 
   // generate beam divergence
   if ( simulateBeamDivergence_ ) {
-    th_x -= CLHEP::RandGauss::shoot( rnd_ ) * beamDivergence_;
+    th_x += CLHEP::RandGauss::shoot( rnd_ ) * beamDivergence_;
     th_y += CLHEP::RandGauss::shoot( rnd_ ) * beamDivergence_;
   }
 
-  // CMS convention
-  double half_cr_angle = 0.0;
-  if ( mom.z()>0.0 ) half_cr_angle = halfCrossingAngleSector45_;
-  if ( mom.z()<0.0 ) half_cr_angle = halfCrossingAngleSector56_;
-  th_x -= half_cr_angle;
-  const short sign = ( mom.z()>0 ) ? 1 : -1;
-
-  const double pz = sign * mom.rho() * sqrt( 1.0/( 1.0+tan( th_x )*tan( th_x )+tan( th_y )*tan( th_y ) ) );
-  HepMC::FourVector mom_smeared( pz*tan( th_x ), pz*tan( th_y ), pz, mom.e() );
+  const double tan_th_x = tan( th_x ), tan_th_y = tan( th_y );
+  const double pz = sign * mom.rho() * sqrt( 1.0/( 1.0 + tan_th_x*tan_th_x + tan_th_y*tan_th_y ) );
+  HepMC::FourVector mom_smeared( pz*tan_th_x, pz*tan_th_y, pz, mom.e() );
   part->set_momentum( mom_smeared );
 }
+

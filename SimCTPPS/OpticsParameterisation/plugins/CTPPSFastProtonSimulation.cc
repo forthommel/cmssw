@@ -167,9 +167,9 @@ CTPPSFastProtonSimulation::CTPPSFastProtonSimulation( const edm::ParameterSet& i
     const double z_position = rp.getParameter<double>( "zPosition" );
     CTPPSDetId detid( raw_detid );
 
-    if ( detid.arm()==0 ) // sector 45 -- beam 2
+    if ( detid.arm() == 0 ) // sector 45 -- beam 2
       pots_.emplace_back( detid, det_resol, z_position, dynamic_cast<LHCOpticsApproximator*>( f_in_optics_beam2->Get( interp_name.c_str() ) ) );
-    if ( detid.arm()==1 ) // sector 56 -- beam 1
+    if ( detid.arm() == 1 ) // sector 56 -- beam 1
       pots_.emplace_back( detid, det_resol, z_position, dynamic_cast<LHCOpticsApproximator*>( f_in_optics_beam1->Get( interp_name.c_str() ) ) );
   }
 }
@@ -184,7 +184,7 @@ CTPPSFastProtonSimulation::beginRun( const edm::Run&, const edm::EventSetup& iSe
   for ( const auto& rp : pots_ ) {
     std::vector<CTPPSDetId>& list = strips_list_[rp.detid];
     os << "\npot " << rp.detid << ":";
-    for ( TotemRPGeometry::mapType::const_iterator it=geometry_->beginDet(); it!=geometry_->endDet(); ++it ) {
+    for ( TotemRPGeometry::mapType::const_iterator it = geometry_->beginDet(); it != geometry_->endDet(); ++it ) {
       const CTPPSDetId detid( it->first );
       if ( detid.getRPId()!=rp.detid ) continue;
       list.push_back( detid );
@@ -210,21 +210,20 @@ CTPPSFastProtonSimulation::produce( edm::Event& iEvent, const edm::EventSetup& i
   auto evt = new HepMC::GenEvent( *hepmc_prod->GetEvent() );
 
   // loop over event vertices
-  for ( auto it_vtx=evt->vertices_begin(); it_vtx!=evt->vertices_end(); ++it_vtx ) {
+  for ( auto it_vtx = evt->vertices_begin(); it_vtx != evt->vertices_end(); ++it_vtx ) {
     auto vtx = *( it_vtx );
 
     // loop over outgoing particles
-    for ( auto it_part=vtx->particles_out_const_begin(); it_part!=vtx->particles_out_const_end(); ++it_part ) {
+    for ( auto it_part = vtx->particles_out_const_begin(); it_part != vtx->particles_out_const_end(); ++it_part ) {
       auto part = *( it_part );
       // run simulation
-      if ( part->pdg_id()!=2212 ) continue; // only transport stable protons
-      if ( part->status()!=1 && part->status()<83 ) continue;
+      if ( part->pdg_id() != 2212 && part->status() < 0 ) continue; // only transport stable protons
 
       HepMC::FourVector out_vtx = vtx->position(); // in mm
       std::unordered_map<unsigned int,std::array<double,5> > m_kin_tr, m_kin_be;
       transportProtonTrack( part, m_kin_tr, m_kin_be, out_vtx );
       for ( const auto& rp : pots_ ) {
-        if ( m_kin_tr.find( rp.detid )==m_kin_tr.end() ) continue;
+        if ( m_kin_tr.find( rp.detid ) == m_kin_tr.end() ) continue;
 
         if ( produces_strips_rechits_ ) {
           const double optics_z0 = rp.z_position*1.0e3; // in mm
@@ -261,22 +260,27 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
 
   const HepMC::GenVertex* vtx = in_trk->production_vertex();
   const HepMC::FourVector mom = in_trk->momentum();
-  const double xi = 1.-mom.e()/sqrtS_*2.0;
-  double th_x = atan2( mom.px(), fabs( mom.pz() ) );
-  double th_y = atan2( mom.py(), fabs( mom.pz() ) );
-  while ( th_x<-M_PI ) th_x += 2*M_PI; while ( th_x>+M_PI ) th_x -= 2*M_PI;
-  while ( th_y<-M_PI ) th_y += 2*M_PI; while ( th_y>+M_PI ) th_y -= 2*M_PI;
-  if ( mom.pz()>0.0 ) { th_x = -th_x; }
+  const double xi = 1.-( mom.rho() / pots_.begin()->approximator->GetBeamMomentum() );
+  //const double xi = 1.-2.*mom.e()/sqrtS_;
+  double th_x = -mom.px() / mom.rho();
+  double th_y = +mom.py() / mom.rho();
+  /*double th_x = atan2( mom.px(), fabs( mom.pz() ) );
+  double th_y = atan2( mom.py(), fabs( mom.pz() ) );*/
+  while ( th_x < -M_PI ) th_x += 2*M_PI;
+  while ( th_x > +M_PI ) th_x -= 2*M_PI;
+  while ( th_y < -M_PI ) th_y += 2*M_PI;
+  while ( th_y > +M_PI ) th_y -= 2*M_PI;
+  //if ( mom.pz() > 0.0 ) { th_x = -th_x; }
 
   double vtx_x = -vtx->position().x(), vtx_y = vtx->position().y(); // express in metres
 
   double half_cr_angle = 0.0, vtx_y_offset = 0.0;
   // CMS convention
-  if ( mom.z()>0.0 ) { // sector 45
+  if ( mom.z() > 0.0 ) { // sector 45
     half_cr_angle = halfCrossingAngleSector45_;
     vtx_y_offset = yOffsetSector45_;
   }
-  if ( mom.z()<0.0 ) { // sector 56
+  if ( mom.z() < 0.0 ) { // sector 56
     half_cr_angle = halfCrossingAngleSector56_;
     vtx_y_offset = yOffsetSector56_;
   }
@@ -287,14 +291,15 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
   // transport the proton into each pot
   for ( const auto& rp : pots_ ) {
     // first check the side
-    if ( rp.detid.arm()==0 && mom.z()<0.0 ) continue; // sector 45
-    if ( rp.detid.arm()==1 && mom.z()>0.0 ) continue; // sector 56
+    if ( rp.detid.arm() == 0 && mom.z() < 0.0 ) continue; // sector 45
+    if ( rp.detid.arm() == 1 && mom.z() > 0.0 ) continue; // sector 56
 
     // transport proton to its corresponding RP
     std::array<double,5> kin_in_tr = { { vtx_x, th_x * ( 1.-xi ), vtx_y + vtx_y_offset, th_y * ( 1.-xi ), -xi } };
     std::array<double,5> kin_in_be = { { 0.0, half_cr_angle, vtx_y_offset, 0.0, 0.0 } };
 
-    if ( !rp.approximator->Transport( kin_in_tr.data(), kin_out_tr[rp.detid].data(), checkApertures_, invertBeamCoordinatesSystem_ ) ) return;
+    if ( !rp.approximator->Transport( kin_in_tr.data(), kin_out_tr[rp.detid].data(), checkApertures_, invertBeamCoordinatesSystem_ ) )
+      continue;
     // stop if proton not transportable
 
     if ( produceHitsRelativeToBeam_ ) {
@@ -309,10 +314,10 @@ CTPPSFastProtonSimulation::generateRecHits( const CTPPSDetId& detid, const std::
   if ( detid.subdetId()!=CTPPSDetId::sdTrackingStrip ) return; // only works with strips
 
   const double xi = -kin_tr[4];
-  const short z_sign = ( detid.arm()==0 ) ? -1 : +1;
+  const short z_sign = ( detid.arm() == 0 ) ? -1 : +1;
 
   // search for planes
-  if ( strips_list_.find( detid )==strips_list_.end() ) return;
+  if ( strips_list_.find( detid ) == strips_list_.end() ) return;
 
   // retrieve the sensor from geometry
   for ( const auto& pl_id : strips_list_.at( detid ) ) {
@@ -344,19 +349,19 @@ CTPPSFastProtonSimulation::generateRecHits( const CTPPSDetId& detid, const std::
       const double b_x_be = kin_be[0];
       const double b_y_be = kin_be[2];
 
-      //printf("    beam: ax=%f, bx=%f, ay=%f, by=%f\n", a_x_be, b_x_be, a_y_be, b_y_be);
+     //printf("    beam: ax=%f, bx=%f, ay=%f, by=%f\n", a_x_be, b_x_be, a_y_be, b_y_be);
 
       const double x_be = a_x_be * de_z + b_x_be * 1.0e3;
       const double y_be = a_y_be * de_z + b_y_be * 1.0e3;
 
       LogDebug("CTPPSFastProtonSimulation")
-        << pl_id << ", z = " << gl_oz << ", de z = " << (gl_oz - optics_z0)
+        << pl_id << ", z = " << gl_oz << ", de z = " << ( gl_oz-optics_z0 )
         << " | track: x=" << x_tr << ", y=" << y_tr
         << " | beam: x=" << x_be << ", y=" << y_be;
 
       h_glo -= CLHEP::Hep3Vector( x_be, y_be, 0.0 );
     }
-    LogDebug("CTPPSFastProtonSimulation") << pl_id << ", z = " << gl_oz << ", de z = " << (gl_oz - optics_z0) << " | track: x=" << x_tr << ", y=" << y_tr;
+    LogDebug("CTPPSFastProtonSimulation") << pl_id << ", z = " << gl_oz << ", de z = " << ( gl_oz-optics_z0 ) << " | track: x=" << x_tr << ", y=" << y_tr;
 
     // transform hit global to local coordinates
     const CLHEP::Hep3Vector h_loc = geometry_->GlobalToLocal( pl_id, h_glo );

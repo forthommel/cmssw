@@ -15,6 +15,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include <CLHEP/Random/RandGauss.h>
@@ -38,6 +39,7 @@ class CrossingAngleVtxGenerator : public edm::stream::EDProducer<>
     void rotateParticle( HepMC::GenParticle* ) const;
  
     edm::EDGetTokenT<edm::HepMCProduct> sourceToken_;
+    edm::EDGetTokenT<LHEEventProduct> sourceBisToken_;
     double vertexSize_;
     double beamDivergence_;
     double halfCrossingAngleSector45_, halfCrossingAngleSector56_;
