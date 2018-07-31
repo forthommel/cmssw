@@ -23,6 +23,11 @@ ctppsFastProtonSimulation = cms.EDProducer('CTPPSFastProtonSimulation',
     checkApertures = cms.bool(True),
 
     roundToPitch = cms.bool(False),
-    pitch = cms.double(66.e-3), # mm
-    insensitiveMargin = cms.double(34.e-3), # mm
+    checkIsHit = cms.bool(True),
+
+    pitchStrips = cms.double(66e-3), # mm
+    insensitiveMarginStrips = cms.double(34e-3), # mm
+
+    pitchPixelsHor = cms.double(100e-3), # mm, x in local coordinates
+    pitchPixelsVer = cms.double(150e-3), # mm, y in local coordinates
 )
