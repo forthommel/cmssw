@@ -55,5 +55,5 @@ function Run()
 
 #Run "100" "1E2"
 
-#Run "10000" "1E4_level_1"
+Run "10000" "1E4_level_1"
 Run "10000" "1E4_level_4"
