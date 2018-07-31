@@ -46,14 +46,10 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 # geometry
-from Geometry.VeryForwardGeometry.geometryRP_cfi import totemGeomXMLFiles, ctppsDiamondGeomXMLFiles
-
-process.XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
-    geomXMLFiles = totemGeomXMLFiles+ctppsDiamondGeomXMLFiles+["Validation/CTPPS/test/rp_positions/data/2016_preTS2_without_margin_end/RP_Dist_Beam_Cent.xml"],
-    rootNodeName = cms.string('cms:CMSE'),
-)
-
-process.TotemRPGeometryESModule = cms.ESProducer("TotemRPGeometryESModule")
+# TODO: use 2016 geometry
+process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi")
+del(process.XMLIdealGeometryESSource_CTPPS.geomXMLFiles[-1])
+process.XMLIdealGeometryESSource_CTPPS.geomXMLFiles.append("Validation/CTPPS/test/rp_positions/data/2016_preTS2_without_margin_end/RP_Dist_Beam_Cent.xml")
 
 # beam-smearing settings
 process.load("IOMC.EventVertexGenerators.beamDivergenceVtxGenerator_cfi")
@@ -80,7 +76,7 @@ process.load('SimCTPPS.OpticsParameterisation.ctppsFastProtonSimulation_cfi')
 process.ctppsFastProtonSimulation.hepMCTag = cms.InputTag('beamDivergenceVtxGenerator')
 process.ctppsFastProtonSimulation.checkApertures = False
 process.ctppsFastProtonSimulation.roundToPitch = True
-process.ctppsFastProtonSimulation.pitch = 66E-3 * 12 / 19 # effective value to reproduce real RP resolution
+process.ctppsFastProtonSimulation.pitchStrips = 66E-3 * 12 / 19 # effective value to reproduce real RP resolution
 process.ctppsFastProtonSimulation.produceHitsRelativeToBeam = True
 process.ctppsFastProtonSimulation.produceScoringPlaneHits = False
 process.ctppsFastProtonSimulation.produceRecHits = True
@@ -93,7 +89,9 @@ process.totemRPUVPatternFinder.tagRecHit = cms.InputTag('ctppsFastProtonSimulati
 process.load('RecoCTPPS.TotemRPLocal.totemRPLocalTrackFitter_cfi')
 
 # common reco: lite track production
-process.load('RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cfi')
+process.load('RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cff')
+process.ctppsLocalTrackLiteProducer.includeDiamonds = False
+process.ctppsLocalTrackLiteProducer.includePixels = False
 
 # proton reconstruction
 process.load("RecoCTPPS.ProtonReconstruction.ctppsProtonReconstruction_cfi")
