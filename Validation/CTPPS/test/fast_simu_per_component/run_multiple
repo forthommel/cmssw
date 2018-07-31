@@ -1,0 +1,17 @@
+#!/bin/bash
+
+function RunOne()
+{
+	local cfgFile="${1}_cfg.py"
+	local logFile="${1}.log"
+
+	cmsRun "$cfgFile" &> "$logFile" &
+}
+
+RunOne test_xi_0.05
+RunOne test_xi_0.05_th_x_100
+RunOne test_xi_0.05_vtx_x_10
+
+RunOne test_xi_0.15
+RunOne test_xi_0.15_th_x_100
+RunOne test_xi_0.15_vtx_x_10

@@ -1,0 +1,59 @@
+#!/bin/bash
+
+function RunOne()
+{
+	local tag="$1"
+	local de_x_N="$2"
+	local de_x_F="$3"
+	local de_y_N="$4"
+	local de_y_F="$5"
+
+	local cfgFile="${tag}_cfg.py"
+	local logFile="${tag}.log"
+
+	cp "base_cff.py" "$dir/$cfgFile"
+
+	(
+		echo "process.maxEvents.input = $events"
+		echo "process.ctppsProtonReconstruction.applyTestAlignment = True"
+		echo "process.ctppsProtonReconstruction.de_x_N = ${de_x_N} * 1e-3"
+		echo "process.ctppsProtonReconstruction.de_x_F = ${de_x_F} * 1e-3"
+		echo "process.ctppsProtonReconstruction.de_y_N = ${de_y_N} * 1e-3"
+		echo "process.ctppsProtonReconstruction.de_y_F = ${de_y_F} * 1e-3"
+		echo "process.ctppsProtonReconstructionPlotter.outputFile = \"${tag}_plots.root\""
+		echo "process.ctppsProtonReconstructionValidator.outputFile = \"${tag}_validation.root\""
+	) >> "$dir/$cfgFile"
+
+	cd "$dir"
+
+	cmsRun "$cfgFile" &> "$logFile" &
+
+	cd - &> /dev/null
+}
+
+
+#----------------------------------------------------------------------------------------------------
+
+function Run()
+{
+	events="$1"
+	dir="$2"
+
+	rm -rf "$dir"
+	mkdir "$dir"
+
+	# name, de x near, de x far, de y near, de y far in um
+
+	RunOne "none" "0" "0" "0" "0"
+	RunOne "x_sym" "+150" "+150" "0" "0"
+	RunOne "x_asym" "-10" "+10" "0" "0"
+	RunOne "y_sym" "0" "0" "+100" "+100"
+	RunOne "y_asym" "0" "0" "-10" "+10"
+}
+
+#----------------------------------------------------------------------------------------------------
+
+#Run "100" "1E2"
+
+#Run "10000" "1E4_level_1"
+Run "10000" "1E4_level_4"
