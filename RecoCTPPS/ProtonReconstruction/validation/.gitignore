@@ -1,0 +1,11 @@
+*.root
+*.pdf
+*.swp
+.*
+
+!.gitignore
+
+data_das
+data_eos
+
+do_fits

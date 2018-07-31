@@ -1,0 +1,149 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------------------------
+
+function SubmitOne()
+{
+	echo "* fill $fill, run $run"
+
+	input=""
+	for stream in ${streams[*]}
+	do
+		for file in `dasgoclient --limit=5 --query "file dataset=$stream run=$run"`
+		do
+			if [ -n "$input" ]
+			then
+				input="$input,\n"
+			fi
+
+			input="$input    \"$file\""
+		done
+	done
+
+	for alignment in ${alignments[*]}
+	do
+		dir="data/fill_${fill}/run_${run}/alignment_${alignment}"
+
+		mkdir -p "$dir"
+
+		rm -rf "$dir/log"
+		rm -rf "$dir/output.root"
+
+		full_dir="`pwd -P`/$dir"
+
+		cat "template_cfg.py" | sed -e "\
+				s|\$input|$input|g;\
+				s|\$run|$run|g;\
+				s|\$fill|$fill|g;\
+				s|\$alignment|$alignment|g;\
+				s|\$output|output.root|g;\
+			" > "$dir/cfg.py"
+
+		cat "template_job" | sed "\
+				s|\$job_dir|$full_dir|g;\
+				s|\$CMSSW_BASE|$CMSSW_BASE|g;\
+			" > "$dir/job"
+		chmod u+x "$dir/job"
+
+		result=`bsub -q $queue -o /dev/null -e /dev/null "$full_dir/job"`
+		echo "    $result"
+
+		#"$full_dir/job"
+	done
+}
+
+
+#----------------------------------------------------------------------------------------------------
+
+function Submit()
+{
+	for dataset in ${datasets[*]}
+	do
+		fill=${dataset%_run*}
+		fill=${fill#fill_}
+
+		run=${dataset#*_run_}
+
+		SubmitOne &
+	done
+}
+
+#----------------------------------------------------------------------------------------------------
+
+queue="8nh"
+
+alignments=(
+	#"2017_01_17"
+	"new"
+	#"2018_07_17"
+)
+
+#--------------------------------------------------
+
+streams=(
+	"/DoubleEG/Run2016B-07Aug17_ver2-v2/MINIAOD"
+)
+
+datasets=(
+	fill_4947_run_273730
+	fill_4953_run_274094
+	fill_4961_run_274199
+	fill_4964_run_274241
+	fill_4976_run_274284
+	fill_4964_run_274244
+	fill_4985_run_274388
+	fill_4988_run_274422
+	fill_4990_run_274442
+	fill_5005_run_274958
+	fill_5013_run_274969
+	fill_5017_run_274999
+	fill_5020_run_275068
+	fill_5021_run_275125
+	fill_5024_run_275291
+	fill_5026_run_275310
+	fill_5027_run_275337
+	fill_5028_run_275345
+	fill_5029_run_275371
+	fill_5030_run_275376
+)
+
+Submit
+
+#--------------------------------------------------
+
+streams=(
+	"/DoubleEG/Run2016C-07Aug17-v1/MINIAOD"
+)
+
+datasets=(
+	fill_5038_run_275658
+	fill_5043_run_275783
+	fill_5045_run_275836
+	fill_5048_run_275890
+	fill_5052_run_275913
+)
+
+Submit
+
+#--------------------------------------------------
+
+streams=(
+	"/DoubleEG/Run2016G-07Aug17-v1/MINIAOD"
+)
+
+datasets=(
+	fill_5261_run_279766
+	fill_5264_run_279794
+	fill_5265_run_279823
+	fill_5266_run_279841
+	fill_5267_run_279849
+	fill_5274_run_279931
+	fill_5275_run_279966
+	fill_5276_run_279975
+	fill_5277_run_280018
+	fill_5279_run_280191
+	fill_5287_run_280330
+	fill_5288_run_280385
+)
+
+Submit

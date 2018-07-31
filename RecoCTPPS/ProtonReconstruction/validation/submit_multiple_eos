@@ -1,0 +1,87 @@
+#!/bin/bash
+
+eos_dir="/eos/totem/data/ctpps/reconstruction/2016/preTS2_alignment_data/version1"
+
+function SubmitOneDir()
+{
+	local tag="$1"
+	local selection="$2"
+	local top_dir="$3"
+
+	fill=${tag#fill_}
+	fill=${fill%%_*}
+
+	stream=${tag%%.*}
+	stream=${stream##*_}
+
+	echo "* $fill, $stream"
+
+	# get input
+	input=""
+	for f in `eos ls "$eos_dir"|grep $tag|grep "$selection.root"`
+	do
+		if [ -n "$input" ]
+		then
+			input="$input\n"
+		fi
+
+		input="${input}process.source.fileNames.append(\"root://eostotem.cern.ch/${eos_dir}/${f}\")"
+	done
+
+	for alignment in ${alignments[*]}
+	do
+		echo "  $alignment"
+
+		# make work directory
+		dir="$top_dir/fill_$fill/$stream/alignment_$alignment"
+		mkdir -p "$dir"
+
+		full_dir="`pwd -P`/$dir"
+
+		# make config with input files
+		cat "template_cfg.py" | sed -e "\
+				s|\$input|$input|g;\
+				s|\$fill|$fill|g;\
+				s|\$alignment|$alignment|g;\
+				s|\$output|output.root|g;\
+			" > "$dir/cfg.py"
+
+		# make job
+		cat "template_job" | sed "\
+				s|\$job_dir|$full_dir|g;\
+				s|\$CMSSW_BASE|$CMSSW_BASE|g;\
+			" > "$dir/job"
+		chmod u+x "$dir/job"
+
+		# submit
+		result=`bsub -q $queue -o /dev/null -e /dev/null "$full_dir/job"`
+		echo "    $result"
+	done
+}
+
+#----------------------------------------------------------------------------------------------------
+
+function SubmitOneGroup()
+{
+	local selection="$1"
+	local top_dir="$2"
+
+	for tag in `eos ls "$eos_dir"|grep "$selection.root"|grep DoubleEG|sed "s|fill_||;s|\..*$||"|uniq`
+	do
+		SubmitOneDir "$tag" "$selection" "$top_dir"
+	done
+}
+
+#----------------------------------------------------------------------------------------------------
+
+queue="8nh"
+
+alignments=(
+	"2017_01_17"
+	"2018_07_24.3"
+	"2018_07_30.5"
+)
+
+SubmitOneGroup "reduction_margin" "data_eos/phys_margin"
+
+SubmitOneGroup "reduction" "data_eos/phys_no_margin"
