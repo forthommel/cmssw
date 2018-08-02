@@ -55,26 +55,26 @@ from SimCTPPS.OpticsParameterisation.ctppsDetectorPackages_cff import genericStr
 detectorPackagesLong = cms.VPSet(
     #----- sector 45
     genericStripsPackage.clone(
-        potId = cms.uint32(0x76100000), # 002
-        interpolatorName = cms.string('ip5_to_station_150_h_1_lhcb2'),
-        zPosition = cms.double(-203.826),
-    ),
-    genericStripsPackage.clone(
         potId = cms.uint32(0x76180000), # 003
         interpolatorName = cms.string('ip5_to_station_150_h_1_lhcb2'),
-        zPosition = cms.double(-203.826),
+        zPosition = cms.double(-212.551),
+    ),
+    genericStripsPackage.clone(
+        potId = cms.uint32(2023227392), # 023
+        interpolatorName = cms.string('ip5_to_station_150_h_1_lhcb2'),
+        zPosition = cms.double(-212.551),
     ),
 
     #----- sector 56
     genericStripsPackage.clone(
-        potId = cms.uint32(0x77100000), # 102
-        interpolatorName = cms.string('ip5_to_station_150_h_1_lhcb1'),
-        zPosition = cms.double(+203.826),
-    ),
-    genericStripsPackage.clone(
         potId = cms.uint32(0x77180000), # 103
         interpolatorName = cms.string('ip5_to_station_150_h_1_lhcb1'),
-        zPosition = cms.double(+203.826),
+        zPosition = cms.double(+212.551),
+    ),
+    genericStripsPackage.clone(
+        potId = cms.uint32(2040004608), # 123
+        interpolatorName = cms.string('ip5_to_station_150_h_1_lhcb1'),
+        zPosition = cms.double(+212.551),
     ),
 )
 
