@@ -42,8 +42,6 @@ class CTPPSProtonReconstruction : public edm::stream::EDProducer<>
 
     edm::ParameterSet beamConditions_;
 
-    bool checkApertures_;
-
     edm::FileInPath opticsFileBeam1_, opticsFileBeam2_;
 
     bool applyExperimentalAlignment;
@@ -70,7 +68,6 @@ CTPPSProtonReconstruction::CTPPSProtonReconstruction( const edm::ParameterSet& i
   verbosity                   ( iConfig.getUntrackedParameter<unsigned int>( "verbosity", 0 ) ),
 
   beamConditions_             ( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ) ),
-  checkApertures_             ( iConfig.getParameter<bool>( "checkApertures" ) ),
   opticsFileBeam1_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam1" ) ),
   opticsFileBeam2_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam2" ) ),
 
