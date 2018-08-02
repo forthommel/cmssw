@@ -98,6 +98,10 @@ void InitFillInfoCollection()
 	fillInfoCollection.push_back(FillInfo(5279, false, 280187, 280194, "phys_no_margin/fill_5279"));
 	fillInfoCollection.push_back(FillInfo(5287, false, 280327, 280364, "phys_no_margin/fill_5287"));
 	fillInfoCollection.push_back(FillInfo(5288, false, 280383, 280385, "phys_no_margin/fill_5288"));
+
+    // cumulative entries for 2017 periods
+	fillInfoCollection.push_back(FillInfo(0, false, 297046, 302663, "2017_preTS2/preliminary"));
+	fillInfoCollection.push_back(FillInfo(0, false, 303719, 306462, "2017_postTS2/preliminary"));
 }
 
 #endif
