@@ -9,6 +9,10 @@
 #include <set>
 #include <string>
 
+#include <Math/Rotation3D.h>
+#include <Math/RotationZYX.h>
+#include <Math/Vector3D.h>
+
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
@@ -17,9 +21,12 @@
 
 struct AlignmentResult
 {
-	double sh_x, sh_x_unc;		// mm
-	double sh_y, sh_y_unc;		// mm
-	double rot_z, rot_z_unc;	// rad
+	double sh_x=0., sh_x_unc=0.;		// mm
+	double sh_y=0., sh_y_unc=0.;		// mm
+
+	double rot_x=0., rot_x_unc=0.;	// rad
+	double rot_y=0., rot_y_unc=0.;	// rad
+	double rot_z=0., rot_z_unc=0.;	// rad
 
 	AlignmentResult(double _sh_x=0., double _sh_x_unc=0., double _sh_y=0., double _sh_y_unc=0., double _rot_z=0., double _rot_z_unc=0.) :
 		sh_x(_sh_x), sh_x_unc(_sh_x_unc), sh_y(_sh_y), sh_y_unc(_sh_y_unc), rot_z(_rot_z), rot_z_unc(_rot_z_unc)
@@ -28,14 +35,18 @@ struct AlignmentResult
 
 	void Write(FILE *f) const
 	{
-		fprintf(f, "sh_x=%+.3f,sh_x_unc=%+.3f,sh_y=%+.3f,sh_y_unc=%+.3f,rot_z=%+.4f,rot_z_unc=%+.4f\n", sh_x, sh_x_unc, sh_y, sh_y_unc, rot_z, rot_z_unc);
+		fprintf(f, "sh_x=%+.3f,sh_x_unc=%+.3f,sh_y=%+.3f,sh_y_unc=%+.3f,", sh_x, sh_x_unc, sh_y, sh_y_unc);
+		fprintf(f, "rot_x=%+.4f,rot_x_unc=%+.4f,rot_y=%+.4f,rot_y_unc=%+.4f,rot_z=%+.4f,rot_z_unc=%+.4f\n", rot_x, rot_x_unc, rot_y, rot_y_unc, rot_z, rot_z_unc);
 	}
 
 	CTPPSLocalTrackLite Apply(const CTPPSLocalTrackLite &tr) const
 	{
-		const double x = cos(rot_z) * tr.getX() + sin(rot_z) * tr.getY() + sh_x;
-		const double y = -sin(rot_z) * tr.getX() + cos(rot_z) * tr.getY() - sh_y;
-		return CTPPSLocalTrackLite(tr.getRPId(), x, 0., y, 0.);
+        ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>> v(tr.getX(), tr.getY(), 0.);
+        ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>> s(sh_x, -sh_y, 0.);
+        ROOT::Math::RotationZYX R(-rot_z, rot_y, rot_x);
+        v = R * v + s;
+
+		return CTPPSLocalTrackLite(tr.getRPId(), v.x(), 0., v.y(), 0.);
 	}
 };
 
@@ -124,6 +135,30 @@ struct AlignmentResults : public std::map<unsigned int, AlignmentResult>
 			if (strcmp(s_key, "sh_y_unc") == 0)
 			{
 				result.sh_y_unc = atof(s_val);
+				continue;
+			}
+
+			if (strcmp(s_key, "rot_x") == 0)
+			{
+				result.rot_x = atof(s_val);
+				continue;
+			}
+
+			if (strcmp(s_key, "rot_x_unc") == 0)
+			{
+				result.rot_x_unc = atof(s_val);
+				continue;
+			}
+
+			if (strcmp(s_key, "rot_y") == 0)
+			{
+				result.rot_y = atof(s_val);
+				continue;
+			}
+
+			if (strcmp(s_key, "rot_y_unc") == 0)
+			{
+				result.rot_y_unc = atof(s_val);
 				continue;
 			}
 
