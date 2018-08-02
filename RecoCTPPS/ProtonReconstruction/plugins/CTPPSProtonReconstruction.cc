@@ -41,6 +41,7 @@ class CTPPSProtonReconstruction : public edm::stream::EDProducer<>
     unsigned int verbosity;
 
     edm::ParameterSet beamConditions_;
+    std::vector<edm::ParameterSet> detectorPackages_;
 
     edm::FileInPath opticsFileBeam1_, opticsFileBeam2_;
 
@@ -68,6 +69,7 @@ CTPPSProtonReconstruction::CTPPSProtonReconstruction( const edm::ParameterSet& i
   verbosity                   ( iConfig.getUntrackedParameter<unsigned int>( "verbosity", 0 ) ),
 
   beamConditions_             ( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ) ),
+  detectorPackages_           ( iConfig.getParameter<std::vector<edm::ParameterSet>>( "detectorPackages" ) ),
   opticsFileBeam1_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam1" ) ),
   opticsFileBeam2_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam2" ) ),
 
@@ -80,13 +82,15 @@ CTPPSProtonReconstruction::CTPPSProtonReconstruction( const edm::ParameterSet& i
   de_y_N(iConfig.getParameter<double>("de_y_N")),
   de_y_F(iConfig.getParameter<double>("de_y_F")),
 
-  algorithm_(opticsFileBeam1_.fullPath(), opticsFileBeam2_.fullPath(), beamConditions_, verbosity)
+  algorithm_(opticsFileBeam1_.fullPath(), opticsFileBeam2_.fullPath(), beamConditions_, detectorPackages_, verbosity)
 {
   produces<vector<reco::ProtonTrack>>();
 
   //  load alignment collection
   if (applyExperimentalAlignment)
+  {
     alignmentCollection_.Load(alignmentFile_.fullPath());
+  }
 
   // load fill-alignment mapping
   InitFillInfoCollection();
@@ -181,6 +185,7 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup&)
   }
 
   // run reconstruction per sector
+  // TODO
   algorithm_.reconstruct(tracks_45, *output);
   algorithm_.reconstruct(tracks_56, *output);
 
