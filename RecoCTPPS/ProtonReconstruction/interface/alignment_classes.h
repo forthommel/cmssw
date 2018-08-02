@@ -197,7 +197,7 @@ struct AlignmentResults : public std::map<unsigned int, AlignmentResult>
 		{
 			auto ait = find(t.getRPId());
 			if (ait == end())
-              throw cms::Exception("alignment") << "No alignment data for RP " << t.getRPId();
+              throw cms::Exception("alignment") << "No alignment data for RP " << t.getRPId() << ", i.e." << CTPPSDetId(t.getRPId());
 
             output.emplace_back(ait->second.Apply(t));
 		}
