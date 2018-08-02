@@ -186,11 +186,9 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup&)
   }
 
   // run reconstruction per sector
-  // TODO
-  algorithm_.reconstruct(tracks_45, *output);
-  algorithm_.reconstruct(tracks_56, *output);
+  algorithm_.reconstructFromMultiRP(tracks_45, *output);
+  algorithm_.reconstructFromMultiRP(tracks_56, *output);
 
-  // TODO
   algorithm_.reconstructFromSingleRP(tracks_45, *output);
   algorithm_.reconstructFromSingleRP(tracks_56, *output);
 
