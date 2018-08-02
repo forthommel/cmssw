@@ -19,6 +19,8 @@
 using namespace std;
 using namespace edm;
 
+#define DEBUG 1
+
 //----------------------------------------------------------------------------------------------------
 
 ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm(const std::string &optics_file_beam1, const std::string &optics_file_beam2,
@@ -52,8 +54,9 @@ ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm(const std::string &
     idNameMap.emplace(rpId, approximatorName);
   }
 
-  // TODO: debug only
-  //TFile *f_debug = new TFile("debug.root", "recreate");
+#ifdef DEBUG
+  TFile *f_debug = new TFile("debug.root", "recreate");
+#endif
 
   TF1 *ff = new TF1("ff", "[0] + [1]*x");
 
@@ -141,8 +144,7 @@ ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm(const std::string &
       g_L_y_vs_xi->SetPoint(idx, xi, (kin_out_xi_th_y[2] - kin_out_xi[2]) / th_y);
     }
 
-    // TODO: debug only
-    /*
+#ifdef DEBUG
     char buf[100];
     unsigned int decRPId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
     sprintf(buf, "%u", decRPId);
@@ -151,7 +153,7 @@ ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm(const std::string &
     g_y0_vs_xi->Write("g_y0_vs_xi");
     g_v_y_vs_xi->Write("g_v_y_vs_xi");
     g_L_y_vs_xi->Write("g_L_y_vs_xi");
-    */
+#endif
 
     // make splines
     rpod.s_xi_vs_x = make_shared<TSpline3>("", g_xi_vs_x->GetX(), g_xi_vs_x->GetY(), g_xi_vs_x->GetN());
@@ -197,7 +199,9 @@ ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm(const std::string &
   delete ff;
 
   // TODO: debug only
-  //delete f_debug;
+#ifdef DEBUG
+  delete f_debug;
+#endif
 }
 
 //----------------------------------------------------------------------------------------------------

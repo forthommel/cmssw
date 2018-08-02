@@ -34,14 +34,6 @@ class ProtonReconstructionAlgorithm
 
     ~ProtonReconstructionAlgorithm();
 
-    /// runs proton reconstruction with an optimal strategy
-    /// input may only contain tracks from one arm
-    // TODO: remove
-    void reconstruct(const std::vector<const CTPPSLocalTrackLite*> &input, std::vector<reco::ProtonTrack> &output) const
-    {
-      reconstructFromMultiRP(input, output);
-    }
-
     /// runs proton reconstruction using single-RP strategy
     void reconstructFromSingleRP(const std::vector<const CTPPSLocalTrackLite*> &input, std::vector<reco::ProtonTrack> &output) const;
 
