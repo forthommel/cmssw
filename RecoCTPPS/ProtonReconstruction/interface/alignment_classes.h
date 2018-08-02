@@ -54,6 +54,12 @@ struct AlignmentResults : public std::map<unsigned int, AlignmentResult>
 
 	int Add(char *line)
 	{
+        // ignore anything after "#"
+        char *hash_pos = strstr(line, "#");
+        if (hash_pos)
+          *hash_pos = 0;
+
+        // defaults
 		bool idSet = false;
 		unsigned int id = 0;
 		AlignmentResult result;
