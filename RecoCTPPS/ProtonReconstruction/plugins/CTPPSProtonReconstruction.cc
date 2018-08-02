@@ -89,7 +89,8 @@ CTPPSProtonReconstruction::CTPPSProtonReconstruction( const edm::ParameterSet& i
   //  load alignment collection
   if (applyExperimentalAlignment)
   {
-    alignmentCollection_.Load(alignmentFile_.fullPath());
+    if (alignmentCollection_.Load(alignmentFile_.fullPath()) != 0)
+      throw cms::Exception("CTPPSProtonReconstruction") << "Cannot load alignment.";
   }
 
   // load fill-alignment mapping
