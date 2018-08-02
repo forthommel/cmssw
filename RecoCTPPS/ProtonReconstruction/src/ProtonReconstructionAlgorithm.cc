@@ -22,7 +22,7 @@ using namespace edm;
 //----------------------------------------------------------------------------------------------------
 
 ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm(const std::string &optics_file_beam1, const std::string &optics_file_beam2,
-    const edm::ParameterSet &beam_conditions, unsigned int _verbosity) :
+    const edm::ParameterSet &beam_conditions, const std::vector<edm::ParameterSet> &detector_packages, unsigned int _verbosity) :
 
   verbosity(_verbosity),
   beamConditions_(beam_conditions),
@@ -44,12 +44,13 @@ ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm(const std::string &
     throw cms::Exception("ProtonReconstructionAlgorithm") << "Can't open file '" << optics_file_beam2 << "'.";
 
   // build RP id, optics object name association
-  std::map<unsigned int, std::string> idNameMap = {
-    { TotemRPDetId(0, 0, 2), "ip5_to_station_150_h_1_lhcb2" },
-    { TotemRPDetId(0, 0, 3), "ip5_to_station_150_h_2_lhcb2" },
-    { TotemRPDetId(1, 0, 2), "ip5_to_station_150_h_1_lhcb1" },
-    { TotemRPDetId(1, 0, 3), "ip5_to_station_150_h_2_lhcb1" }
-  };
+  std::map<unsigned int, std::string> idNameMap;
+  for (const auto &p : detector_packages)
+  {
+    const unsigned int &rpId = p.getParameter<unsigned int>("potId");
+    const string &approximatorName = p.getParameter<string>("interpolatorName");
+    idNameMap.emplace(rpId, approximatorName);
+  }
 
   // TODO: debug only
   //TFile *f_debug = new TFile("debug.root", "recreate");

@@ -30,15 +30,15 @@ class ProtonReconstructionAlgorithm
 {
   public:
     ProtonReconstructionAlgorithm(const std::string &optics_file_beam1, const std::string &optics_file_beam2,
-      const edm::ParameterSet &beam_conditions, unsigned int _verbosity);
+      const edm::ParameterSet &beam_conditions, const std::vector<edm::ParameterSet> &detector_packages, unsigned int _verbosity);
 
     ~ProtonReconstructionAlgorithm();
 
     /// runs proton reconstruction with an optimal strategy
     /// input may only contain tracks from one arm
+    // TODO: remove
     void reconstruct(const std::vector<const CTPPSLocalTrackLite*> &input, std::vector<reco::ProtonTrack> &output) const
     {
-      // TODO: do something more useful
       reconstructFromMultiRP(input, output);
     }
 
