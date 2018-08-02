@@ -123,8 +123,17 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup&)
   // prepare output
   unique_ptr<vector<reco::ProtonTrack>> output( new vector<reco::ProtonTrack> );
 
+  // keep only tracks from tracker RPs
+  vector<CTPPSLocalTrackLite> tracksFiltered;
+  for (const auto &tr : *tracks)
+  {
+    CTPPSDetId rpId(tr.getRPId());
+    if (rpId.subdetId() == CTPPSDetId::sdTrackingStrip || rpId.subdetId() == CTPPSDetId::sdTrackingPixel)
+      tracksFiltered.push_back(tr);
+  }
+
   // get and apply alignment
-  auto tracksAligned = *tracks;
+  auto tracksAligned = tracksFiltered;
 
   if (applyExperimentalAlignment)
   {
@@ -145,13 +154,13 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup&)
       return;
     }
 
-    tracksAligned = alignment_it->second.Apply(*tracks);
+    tracksAligned = alignment_it->second.Apply(tracksFiltered);
   }
 
   if (applyTestAlignment)
   {
     tracksAligned.clear();
-    for (const auto &t : *tracks)
+    for (const auto &t : tracksFiltered)
     {
       CTPPSDetId rpId(t.getRPId());
 
