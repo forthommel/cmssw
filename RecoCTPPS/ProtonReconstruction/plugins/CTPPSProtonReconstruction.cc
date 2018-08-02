@@ -176,6 +176,7 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup&)
 
   // split input per sector
   vector<const CTPPSLocalTrackLite*> tracks_45, tracks_56;
+  map<unsigned int, unsigned int> nTracksPerRP;
   for (const auto &tr : tracksAligned)
   {
     CTPPSDetId rpId(tr.getRPId());
@@ -183,14 +184,32 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup&)
       tracks_45.push_back(&tr);
     else
       tracks_56.push_back(&tr);
+
+    nTracksPerRP[tr.getRPId()]++;
+  }
+
+  // for the moment: check whether there is no more than 1 track in each arm
+  bool singleTrack_45 = true, singleTrack_56 = true;
+  for (const auto &p : nTracksPerRP)
+  {
+    if (p.second > 1)
+    {
+      CTPPSDetId rpId(p.first);
+      if (rpId.arm() == 0)
+        singleTrack_45 = false;
+      if (rpId.arm() == 1)
+        singleTrack_56 = false;
+    }
   }
 
   // run reconstruction per sector
-  algorithm_.reconstructFromMultiRP(tracks_45, *output);
-  algorithm_.reconstructFromMultiRP(tracks_56, *output);
-
   algorithm_.reconstructFromSingleRP(tracks_45, *output);
   algorithm_.reconstructFromSingleRP(tracks_56, *output);
+
+  if (singleTrack_45)
+    algorithm_.reconstructFromMultiRP(tracks_45, *output);
+  if (singleTrack_56)
+    algorithm_.reconstructFromMultiRP(tracks_56, *output);
 
   // save output to event
   event.put(move(output));
