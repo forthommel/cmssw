@@ -90,6 +90,13 @@ struct AlignmentResults : public std::map<unsigned int, AlignmentResult>
 				continue;
 			}
 
+			if (strcmp(s_key, "full_id") == 0)
+			{
+				idSet = true;
+                id = atoi(s_val);
+				continue;
+			}
+
 			if (strcmp(s_key, "sh_x") == 0)
 			{
 				result.sh_x = atof(s_val);
