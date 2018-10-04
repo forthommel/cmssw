@@ -10,9 +10,7 @@
 #ifndef DataFormats_ProtonReco_ProtonTrack_h
 #define DataFormats_ProtonReco_ProtonTrack_h
 
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/GeometryVector/interface/LocalVector.h"
-
+#include "DataFormats/TrackReco/interface/Track.h"
 #include <set>
 
 /**
@@ -21,53 +19,40 @@
 
 namespace reco
 {
-  class ProtonTrack
+  class ProtonTrack : public Track
   {
     public:
-      ProtonTrack() :
-        xi_( 0. ), xi_unc_( 0. ),
-        isValid_( false ) {}
-      ProtonTrack( const Local3DPoint& vtx, const Local3DVector& dir, float xi, float xi_unc=0. ) :
-        vertex_( vtx ), direction_( dir ), xi_( xi ), xi_unc_( xi_unc ),
-        isValid_( true ) {}
-      ~ProtonTrack() {}
+      ProtonTrack();
+      ProtonTrack( double chi2, double ndof, const Point& vtx, const Vector& dir, float xi, float xi_unc = 0. );
+      ~ProtonTrack() = default;
 
-      // in mm
-      void setVertex( const Local3DPoint& vtx ) { vertex_ = vtx; }
-      const Local3DPoint& vertex() const { return vertex_; }
+      enum class ReconstructionMethod { singleRP, multiRP };
+      enum class LHCSector { sector45, sector56 };
 
-      // momentum in GeV
-      void setDirection( const Local3DVector& dir ) { direction_ = dir; }
-      const Local3DVector& direction() const { return direction_; }
-
-      void setXi( float xi ) { xi_ = xi; }
       float xi() const { return xi_; }
+      float xiError() const { return xi_unc_; }
 
-      void setValid( bool valid=true ) { isValid_ = valid; }
+      void setValid( bool valid = true ) { isValid_ = valid; }
       bool valid() const { return isValid_; }
 
+      void setMethod( const ReconstructionMethod& method ) { method_ = method; }
+      ReconstructionMethod method() const { return method_; }
+
+      void setSector( const LHCSector& sector ) { sector_ = sector; }
+      LHCSector sector() const { return sector_; }
+
       // TODO: add proper getters, setters
-      enum { rmSingleRP, rmMultiRP } method;
-
-      enum { sector45, sector56 } lhcSector;
-
-      unsigned int fitNDF;
-      double fitChiSq;
-
       std::set<unsigned int> contributingRPIds;
 
     private:
-
-      // TODO: describe, mention CMS coordinate notation
-      Local3DPoint vertex_;
-      Local3DVector direction_;
-
-      // TODO: describe
-      float xi_;
-      float xi_unc_;
+      float xi_; ///< Longitudinal fractional momentum loss
+      float xi_unc_; ///< Absolute uncertainty on longitudinal fractional momentum loss
 
       // TODO: rename to fit valid?
+      // FIXME move to a ProtonTrackExtraRef?
       bool isValid_;
+      ReconstructionMethod method_;
+      LHCSector sector_;
   };
 }
 
