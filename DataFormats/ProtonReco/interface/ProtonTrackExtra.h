@@ -19,13 +19,11 @@ namespace reco
   {
     public:
       typedef std::set<unsigned short> RPList;
-      enum class ReconstructionMethod { singleRP, multiRP };
-      enum class LHCSector { sector45, sector56 };
+      enum class ReconstructionMethod { invalid = -1, singleRP, multiRP };
+      enum class LHCSector { invalid = -1, sector45, sector56 };
 
-      ProtonTrackExtra() {}
-      ProtonTrackExtra( bool valid, const ReconstructionMethod& method, const LHCSector& sector, const RPList& rp_list ) :
-        is_valid_( valid ), method_( method ), sector_( sector ), contributing_rp_ids_( rp_list ) {}
-      ~ProtonTrackExtra() {}
+      ProtonTrackExtra();
+      ProtonTrackExtra( bool valid, const ReconstructionMethod& method, const LHCSector& sector, const RPList& rp_list );
 
       void setValid( bool valid = true ) { is_valid_ = valid; }
       bool valid() const { return is_valid_; }
