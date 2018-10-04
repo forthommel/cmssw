@@ -165,36 +165,40 @@ ParamValidation::analyze( const edm::Event& iEvent, const edm::EventSetup& )
     h_gen_th_y_->Fill( gen_th_y );
     h_gen_xi_->Fill( gen_xi );
 
-    const unsigned short side_id = ( gen_pro->momentum().pz()>0 ) ? 0 : 1;
+    const reco::ProtonTrack::LHCSector side_id = ( gen_pro->momentum().pz() > 0 )
+      ? reco::ProtonTrack::LHCSector::sector45
+      : reco::ProtonTrack::LHCSector::sector56;
     for ( const auto& rec_pro : *reco_protons ) {
-      if ( rec_pro.lhcSector!=side_id ) continue;
+      if ( rec_pro.sector() != side_id ) continue;
       const double rec_xi = rec_pro.xi();
 
       //std::cout << "(" << reco_protons[side_id]->size() << ")--> sector " << i << ": " << gen_xi << " / " << rec_xi << std::endl;
 
-      const double de_vtx_x = rec_pro.vertex().x()-gen_vtx_x;
-      const double de_vtx_y = rec_pro.vertex().y()-gen_vtx_y;
-      const double de_th_x = rec_pro.direction().x()-gen_th_x;
-      const double de_th_y = rec_pro.direction().y()-gen_th_y;
+      const double de_vtx_x = rec_pro.vx()-gen_vtx_x;
+      const double de_vtx_y = rec_pro.vy()-gen_vtx_y;
+      const double de_th_x = rec_pro.px()-gen_th_x;
+      const double de_th_y = rec_pro.py()-gen_th_y;
       const double de_xi = rec_xi-gen_xi;
 
-      h_de_vtx_x_[side_id]->Fill( de_vtx_x );
-      h_de_vtx_y_[side_id]->Fill( de_vtx_y );
-      h_de_th_x_[side_id]->Fill( de_th_x );
-      h_de_th_y_[side_id]->Fill( de_th_y );
-      h_de_xi_[side_id]->Fill( de_xi );
+      const unsigned short sid = static_cast<unsigned short>( side_id );
 
-      h2_de_vtx_x_vs_de_xi_[side_id]->Fill( de_xi, de_vtx_x );
-      h2_de_vtx_y_vs_de_xi_[side_id]->Fill( de_xi, de_vtx_y );
-      h2_de_th_x_vs_de_xi_[side_id]->Fill( de_xi, de_th_x );
-      h2_de_th_y_vs_de_xi_[side_id]->Fill( de_xi, de_th_y );
-      h2_de_vtx_y_vs_de_th_y_[side_id]->Fill( de_th_y, de_vtx_y );
+      h_de_vtx_x_[sid]->Fill( de_vtx_x );
+      h_de_vtx_y_[sid]->Fill( de_vtx_y );
+      h_de_th_x_[sid]->Fill( de_th_x );
+      h_de_th_y_[sid]->Fill( de_th_y );
+      h_de_xi_[sid]->Fill( de_xi );
 
-      p_de_vtx_x_vs_xi_[side_id]->Fill( gen_xi, de_vtx_x );
-      p_de_vtx_y_vs_xi_[side_id]->Fill( gen_xi, de_vtx_y );
-      p_de_th_x_vs_xi_[side_id]->Fill( gen_xi, de_th_x );
-      p_de_th_y_vs_xi_[side_id]->Fill( gen_xi, de_th_y );
-      p_de_xi_vs_xi_[side_id]->Fill( gen_xi, de_xi );
+      h2_de_vtx_x_vs_de_xi_[sid]->Fill( de_xi, de_vtx_x );
+      h2_de_vtx_y_vs_de_xi_[sid]->Fill( de_xi, de_vtx_y );
+      h2_de_th_x_vs_de_xi_[sid]->Fill( de_xi, de_th_x );
+      h2_de_th_y_vs_de_xi_[sid]->Fill( de_xi, de_th_y );
+      h2_de_vtx_y_vs_de_th_y_[sid]->Fill( de_th_y, de_vtx_y );
+
+      p_de_vtx_x_vs_xi_[sid]->Fill( gen_xi, de_vtx_x );
+      p_de_vtx_y_vs_xi_[sid]->Fill( gen_xi, de_vtx_y );
+      p_de_th_x_vs_xi_[sid]->Fill( gen_xi, de_th_x );
+      p_de_th_y_vs_xi_[sid]->Fill( gen_xi, de_th_y );
+      p_de_xi_vs_xi_[sid]->Fill( gen_xi, de_xi );
     }
   }
 }

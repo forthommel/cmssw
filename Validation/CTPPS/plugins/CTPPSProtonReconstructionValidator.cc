@@ -279,30 +279,31 @@ void CTPPSProtonReconstructionValidator::analyze(const edm::Event& iEvent, const
     bool mom_set = false;
     FourVector mom;
 
-    if (rec_pr.lhcSector == reco::ProtonTrack::sector45)
-    {
-      idx = 0;
-      mom_set = proton_45_set;
-      mom = mom_45;
-    } else {
-      idx = 1;
-      mom_set = proton_56_set;
-      mom = mom_56;
+    switch (rec_pr.sector()) {
+      case reco::ProtonTrack::LHCSector::sector45:
+        idx = 0;
+        mom_set = proton_45_set;
+        mom = mom_45;
+        break;
+      case reco::ProtonTrack::LHCSector::sector56:
+        idx = 1;
+        mom_set = proton_56_set;
+        mom = mom_56;
+        break;
+      default:
+        throw cms::Exception("CTPPSProtonReconstructionValidator")
+          << "Sector " << (int)rec_pr.sector() << " not handled!";
     }
 
     if (! mom_set)
       continue;
 
-    unsigned int meth_idx;
+    unsigned int meth_idx = 1;
 
-    if (rec_pr.method == reco::ProtonTrack::rmSingleRP)
-    {
+    if (rec_pr.method() == reco::ProtonTrack::ReconstructionMethod::singleRP) {
       meth_idx = 0;
-
       CTPPSDetId rpId(* rec_pr.contributingRPIds.begin());
       idx = 100*rpId.arm() + 10*rpId.station() + rpId.rp();
-    } else {
-      meth_idx = 1;
     }
 
     FillPlots(meth_idx, idx, rec_pr, vtx, mom);
@@ -322,8 +323,8 @@ void CTPPSProtonReconstructionValidator::FillPlots(unsigned int meth_idx, unsign
   const double t_simu = - CalculateT(xi_simu, th_x_simu, th_y_simu);
 
   const double xi_reco = rec_pr.xi();
-  const double th_x_reco = rec_pr.direction().x() / rec_pr.direction().mag();
-  const double th_y_reco = rec_pr.direction().y() / rec_pr.direction().mag();
+  const double th_x_reco = rec_pr.px() / rec_pr.p();
+  const double th_y_reco = rec_pr.py() / rec_pr.p();
   const double vtx_y_reco = rec_pr.vertex().y();  // mm
   const double t_reco = - CalculateT(xi_reco, th_x_reco, th_y_reco);
 
@@ -387,9 +388,9 @@ void CTPPSProtonReconstructionValidator::endJob()
     {
       char buf[20];
       sprintf(buf, "%i", eit.first);
-    
+
       TDirectory *d_element = d_method->mkdir(buf);
-      
+
       gDirectory = d_element;
       eit.second.Write();
     }
