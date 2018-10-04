@@ -11,6 +11,9 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/ProtonReco/interface/ProtonTrack.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 
@@ -393,35 +396,26 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CT
     printf("    fit: xi = %f, th_x = %E, th_y = %E, vtx_y = %E, chiSq = %.0f\n", params[0], params[1], params[2], params[3], result.Chi2());
 
   reco::ProtonTrack pt;
-  pt.method = reco::ProtonTrack::rmMultiRP;
-
-  pt.fitChiSq = result.Chi2();
-  pt.fitNDF = 2.*tracks.size() - 4;
-  pt.lhcSector = (CTPPSDetId(tracks[0]->getRPId()).arm() == 0) ? reco::ProtonTrack::sector45 : reco::ProtonTrack::sector56;
-
-  pt.setVertex(Local3DPoint(0., params[3]*1E3, 0.));  // vertext in mm
+  pt.setFittingMethod( reco::ProtonTrack::FittingMethod::multiRP );
+  pt.setLHCSector( (CTPPSDetId(tracks[0]->getRPId()).arm() == 0) ? reco::ProtonTrack::LHCSector::sector45 : reco::ProtonTrack::LHCSector::sector56 );
 
   const double p_nom = 6500.;  // GeV
   const double p = p_nom *  (1. - params[0]);
   const double th_x = params[1];
   const double th_y = params[2];
   const double cos_th = sqrt(1. - th_x*th_x - th_y*th_y);
-  const double sign_z_lhc = (pt.lhcSector == reco::ProtonTrack::sector45) ? -1. : +1.;
+  const double sign_z_lhc = (pt.lhcSector() == reco::ProtonTrack::LHCSector::sector45) ? -1. : +1.;
 
   pt.setXi(params[0]);
 
-  pt.setDirection(Local3DVector(
-    - p * th_x,   // the signs reflect change LHC --> CMS convention
-    + p * th_y,
-    - sign_z_lhc * p * cos_th
-  ));
+  const reco::TrackBase::Point vtx(0., params[3]*1.e3, 0.); // vertex in mm
+  const reco::TrackBase::Vector mom(-p*th_x, +p*th_y, -sign_z_lhc*p*cos_th); // the signs reflect change LHC --> CMS convention
+  const reco::TrackBase::CovarianceMatrix cov; //FIXME fill me!
+  const reco::TrackRef glb_track(new reco::Track(result.Chi2(), 2*tracks.size()-4, vtx, mom, pt.charge(), cov));
+  pt.setTrack( glb_track );
 
   for (const auto &track : tracks)
     pt.contributingRPIds.insert(track->getRPId());
-
-  const double max_chi_sq = 1. + 3. * pt.fitNDF;
-
-  pt.setValid(result.IsValid() && pt.fitChiSq < max_chi_sq);
 
   out.push_back(move(pt));
 }
@@ -457,21 +451,37 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(const vector<const C
       printf("    xi = %f, th_y = %E\n", xi, th_y);
 
     reco::ProtonTrack pt;
-    pt.method = reco::ProtonTrack::rmSingleRP;
-    pt.lhcSector = (CTPPSDetId(track->getRPId()).arm() == 0) ? reco::ProtonTrack::sector45 : reco::ProtonTrack::sector56;
+
+    reco::ProtonTrack::LHCSector sector;
+    double sign_z_lhc = -999.;
+    pt.setFittingMethod( reco::ProtonTrack::FittingMethod::singleRP );
+    switch (CTPPSDetId(track->getRPId()).arm()) {
+      case 0: {
+        sector = reco::ProtonTrack::LHCSector::sector45;
+        sign_z_lhc = -1.;
+      } break;
+      case 1: {
+        sector = reco::ProtonTrack::LHCSector::sector56;
+        sign_z_lhc = +1.;
+      } break;
+      default:
+        throw cms::Exception("ProtonReconstructionAlgorithm")
+          << "Invalid arm to be reconstructed!\n"
+          << "arm=" << CTPPSDetId(track->getRPId()).arm()
+          << ", should be either 0 or 1.";
+    }
+    pt.setLHCSector(sector);
     pt.contributingRPIds.insert(track->getRPId());
 
     const double p_nom = 6500.;  // GeV
     const double p = p_nom *  (1. - xi);
 
-    const double sign_z_lhc = (pt.lhcSector == reco::ProtonTrack::sector45) ? -1. : +1.;
-
-    pt.setValid(true);
-    pt.setVertex(Local3DPoint(0., 0., 0.));
-    pt.setDirection(Local3DVector(0., + p * th_y, - sign_z_lhc * p));
     pt.setXi(xi);
-    pt.fitNDF = 0;
-    pt.fitChiSq = 0.;
+
+    const reco::TrackBase::Vector mom( 0., +p*th_y, -sign_z_lhc*p );
+    const reco::TrackBase::CovarianceMatrix cov; //FIXME fill me!
+    const reco::TrackRef glb_track(new reco::Track(0., 0, reco::TrackBase::Point(), mom, pt.charge(), cov));
+    pt.setTrack( glb_track );
 
     out.push_back(move(pt));
   }

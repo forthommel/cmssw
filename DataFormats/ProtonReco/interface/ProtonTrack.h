@@ -10,64 +10,56 @@
 #ifndef DataFormats_ProtonReco_ProtonTrack_h
 #define DataFormats_ProtonReco_ProtonTrack_h
 
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include <set>
-
-/**
- * FIXME make use of the general reco::Candidate object, with appropriate set'ters and get'ters
- */
+#include <unordered_map>
 
 namespace reco
 {
-  class ProtonTrack
+  class ProtonTrack : public RecoCandidate
   {
     public:
-      ProtonTrack() :
-        xi_( 0. ), xi_unc_( 0. ),
-        isValid_( false ) {}
-      ProtonTrack( const Local3DPoint& vtx, const Local3DVector& dir, float xi, float xi_unc=0. ) :
-        vertex_( vtx ), direction_( dir ), xi_( xi ), xi_unc_( xi_unc ),
-        isValid_( true ) {}
-      ~ProtonTrack() {}
+      enum class FittingMethod { singleRP, multiRP };
+      enum class LHCSector { sector45, sector56 };
+      typedef std::unordered_map<uint32_t,TrackRef> DetTrackMap;
 
-      // in mm
-      void setVertex( const Local3DPoint& vtx ) { vertex_ = vtx; }
-      const Local3DPoint& vertex() const { return vertex_; }
+    public:
+      ProtonTrack();
+      ProtonTrack( const LorentzVector& p4, const Point& vtx, float xi, float xi_unc=0. );
+      ~ProtonTrack() = default;
 
-      // momentum in GeV
-      void setDirection( const Local3DVector& dir ) { direction_ = dir; }
-      const Local3DVector& direction() const { return direction_; }
+      /// Returns a clone of the track candidate
+      ProtonTrack* clone() const override;
 
       void setXi( float xi ) { xi_ = xi; }
       float xi() const { return xi_; }
 
-      void setValid( bool valid=true ) { isValid_ = valid; }
-      bool valid() const { return isValid_; }
+      int numberOfRPs() const { return contributing_tracks_.size(); }
 
-      // TODO: add proper getters, setters
-      enum { rmSingleRP, rmMultiRP } method;
+      void setTrack( const TrackRef& track ) { global_track_ = track; }
+      TrackRef track() const override { return global_track_; }
 
-      enum { sector45, sector56 } lhcSector;
+      const DetTrackMap& contributingTracks() const { return contributing_tracks_; }
+      DetTrackMap& contributingTracks() { return contributing_tracks_; }
 
-      unsigned int fitNDF;
-      double fitChiSq;
+      void setFittingMethod( FittingMethod method ) { method_ = method; }
+      FittingMethod fittingMethod() const { return method_; }
 
-      std::set<unsigned int> contributingRPIds;
+      void setLHCSector( LHCSector sector ) { lhc_sector_ = sector; }
+      LHCSector lhcSector() const { return lhc_sector_; }
 
     private:
-
-      // TODO: describe, mention CMS coordinate notation
-      Local3DPoint vertex_;
-      Local3DVector direction_;
-
-      // TODO: describe
+      bool overlap( const Candidate& ) const override;
+      /// Proton fractional longitudinal momentum loss
       float xi_;
+      /// Uncertainty on the fractional longitudinal momentum loss
       float xi_unc_;
-
-      // TODO: rename to fit valid?
-      bool isValid_;
+      /// List of detectors contributing to the fitting of this track
+      DetTrackMap contributing_tracks_;
+      TrackRef global_track_;
+      FittingMethod method_;
+      LHCSector lhc_sector_;
   };
 }
 
