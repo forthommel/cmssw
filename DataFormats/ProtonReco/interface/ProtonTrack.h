@@ -11,7 +11,7 @@
 #define DataFormats_ProtonReco_ProtonTrack_h
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/ProtonReco/interface/ProtonTrackExtra.h"
+#include "DataFormats/ProtonReco/interface/ProtonTrackExtraFwd.h"
 #include <set>
 
 /**
@@ -23,8 +23,8 @@ namespace reco
   class ProtonTrack : public Track
   {
     public:
-      typedef ProtonTrackExtra::ReconstructionMethod ReconstructionMethod;
-      typedef ProtonTrackExtra::LHCSector LHCSector;
+      //typedef ProtonTrackExtra::ReconstructionMethod ReconstructionMethod;
+      //typedef ProtonTrackExtra::LHCSector LHCSector;
       /// Default constructor
       ProtonTrack();
       /// Constructor from refit parameters, fitted vertex and direction, and longitudinal fractional momentum loss
@@ -35,7 +35,7 @@ namespace reco
       float xiError() const { return xi_unc_; }
 
       void setProtonTrackExtra( const ProtonTrackExtraRef& ref ) { pt_extra_ = ref; }
-      const ProtonTrackExtraRef& protonTrackExtra() { return pt_extra_; }
+      const ProtonTrackExtraRef& protonTrackExtra() const { return pt_extra_; }
 
     private:
       float xi_; ///< Longitudinal fractional momentum loss

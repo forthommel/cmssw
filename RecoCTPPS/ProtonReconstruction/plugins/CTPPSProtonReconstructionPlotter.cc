@@ -18,6 +18,7 @@
 
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 #include "DataFormats/ProtonReco/interface/ProtonTrack.h"
+#include "DataFormats/ProtonReco/interface/ProtonTrackExtra.h"
 
 #include "TFile.h"
 #include "TGraph.h"
@@ -98,8 +99,7 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
         if (!h_xi)
           Init();
 
-        if (trk.valid())
-        {
+        if (trk.protonTrackExtra()->valid()) {
           h_xi->Fill(trk.xi());
 
           const double th_y = trk.py() / trk.p();
@@ -172,8 +172,7 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
         if (!h_xi)
           Init();
 
-        if (trk.valid())
-        {
+        if (trk.protonTrackExtra()->valid()) {
           const double th_x = trk.px() / trk.p();
           const double th_y = trk.py() / trk.p();
           const double mt = - CalculateT(trk.xi(), th_x, th_y);
@@ -267,8 +266,8 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
         if (!h2_xi_mu_vs_xi_si)
           Init();
 
-        if (p_single.valid() && p_multi.valid())
-        {
+        if ( p_single.protonTrackExtra()->valid()
+          && p_multi.protonTrackExtra()->valid() ) {
           h2_xi_mu_vs_xi_si->Fill(p_single.xi(), p_multi.xi());
           h_xi_diff_mu_si->Fill(p_multi.xi() - p_single.xi());
           h_xi_diff_si_mu->Fill(p_single.xi() - p_multi.xi());
@@ -310,8 +309,9 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
         if (!h_xi_si_diffNF)
           Init();
 
-        if (p_s_N.valid() && p_s_F.valid() && p_m.valid())
-        {
+        if ( p_s_N.protonTrackExtra()->valid()
+          && p_s_F.protonTrackExtra()->valid()
+          && p_m.protonTrackExtra()->valid() ) {
           h_xi_si_diffNF->Fill(p_s_F.xi() - p_s_N.xi());
           p_xi_si_diffNF_vs_xi_mu->Fill(p_m.xi(), p_s_F.xi() - p_s_N.xi());
         }
@@ -377,8 +377,7 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
   const CTPPSLocalTrackLite *tr_R_N = NULL;
   const CTPPSLocalTrackLite *tr_R_F = NULL;
 
-  for (const auto &tr : *tracks)
-  {
+  for ( const auto& tr : *tracks ) {
     CTPPSDetId rpId(tr.getRPId());
     unsigned int decRPId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
 
@@ -401,41 +400,37 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
   }
 
   // make single-RP-reco plots
-  for (const auto & proton : *recoProtons)
-  {
-    if (proton.method() == reco::ProtonTrack::ReconstructionMethod::singleRP)
-    {
-      CTPPSDetId rpId(* proton.contributingRPIds.begin());
+  for ( const auto& proton : *recoProtons ) {
+    if ( proton.protonTrackExtra()->method() == reco::ProtonTrackExtra::ReconstructionMethod::singleRP ) {
+      CTPPSDetId rpId(* proton.protonTrackExtra()->contributingRPs().begin());
       unsigned int decRPId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
       singleRPPlots[decRPId].Fill(proton);
     }
   }
 
   // make multi-RP-reco plots
-  for (const auto & proton : *recoProtons)
-  {
-    if (proton.method() == reco::ProtonTrack::ReconstructionMethod::multiRP)
-    {
-      CTPPSDetId rpId(* proton.contributingRPIds.begin());
+  for ( const auto& proton : *recoProtons ) {
+    if ( proton.protonTrackExtra()->method() == reco::ProtonTrackExtra::ReconstructionMethod::multiRP ) {
+      CTPPSDetId rpId(* proton.protonTrackExtra()->contributingRPs().begin());
       unsigned int armId = rpId.arm();
       multiRPPlots[armId].Fill(proton);
     }
   }
 
   // make correlation plots
-  for (unsigned int i = 0; i < recoProtons->size(); ++i)
-  {
-    for (unsigned int j = 0; j < recoProtons->size(); ++j)
-    {
-      const reco::ProtonTrack &pi = (*recoProtons)[i];
+  for ( unsigned int i = 0; i < recoProtons->size(); ++i ) {
+    const reco::ProtonTrack &pi = (*recoProtons)[i];
+    CTPPSDetId i_rpId(* pi.protonTrackExtra()->contributingRPs().begin());
+
+    for ( unsigned int j = 0; j < recoProtons->size(); ++j ) {
       const reco::ProtonTrack &pj = (*recoProtons)[j];
 
-      if (pi.method() != reco::ProtonTrack::ReconstructionMethod::singleRP || pj.method() != reco::ProtonTrack::ReconstructionMethod::multiRP)
+      if ( pi.protonTrackExtra()->method() != reco::ProtonTrackExtra::ReconstructionMethod::singleRP
+        || pj.protonTrackExtra()->method() != reco::ProtonTrackExtra::ReconstructionMethod::multiRP )
         continue;
 
       // only compare object from the same arm
-      CTPPSDetId i_rpId(* pi.contributingRPIds.begin());
-      CTPPSDetId j_rpId(* pj.contributingRPIds.begin());
+      CTPPSDetId j_rpId(* pj.protonTrackExtra()->contributingRPs().begin());
 
       if (i_rpId.arm() != j_rpId.arm())
         continue;
@@ -452,19 +447,30 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
   const reco::ProtonTrack *p_arm0_s_N = NULL, *p_arm0_s_F = NULL, *p_arm0_m = NULL;
   const reco::ProtonTrack *p_arm1_s_N = NULL, *p_arm1_s_F = NULL, *p_arm1_m = NULL;
 
-  for (const auto & proton : *recoProtons)
-  {
-    CTPPSDetId rpId(* proton.contributingRPIds.begin());
+  for ( const auto& proton : *recoProtons ) {
+    CTPPSDetId rpId(* proton.protonTrackExtra()->contributingRPs().begin());
     unsigned int rpDecId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
 
-    if (proton.method() == reco::ProtonTrack::ReconstructionMethod::multiRP && proton.sector() == reco::ProtonTrack::LHCSector::sector45) p_arm0_m = &proton;
-    if (proton.method() == reco::ProtonTrack::ReconstructionMethod::multiRP && proton.sector() == reco::ProtonTrack::LHCSector::sector56) p_arm1_m = &proton;
+    if ( proton.protonTrackExtra()->method() == reco::ProtonTrackExtra::ReconstructionMethod::multiRP
+      && proton.protonTrackExtra()->sector() == reco::ProtonTrackExtra::LHCSector::sector45 )
+      p_arm0_m = &proton;
+    if ( proton.protonTrackExtra()->method() == reco::ProtonTrackExtra::ReconstructionMethod::multiRP
+      && proton.protonTrackExtra()->sector() == reco::ProtonTrackExtra::LHCSector::sector56 )
+      p_arm1_m = &proton;
 
-    if (proton.method() == reco::ProtonTrack::ReconstructionMethod::singleRP && rpDecId == 2) p_arm0_s_N = &proton;
-    if (proton.method() == reco::ProtonTrack::ReconstructionMethod::singleRP && rpDecId == 3) p_arm0_s_F = &proton;
+    if ( proton.protonTrackExtra()->method() == reco::ProtonTrackExtra::ReconstructionMethod::singleRP
+      && rpDecId == 2 )
+      p_arm0_s_N = &proton;
+    if ( proton.protonTrackExtra()->method() == reco::ProtonTrackExtra::ReconstructionMethod::singleRP
+      && rpDecId == 3 )
+      p_arm0_s_F = &proton;
 
-    if (proton.method() == reco::ProtonTrack::ReconstructionMethod::singleRP && rpDecId == 102) p_arm1_s_N = &proton;
-    if (proton.method() == reco::ProtonTrack::ReconstructionMethod::singleRP && rpDecId == 103) p_arm1_s_F = &proton;
+    if ( proton.protonTrackExtra()->method() == reco::ProtonTrackExtra::ReconstructionMethod::singleRP
+      && rpDecId == 102 )
+      p_arm1_s_N = &proton;
+    if ( proton.protonTrackExtra()->method() == reco::ProtonTrackExtra::ReconstructionMethod::singleRP
+      && rpDecId == 103 )
+      p_arm1_s_F = &proton;
   }
 
   if (p_arm0_s_N && p_arm0_s_F && p_arm0_m)

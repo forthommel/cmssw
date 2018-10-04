@@ -17,6 +17,7 @@
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 #include "DataFormats/ProtonReco/interface/ProtonTrack.h"
+#include "DataFormats/ProtonReco/interface/ProtonTrackExtra.h"
 
 #include "RecoCTPPS/ProtonReconstruction/interface/ProtonReconstructionAlgorithm.h"
 
@@ -85,6 +86,7 @@ CTPPSProtonReconstruction::CTPPSProtonReconstruction( const edm::ParameterSet& i
   algorithm_(opticsFileBeam1_.fullPath(), opticsFileBeam2_.fullPath(), beamConditions_, detectorPackages_, verbosity)
 {
   produces<vector<reco::ProtonTrack>>();
+  produces<reco::ProtonTrackExtraCollection>();
 
   //  load alignment collection
   if (applyExperimentalAlignment)
@@ -119,9 +121,11 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup&)
   // get input
   Handle< vector<CTPPSLocalTrackLite> > tracks;
   event.getByToken(tracksToken_, tracks);
+  reco::ProtonTrackExtraRefProd r_extras = event.getRefBeforePut<reco::ProtonTrackExtraCollection>();
 
   // prepare output
   unique_ptr<vector<reco::ProtonTrack>> output( new vector<reco::ProtonTrack> );
+  unique_ptr<reco::ProtonTrackExtraCollection> extras( new reco::ProtonTrackExtraCollection );
 
   // keep only tracks from tracker RPs
   vector<CTPPSLocalTrackLite> tracksFiltered;
@@ -211,17 +215,19 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup&)
     }
   }
 
+  algorithm_.clear();
   // run reconstruction per sector
-  algorithm_.reconstructFromSingleRP(tracks_45, *output);
-  algorithm_.reconstructFromSingleRP(tracks_56, *output);
+  algorithm_.reconstructFromSingleRP(tracks_45, *output, *extras, r_extras);
+  algorithm_.reconstructFromSingleRP(tracks_56, *output, *extras, r_extras);
 
   if (singleTrack_45)
-    algorithm_.reconstructFromMultiRP(tracks_45, *output);
+    algorithm_.reconstructFromMultiRP(tracks_45, *output, *extras, r_extras);
   if (singleTrack_56)
-    algorithm_.reconstructFromMultiRP(tracks_56, *output);
+    algorithm_.reconstructFromMultiRP(tracks_56, *output, *extras, r_extras);
 
   // save output to event
   event.put(move(output));
+  event.put(move(extras));
 }
 
 //----------------------------------------------------------------------------------------------------

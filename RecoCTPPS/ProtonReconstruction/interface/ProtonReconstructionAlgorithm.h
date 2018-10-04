@@ -14,6 +14,7 @@
 
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 #include "DataFormats/ProtonReco/interface/ProtonTrack.h"
+#include "DataFormats/ProtonReco/interface/ProtonTrackExtraFwd.h"
 
 #include "CondFormats/CTPPSOpticsObjects/interface/LHCOpticsApproximator.h"
 
@@ -34,11 +35,11 @@ class ProtonReconstructionAlgorithm
 
     ~ProtonReconstructionAlgorithm();
 
-    /// runs proton reconstruction using single-RP strategy
-    void reconstructFromSingleRP(const std::vector<const CTPPSLocalTrackLite*> &input, std::vector<reco::ProtonTrack> &output) const;
-
-    /// runs proton reconstruction using multiple-RP strategy
-    void reconstructFromMultiRP(const std::vector<const CTPPSLocalTrackLite*> &input, std::vector<reco::ProtonTrack> &output) const;
+    void clear();
+    /// run proton reconstruction using single-RP strategy
+    void reconstructFromSingleRP(const std::vector<const CTPPSLocalTrackLite*> &input, std::vector<reco::ProtonTrack> &output, reco::ProtonTrackExtraCollection& extras, reco::ProtonTrackExtraRefProd& r_extra) const;
+    /// run proton reconstruction using multiple-RP strategy
+    void reconstructFromMultiRP(const std::vector<const CTPPSLocalTrackLite*> &input, std::vector<reco::ProtonTrack> &output, reco::ProtonTrackExtraCollection& extras, reco::ProtonTrackExtraRefProd& r_extra) const;
 
   private:
     unsigned int verbosity;
@@ -89,6 +90,7 @@ class ProtonReconstructionAlgorithm
 
     /// object to calculate chi^2
     std::unique_ptr<ChiSquareCalculator> chiSquareCalculator_;
+    mutable edm::Ref<reco::ProtonTrackExtraCollection>::key_type idx_pte_;
 };
 
 #endif

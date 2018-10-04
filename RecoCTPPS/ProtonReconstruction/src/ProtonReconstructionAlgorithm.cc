@@ -14,6 +14,8 @@
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 
+#include "DataFormats/ProtonReco/interface/ProtonTrackExtra.h"
+
 #include "TF1.h"
 
 using namespace std;
@@ -207,7 +209,13 @@ ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm(const std::string &
 //----------------------------------------------------------------------------------------------------
 
 ProtonReconstructionAlgorithm::~ProtonReconstructionAlgorithm()
+{}
+
+//----------------------------------------------------------------------------------------------------
+
+void ProtonReconstructionAlgorithm::clear()
 {
+  idx_pte_ = 0;
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -282,7 +290,8 @@ double ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() (const dou
 
 //----------------------------------------------------------------------------------------------------
 
-void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CTPPSLocalTrackLite*> &tracks, vector<reco::ProtonTrack> &out) const
+void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CTPPSLocalTrackLite*> &tracks,
+  vector<reco::ProtonTrack> &out, reco::ProtonTrackExtraCollection& extras, reco::ProtonTrackExtraRefProd& r_extra) const
 {
   // need at least two tracks
   if (tracks.size() < 2)
@@ -404,17 +413,18 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CT
   const reco::TrackBase::Vector momentum( -p*th_x, +p*th_y, -sign_z_lhc*p*cos_th ); // signs reflect change LHC --> CMS convention
 
   reco::ProtonTrack pt( result.Chi2(), 2*tracks.size()-4, vertex, momentum, params[0] );
-  pt.setMethod( reco::ProtonTrack::ReconstructionMethod::multiRP );
-  pt.setSector( base_detid.arm() == 0
-    ? reco::ProtonTrack::LHCSector::sector45
-    : reco::ProtonTrack::LHCSector::sector56 );
 
-  for (const auto &track : tracks)
-    pt.contributingRPIds.insert(track->getRPId());
+  reco::ProtonTrackExtra::RPList contributing_rps;
+  for ( const auto& track : tracks )
+    contributing_rps.insert( track->getRPId() );
 
-  const double max_chi_sq = 1. + 3.*pt.ndof();
-
-  pt.setValid(result.IsValid() && pt.chi2() < max_chi_sq);
+  reco::ProtonTrackExtraRef teref = reco::ProtonTrackExtraRef( r_extra, idx_pte_++ );
+  pt.setProtonTrackExtra( teref );
+  extras.emplace_back(
+    result.IsValid() && pt.chi2() < 1.+3.*pt.ndof() /* maximum chi^2 */,
+    reco::ProtonTrackExtra::ReconstructionMethod::multiRP,
+    base_detid.arm() == 0 ? reco::ProtonTrackExtra::LHCSector::sector45 : reco::ProtonTrackExtra::LHCSector::sector56,
+    contributing_rps );
 
   out.push_back(move(pt));
 }
@@ -422,7 +432,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CT
 //----------------------------------------------------------------------------------------------------
 
 void ProtonReconstructionAlgorithm::reconstructFromSingleRP(const vector<const CTPPSLocalTrackLite*> &tracks,
-  vector<reco::ProtonTrack> &out) const
+  vector<reco::ProtonTrack> &out, reco::ProtonTrackExtraCollection& extras, reco::ProtonTrackExtraRefProd& r_extra) const
 {
   // make sure optics is available for all tracks
   for (const auto &it : tracks)
@@ -457,13 +467,14 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(const vector<const C
     const reco::TrackBase::Vector momentum( 0., +p*th_y, -sign_z_lhc*p ); // signs reflect change LHC --> CMS convention
 
     reco::ProtonTrack pt( 0., 0, reco::TrackBase::Point(), momentum, xi );
-    pt.setMethod( reco::ProtonTrack::ReconstructionMethod::singleRP );
-    pt.setSector( base_detid.arm() == 0
-      ? reco::ProtonTrack::LHCSector::sector45
-      : reco::ProtonTrack::LHCSector::sector56 );
-    pt.contributingRPIds.insert(track->getRPId());
 
-    pt.setValid(true);
+    reco::ProtonTrackExtraRef teref = reco::ProtonTrackExtraRef( r_extra, idx_pte_++ );
+    pt.setProtonTrackExtra( teref );
+    extras.emplace_back(
+      true,
+      reco::ProtonTrackExtra::ReconstructionMethod::singleRP,
+      base_detid.arm() == 0 ? reco::ProtonTrackExtra::LHCSector::sector45 : reco::ProtonTrackExtra::LHCSector::sector56,
+      reco::ProtonTrackExtra::RPList{ track->getRPId() } );
 
     out.push_back(move(pt));
   }

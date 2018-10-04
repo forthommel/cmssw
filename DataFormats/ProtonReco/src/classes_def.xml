@@ -1,12 +1,12 @@
 <lcgdict>
   <class name="reco::ProtonTrack" ClassVersion="3">
-    <version ClassVersion="3" checksum="497610465"/>
+    <version ClassVersion="3" checksum="3768718188"/>
   </class>
   <class name="std::vector<reco::ProtonTrack>"/>
   <class name="edm::View<reco::ProtonTrack>"/>
   <class name="edm::Ptr<reco::ProtonTrack>"/>
-  <class name="std::vector< edm::Ptr<reco::ProtonTrack> >"/>
-  <class name="edm::Wrapper< std::vector<reco::ProtonTrack> >"/>
+  <class name="std::vector<edm::Ptr<reco::ProtonTrack> >"/>
+  <class name="edm::Wrapper<std::vector<reco::ProtonTrack> >"/>
 
   <class name="std::set<unsigned int>"/>
 </lcgdict>

@@ -24,6 +24,7 @@
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 #include "DataFormats/ProtonReco/interface/ProtonTrack.h"
+#include "DataFormats/ProtonReco/interface/ProtonTrackExtra.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
@@ -165,11 +166,11 @@ ParamValidation::analyze( const edm::Event& iEvent, const edm::EventSetup& )
     h_gen_th_y_->Fill( gen_th_y );
     h_gen_xi_->Fill( gen_xi );
 
-    const reco::ProtonTrack::LHCSector side_id = ( gen_pro->momentum().pz() > 0 )
-      ? reco::ProtonTrack::LHCSector::sector45
-      : reco::ProtonTrack::LHCSector::sector56;
+    const reco::ProtonTrackExtra::LHCSector side_id = ( gen_pro->momentum().pz() > 0 )
+      ? reco::ProtonTrackExtra::LHCSector::sector45
+      : reco::ProtonTrackExtra::LHCSector::sector56;
     for ( const auto& rec_pro : *reco_protons ) {
-      if ( rec_pro.sector() != side_id ) continue;
+      if ( rec_pro.protonTrackExtra()->sector() != side_id ) continue;
       const double rec_xi = rec_pro.xi();
 
       //std::cout << "(" << reco_protons[side_id]->size() << ")--> sector " << i << ": " << gen_xi << " / " << rec_xi << std::endl;

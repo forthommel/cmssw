@@ -18,6 +18,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "DataFormats/ProtonReco/interface/ProtonTrack.h"
+#include "DataFormats/ProtonReco/interface/ProtonTrackExtra.h"
 
 #include "TFile.h"
 #include "TH1D.h"
@@ -271,7 +272,7 @@ void CTPPSProtonReconstructionValidator::analyze(const edm::Event& iEvent, const
   // do comparison
   for (const auto &rec_pr : *hRecoProtons)
   {
-    if (! rec_pr.valid())
+    if (! rec_pr.protonTrackExtra()->valid())
       continue;
 
     unsigned int idx;
@@ -279,20 +280,20 @@ void CTPPSProtonReconstructionValidator::analyze(const edm::Event& iEvent, const
     bool mom_set = false;
     FourVector mom;
 
-    switch (rec_pr.sector()) {
-      case reco::ProtonTrack::LHCSector::sector45:
+    switch (rec_pr.protonTrackExtra()->sector()) {
+      case reco::ProtonTrackExtra::LHCSector::sector45:
         idx = 0;
         mom_set = proton_45_set;
         mom = mom_45;
         break;
-      case reco::ProtonTrack::LHCSector::sector56:
+      case reco::ProtonTrackExtra::LHCSector::sector56:
         idx = 1;
         mom_set = proton_56_set;
         mom = mom_56;
         break;
       default:
         throw cms::Exception("CTPPSProtonReconstructionValidator")
-          << "Sector " << (int)rec_pr.sector() << " not handled!";
+          << "Sector " << (int)rec_pr.protonTrackExtra()->sector() << " not handled!";
     }
 
     if (! mom_set)
@@ -300,9 +301,9 @@ void CTPPSProtonReconstructionValidator::analyze(const edm::Event& iEvent, const
 
     unsigned int meth_idx = 1;
 
-    if (rec_pr.method() == reco::ProtonTrack::ReconstructionMethod::singleRP) {
+    if (rec_pr.protonTrackExtra()->method() == reco::ProtonTrackExtra::ReconstructionMethod::singleRP) {
       meth_idx = 0;
-      CTPPSDetId rpId(* rec_pr.contributingRPIds.begin());
+      CTPPSDetId rpId(* rec_pr.protonTrackExtra()->contributingRPs().begin());
       idx = 100*rpId.arm() + 10*rpId.station() + rpId.rp();
     }
 

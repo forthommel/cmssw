@@ -18,7 +18,7 @@ namespace reco
   class ProtonTrackExtra
   {
     public:
-      typedef std::set<unsigned short> RPList;
+      typedef std::set<unsigned int> RPList;
       enum class ReconstructionMethod { invalid = -1, singleRP, multiRP };
       enum class LHCSector { invalid = -1, sector45, sector56 };
 
@@ -44,7 +44,6 @@ namespace reco
       LHCSector sector_;
       RPList contributing_rp_ids_;
   };
-  typedef edm::Ref<ProtonTrackExtra> ProtonTrackExtraRef;
 }
 
 #endif
