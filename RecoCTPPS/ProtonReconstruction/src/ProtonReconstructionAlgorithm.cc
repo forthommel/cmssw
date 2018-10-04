@@ -392,36 +392,29 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CT
   if (verbosity)
     printf("    fit: xi = %f, th_x = %E, th_y = %E, vtx_y = %E, chiSq = %.0f\n", params[0], params[1], params[2], params[3], result.Chi2());
 
-  reco::ProtonTrack pt;
-  pt.method = reco::ProtonTrack::rmMultiRP;
-
-  pt.fitChiSq = result.Chi2();
-  pt.fitNDF = 2.*tracks.size() - 4;
-  pt.lhcSector = (CTPPSDetId(tracks[0]->getRPId()).arm() == 0) ? reco::ProtonTrack::sector45 : reco::ProtonTrack::sector56;
-
-  pt.setVertex(Local3DPoint(0., params[3]*1E3, 0.));  // vertext in mm
-
+  const CTPPSDetId base_detid( tracks[0]->getRPId() );
   const double p_nom = 6500.;  // GeV
   const double p = p_nom *  (1. - params[0]);
   const double th_x = params[1];
   const double th_y = params[2];
   const double cos_th = sqrt(1. - th_x*th_x - th_y*th_y);
-  const double sign_z_lhc = (pt.lhcSector == reco::ProtonTrack::sector45) ? -1. : +1.;
+  const double sign_z_lhc = base_detid.arm() == 0 ? -1. : +1.;
 
-  pt.setXi(params[0]);
+  const reco::TrackBase::Point vertex( 0., params[3]*1.e2, 0. ); // CMS convention in cm
+  const reco::TrackBase::Vector momentum( -p*th_x, +p*th_y, -sign_z_lhc*p*cos_th ); // signs reflect change LHC --> CMS convention
 
-  pt.setDirection(Local3DVector(
-    - p * th_x,   // the signs reflect change LHC --> CMS convention
-    + p * th_y,
-    - sign_z_lhc * p * cos_th
-  ));
+  reco::ProtonTrack pt( result.Chi2(), 2*tracks.size()-4, vertex, momentum, params[0] );
+  pt.setMethod( reco::ProtonTrack::ReconstructionMethod::multiRP );
+  pt.setSector( base_detid.arm() == 0
+    ? reco::ProtonTrack::LHCSector::sector45
+    : reco::ProtonTrack::LHCSector::sector56 );
 
   for (const auto &track : tracks)
     pt.contributingRPIds.insert(track->getRPId());
 
-  const double max_chi_sq = 1. + 3. * pt.fitNDF;
+  const double max_chi_sq = 1. + 3.*pt.ndof();
 
-  pt.setValid(result.IsValid() && pt.fitChiSq < max_chi_sq);
+  pt.setValid(result.IsValid() && pt.chi2() < max_chi_sq);
 
   out.push_back(move(pt));
 }
@@ -453,25 +446,24 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(const vector<const C
     const double L_y = oit->second.s_L_y_vs_xi->Eval(xi);
     const double th_y = track->getY() * 1E-3 / L_y;
 
+    const CTPPSDetId base_detid( track->getRPId() );
+    const double p_nom = 6500.;  // GeV
+    const double p = p_nom *  (1. - xi);
+    const double sign_z_lhc = base_detid.arm() == 0 ? -1. : +1.;
+
     if (verbosity)
       printf("    xi = %f, th_y = %E\n", xi, th_y);
 
-    reco::ProtonTrack pt;
-    pt.method = reco::ProtonTrack::rmSingleRP;
-    pt.lhcSector = (CTPPSDetId(track->getRPId()).arm() == 0) ? reco::ProtonTrack::sector45 : reco::ProtonTrack::sector56;
+    const reco::TrackBase::Vector momentum( 0., +p*th_y, -sign_z_lhc*p ); // signs reflect change LHC --> CMS convention
+
+    reco::ProtonTrack pt( 0., 0, reco::TrackBase::Point(), momentum, xi );
+    pt.setMethod( reco::ProtonTrack::ReconstructionMethod::singleRP );
+    pt.setSector( base_detid.arm() == 0
+      ? reco::ProtonTrack::LHCSector::sector45
+      : reco::ProtonTrack::LHCSector::sector56 );
     pt.contributingRPIds.insert(track->getRPId());
 
-    const double p_nom = 6500.;  // GeV
-    const double p = p_nom *  (1. - xi);
-
-    const double sign_z_lhc = (pt.lhcSector == reco::ProtonTrack::sector45) ? -1. : +1.;
-
     pt.setValid(true);
-    pt.setVertex(Local3DPoint(0., 0., 0.));
-    pt.setDirection(Local3DVector(0., + p * th_y, - sign_z_lhc * p));
-    pt.setXi(xi);
-    pt.fitNDF = 0;
-    pt.fitChiSq = 0.;
 
     out.push_back(move(pt));
   }

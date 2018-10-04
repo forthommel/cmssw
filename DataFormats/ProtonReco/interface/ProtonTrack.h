@@ -24,7 +24,6 @@ namespace reco
     public:
       ProtonTrack();
       ProtonTrack( double chi2, double ndof, const Point& vtx, const Vector& dir, float xi, float xi_unc = 0. );
-      ~ProtonTrack() = default;
 
       enum class ReconstructionMethod { singleRP, multiRP };
       enum class LHCSector { sector45, sector56 };
