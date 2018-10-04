@@ -11,6 +11,7 @@
 #define DataFormats_ProtonReco_ProtonTrack_h
 
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/ProtonReco/interface/ProtonTrackExtra.h"
 #include <set>
 
 /**
@@ -22,36 +23,24 @@ namespace reco
   class ProtonTrack : public Track
   {
     public:
+      typedef ProtonTrackExtra::ReconstructionMethod ReconstructionMethod;
+      typedef ProtonTrackExtra::LHCSector LHCSector;
+      /// Default constructor
       ProtonTrack();
+      /// Constructor from refit parameters, fitted vertex and direction, and longitudinal fractional momentum loss
       ProtonTrack( double chi2, double ndof, const Point& vtx, const Vector& dir, float xi, float xi_unc = 0. );
-
-      enum class ReconstructionMethod { singleRP, multiRP };
-      enum class LHCSector { sector45, sector56 };
-
+      /// Longitudinal fractional momentum loss
       float xi() const { return xi_; }
+      /// Absolute uncertainty on longitudinal fractional momentum loss
       float xiError() const { return xi_unc_; }
 
-      void setValid( bool valid = true ) { isValid_ = valid; }
-      bool valid() const { return isValid_; }
-
-      void setMethod( const ReconstructionMethod& method ) { method_ = method; }
-      ReconstructionMethod method() const { return method_; }
-
-      void setSector( const LHCSector& sector ) { sector_ = sector; }
-      LHCSector sector() const { return sector_; }
-
-      // TODO: add proper getters, setters
-      std::set<unsigned int> contributingRPIds;
+      void setProtonTrackExtra( const ProtonTrackExtraRef& ref ) { pt_extra_ = ref; }
+      const ProtonTrackExtraRef& protonTrackExtra() { return pt_extra_; }
 
     private:
       float xi_; ///< Longitudinal fractional momentum loss
       float xi_unc_; ///< Absolute uncertainty on longitudinal fractional momentum loss
-
-      // TODO: rename to fit valid?
-      // FIXME move to a ProtonTrackExtraRef?
-      bool isValid_;
-      ReconstructionMethod method_;
-      LHCSector sector_;
+      ProtonTrackExtraRef pt_extra_; ///< Additional information on proton track
   };
 }
 
