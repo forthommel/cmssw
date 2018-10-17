@@ -21,6 +21,8 @@
 
 #include "IOMC/ParticleGuns/interface/RandomXiThetaGunProducer.h"
 
+#include "IOMC/ParticleGuns/interface/PPXZGenerator.h"
+
 
 // particle gun prototypes
 //
@@ -61,3 +63,6 @@ DEFINE_FWK_MODULE(FlatRandomPtAndDxyGunProducer);
 
 using edm::RandomXiThetaGunProducer;
 DEFINE_FWK_MODULE(RandomXiThetaGunProducer);
+
+using edm::PPXZGenerator;
+DEFINE_FWK_MODULE(PPXZGenerator);
