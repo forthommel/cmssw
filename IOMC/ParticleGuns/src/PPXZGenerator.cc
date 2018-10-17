@@ -27,21 +27,23 @@ using namespace std;
 //----------------------------------------------------------------------------------------------------
 
 PPXZGenerator::PPXZGenerator(const edm::ParameterSet& pset) : 
-  parameterExample(pset.getParameter<double>("parameterExample"))
+  debug(pset.getUntrackedParameter<unsigned int>("debug", 0))
+  //parameterExample(pset.getParameter<double>("parameterExample"))
 {
-  printf(">> PPXZGenerator::PPXZGenerator > parameterExample = %.0f\n", parameterExample);
+  if (debug)
+  {
+    h_p_T_X = new TH1D("h_p_T_X", "p_T_X distribution; [MeV/c]; # counts", 100, -10., 170.);
+    h_p_z_X = new TH1D("h_p_z_X", "p_z_X distribution; [MeV/c]; # counts", 100, -1500., 1500.);
+    h_p_tot_X = new TH1D("h_p_tot_X", "p_tot_X distribution; [MeV/c]; # counts", 100, -300., 1450.);
+    h_theta_X = new TH1D("h_theta_X", "theta_X distribution; [rad]; # counts", 100, -0.4, 4.5);
+    h_eta_X = new TH1D("h_eta_X", "eta_X distribution; ; # counts", 100, -8., 8.);
 
-  h_p_T_X = new TH1D("h_p_T_X", "p_T_X distribution; [MeV/c]; # counts", 100, -10., 170.);
-  h_p_z_X = new TH1D("h_p_z_X", "p_z_X distribution; [MeV/c]; # counts", 100, -1500., 1500.);
-  h_p_tot_X = new TH1D("h_p_tot_X", "p_tot_X distribution; [MeV/c]; # counts", 100, -300., 1450.);
-  h_theta_X = new TH1D("h_Theta_X", "Theta_X distribution; [rad]; # counts", 100, -0.4, 4.5);
-  h_eta_X = new TH1D("h_Eta_X", "Eta_X distribution; ; # counts", 100, -8., 8.);
-
-  h_p_T_Z = new TH1D("h_p_T_Z", "p_T_Z distribution; [MeV/c]; # counts", 100, -10., 180.);
-  h_p_z_Z = new TH1D("h_p_z_Z", "p_z_Z distribution; [MeV/c]; # counts", 100, -300., 300.);
-  h_p_tot_Z = new TH1D("h_p_tot_Z", "p_tot_Z distribution; [MeV/c]; # counts", 100, -50., 300.);  
-  h_theta_Z = new TH1D("h_Theta_Z", "Theta_Z distribution; [rad]; # counts", 100, -0.4, 4.5);
-  h_eta_Z = new TH1D("h_Eta_Z", "Eta_Z distribution; ; # counts", 100, -5., 5.);
+    h_p_T_Z = new TH1D("h_p_T_Z", "p_T_Z distribution; [MeV/c]; # counts", 100, -10., 180.);
+    h_p_z_Z = new TH1D("h_p_z_Z", "p_z_Z distribution; [MeV/c]; # counts", 100, -300., 300.);
+    h_p_tot_Z = new TH1D("h_p_tot_Z", "p_tot_Z distribution; [MeV/c]; # counts", 100, -50., 300.);  
+    h_theta_Z = new TH1D("h_theta_Z", "theta_Z distribution; [rad]; # counts", 100, -0.4, 4.5);
+    h_eta_Z = new TH1D("h_eta_Z", "eta_Z distribution; ; # counts", 100, -5., 5.);
+  }
 
   produces<HepMCProduct>("unsmeared");
 }
@@ -175,29 +177,32 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
   vtx->add_particle_out(particle_p2);
 
   // validation
-  const double p_T_X = sqrt(momentum_X.x()*momentum_X.x() + momentum_X.y()*momentum_X.y());
-  const double p_z_X = momentum_X.z();
-  const double p_tot_X = momentum_X.rho();
-  const double theta_X = acos(p_z_X/p_tot_X);
-  const double eta_X = -log(tan(theta_X/2.));
+  if (debug)
+  {
+    const double p_T_X = sqrt(momentum_X.x()*momentum_X.x() + momentum_X.y()*momentum_X.y());
+    const double p_z_X = momentum_X.z();
+    const double p_tot_X = momentum_X.rho();
+    const double theta_X = acos(p_z_X/p_tot_X);
+    const double eta_X = -log(tan(theta_X/2.));
 
-  const double p_T_Z = sqrt(momentum_Z.x()*momentum_Z.x() + momentum_Z.y()*momentum_Z.y());
-  const double p_z_Z = momentum_Z.z();
-  const double p_tot_Z = momentum_Z.rho();
-  const double theta_Z = acos(p_z_Z/p_tot_Z);
-  const double eta_Z = -log(tan(theta_Z/2.));
+    const double p_T_Z = sqrt(momentum_Z.x()*momentum_Z.x() + momentum_Z.y()*momentum_Z.y());
+    const double p_z_Z = momentum_Z.z();
+    const double p_tot_Z = momentum_Z.rho();
+    const double theta_Z = acos(p_z_Z/p_tot_Z);
+    const double eta_Z = -log(tan(theta_Z/2.));
 
-  h_p_T_X->Fill(p_T_X);
-  h_p_z_X->Fill(p_z_X);
-  h_p_tot_X->Fill(p_tot_X);
-  h_theta_X->Fill(theta_X);
-  h_eta_X->Fill(eta_X);
+    h_p_T_X->Fill(p_T_X);
+    h_p_z_X->Fill(p_z_X);
+    h_p_tot_X->Fill(p_tot_X);
+    h_theta_X->Fill(theta_X);
+    h_eta_X->Fill(eta_X);
 
-  h_p_T_Z->Fill(p_T_Z);
-  h_p_z_Z->Fill(p_z_Z);
-  h_p_tot_Z->Fill(p_tot_Z);
-  h_theta_Z->Fill(theta_Z);
-  h_eta_Z->Fill(eta_Z);
+    h_p_T_Z->Fill(p_T_Z);
+    h_p_z_Z->Fill(p_z_Z);
+    h_p_tot_Z->Fill(p_tot_Z);
+    h_theta_Z->Fill(theta_Z);
+    h_eta_Z->Fill(eta_Z);
+  }
 
   // save output
   std::unique_ptr<HepMCProduct> output(new HepMCProduct()) ;
@@ -209,19 +214,22 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
 
 PPXZGenerator::~PPXZGenerator()
 {
-  TFile *f_out = TFile::Open("PPXZGenerator_debug.root", "recreate");
+  if (debug)
+  {
+    TFile *f_out = TFile::Open("PPXZGenerator_debug.root", "recreate");
 
-  h_p_T_X->Write();
-  h_p_z_X->Write();
-  h_p_tot_X->Write();
-  h_theta_X->Write();
-  h_eta_X->Write();
+    h_p_T_X->Write();
+    h_p_z_X->Write();
+    h_p_tot_X->Write();
+    h_theta_X->Write();
+    h_eta_X->Write();
 
-  h_p_T_Z->Write();
-  h_p_z_Z->Write();
-  h_p_tot_Z->Write();
-  h_theta_Z->Write();
-  h_eta_Z->Write();
+    h_p_T_Z->Write();
+    h_p_z_Z->Write();
+    h_p_tot_Z->Write();
+    h_theta_Z->Write();
+    h_eta_Z->Write();
 
-  delete f_out;
+    delete f_out;
+  }
 }

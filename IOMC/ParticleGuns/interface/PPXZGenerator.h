@@ -32,7 +32,7 @@ class PPXZGenerator : public one::EDProducer<>
   private:
     virtual void produce(Event & e, const EventSetup& es) override;
 
-    double parameterExample;
+    unsigned int debug;
 
     // debug histograms
     TH1D *h_p_T_X;
