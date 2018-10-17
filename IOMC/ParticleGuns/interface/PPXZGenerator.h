@@ -32,7 +32,20 @@ class PPXZGenerator : public one::EDProducer<>
   private:
     virtual void produce(Event & e, const EventSetup& es) override;
 
+    // input parameters
+    unsigned int verbosity;
     unsigned int debug;
+
+    const double m_X; // mass of the X particle, GeV
+    const double m_Z; // mass of the Z particle, GeV
+
+    const double p_beam; // beam momentum, GeV
+
+    const double m_XZ_min; // minimal value of invariant mass of the X-Z system, GeV
+    const double c_XZ; // parameter of the exponential distribution for the invariant mass of the X-Z system, GeV
+
+    const double p_z_LAB_2p_mean; // mean p_z of the 2-proton system in the LAB frame, GeV
+    const double p_z_LAB_2p_sigma; // RMS p_z of the 2-proton system in the LAB frame, GeV
 
     // debug histograms
     TH1D *h_p_T_X;

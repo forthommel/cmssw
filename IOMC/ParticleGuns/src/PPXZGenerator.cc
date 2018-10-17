@@ -6,7 +6,7 @@
  *
  ****************************************************************************/
 
-#include "IOMC/ParticleGuns/interface/PPXZGenerator.h" 
+#include "IOMC/ParticleGuns/interface/PPXZGenerator.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -26,9 +26,17 @@ using namespace std;
 
 //----------------------------------------------------------------------------------------------------
 
-PPXZGenerator::PPXZGenerator(const edm::ParameterSet& pset) : 
-  debug(pset.getUntrackedParameter<unsigned int>("debug", 0))
-  //parameterExample(pset.getParameter<double>("parameterExample"))
+PPXZGenerator::PPXZGenerator(const edm::ParameterSet& pset) :
+  verbosity(pset.getUntrackedParameter<unsigned int>("verbosity", 0)),
+  debug(pset.getUntrackedParameter<unsigned int>("debug", 0)),
+
+  m_X(pset.getParameter<double>("m_X")),
+  m_Z(pset.getParameter<double>("m_Z")),
+  p_beam(pset.getParameter<double>("p_beam")),
+  m_XZ_min(pset.getParameter<double>("m_XZ_min")),
+  c_XZ(pset.getParameter<double>("c_XZ")),
+  p_z_LAB_2p_mean(pset.getParameter<double>("p_z_LAB_2p_mean")),
+  p_z_LAB_2p_sigma(pset.getParameter<double>("p_z_LAB_2p_sigma"))
 {
   if (debug)
   {
@@ -40,7 +48,7 @@ PPXZGenerator::PPXZGenerator(const edm::ParameterSet& pset) :
 
     h_p_T_Z = new TH1D("h_p_T_Z", "p_T_Z distribution; [MeV/c]; # counts", 100, -10., 180.);
     h_p_z_Z = new TH1D("h_p_z_Z", "p_z_Z distribution; [MeV/c]; # counts", 100, -300., 300.);
-    h_p_tot_Z = new TH1D("h_p_tot_Z", "p_tot_Z distribution; [MeV/c]; # counts", 100, -50., 300.);  
+    h_p_tot_Z = new TH1D("h_p_tot_Z", "p_tot_Z distribution; [MeV/c]; # counts", 100, -50., 300.);
     h_theta_Z = new TH1D("h_theta_Z", "theta_Z distribution; [rad]; # counts", 100, -0.4, 4.5);
     h_eta_Z = new TH1D("h_eta_Z", "eta_Z distribution; ; # counts", 100, -5., 5.);
   }
@@ -50,9 +58,10 @@ PPXZGenerator::PPXZGenerator(const edm::ParameterSet& pset) :
 
 //----------------------------------------------------------------------------------------------------
 
-void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es) 
+void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
 {
-  printf("\n>> PPXZGenerator::produce > event %llu\n", e.id().event());
+  if (verbosity)
+    printf("\n>> PPXZGenerator::produce > event %llu\n", e.id().event());
 
   // get conditions
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -64,7 +73,7 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
   // prepare HepMC event
   HepMC::GenEvent *fEvt = new HepMC::GenEvent();
   fEvt->set_event_number(e.id().event());
-   
+
   // generate vertex position
   HepMC::GenVertex *vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0., 0.));
   fEvt->add_vertex(vtx);
@@ -74,25 +83,17 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
   const unsigned int particleId_X = 999999;
   const unsigned int particleId_p = 2212;
 
-  // particle masses
-  const double m_X = 1200.; // GeV
-  const double m_Z = 91.;   // GeV
-
+  // TODO
   //const HepPDT::ParticleData *pData = pdgTable->particle(HepPDT::ParticleID(particleId));
   //double mass_1 = pData->mass().value();
   //double mass_2 = pData->mass().value();
 
-  // beam momentum
-  const double p_beam = 6500.; // GeV
-
   // generate invariant mass of the X-Z system
-  const double c = 0.04;
-  const double c_mean = 1. / c;
-  const double m_XZ = 1300. + CLHEP::RandExponential::shoot(engine, c_mean);
+  const double c_XZ_mean = 1. / c_XZ;
+  const double m_XZ = m_XZ_min + CLHEP::RandExponential::shoot(engine, c_XZ_mean);
 
   // generate p_z of the 2-proton system in the LAB frame
-  const double medlab = 180.0, sigmalab = 450.0;
-  const double p_z_LAB_2p = CLHEP::RandGauss::shoot(engine, medlab, sigmalab);
+  const double p_z_LAB_2p = CLHEP::RandGauss::shoot(engine, p_z_LAB_2p_mean, p_z_LAB_2p_sigma);
 
   // generate spherical angles in the CMS frame of the X-Z system
   const double theta_c = CLHEP::RandFlat::shoot(engine) * M_PI;
@@ -103,10 +104,13 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
   const double xi2 = (p_z_LAB_2p + sqrt(p_z_LAB_2p*p_z_LAB_2p + m_XZ*m_XZ)) / (2. * p_beam);
   const double xi1 = m_XZ * m_XZ / (4. * p_beam * p_beam * xi2);
 
-  printf("  m_XZ = %.1f\n", m_XZ);
-  printf("  p_z_LAB_2p = %.1f\n", p_z_LAB_2p);
-  printf("  xi1 = %.3f, xi2 = %.3f\n", xi1, xi2);
-  printf("  p_beam * (xi2 - xi1) = %.1f\n", p_beam * (xi2 - xi1));
+  if (verbosity)
+  {
+    printf("  m_XZ = %.1f\n", m_XZ);
+    printf("  p_z_LAB_2p = %.1f\n", p_z_LAB_2p);
+    printf("  xi1 = %.3f, xi2 = %.3f\n", xi1, xi2);
+    printf("  p_beam * (xi2 - xi1) = %.1f\n", p_beam * (xi2 - xi1));
+  }
 
   // determine momenta of the X and Z particles in the CMS frame of the X-Z system
   const double p_c = sqrt( pow(m_XZ*m_XZ - m_X*m_X - m_Z*m_Z, 2.) / (4. * m_XZ * m_XZ) - m_X*m_X * m_Z*m_Z / (m_XZ*m_XZ) );
@@ -128,7 +132,8 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
   const double beta = - (xi1 - xi2) / (xi1 + xi2);
   const double gamma = 1. / sqrt(1. - beta*beta);
 
-  printf("  beta = %.3f\n", beta);
+  if (verbosity)
+    printf("  beta = %.3f\n", beta);
 
   // determine four-momenta of the outgoing particles in the LAB frame
 
@@ -138,7 +143,7 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
     gamma * (p_X_z_CMS - beta * E_X_CMS),
     gamma * (E_X_CMS - beta * p_X_z_CMS)
   );
-  
+
   HepMC::FourVector momentum_Z(
     p_Z_x_CMS,
     p_Z_y_CMS,
@@ -150,12 +155,15 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
 
   HepMC::FourVector momentum_p2(0., 0., -p_beam * (1. - xi2), p_beam * (1. - xi2));
 
-  printf("  p_X_z = %.1f\n", momentum_X.z());
-  printf("  p_Z_z = %.1f\n", momentum_Z.z());
+  if (verbosity)
+  {
+    printf("  p_X_z = %.1f\n", momentum_X.z());
+    printf("  p_Z_z = %.1f\n", momentum_Z.z());
 
-  printf("  p_x lab sum = %.1f\n", momentum_X.x() + momentum_Z.x());
-  printf("  p_y lab sum = %.1f\n", momentum_X.y() + momentum_Z.y());
-  printf("  p_z lab sum = %.1f\n", momentum_X.z() + momentum_Z.z() + p_z_LAB_2p);
+    printf("  p_x lab sum = %.1f\n", momentum_X.x() + momentum_Z.x());
+    printf("  p_y lab sum = %.1f\n", momentum_X.y() + momentum_Z.y());
+    printf("  p_z lab sum = %.1f\n", momentum_X.z() + momentum_Z.z() + p_z_LAB_2p);
+  }
 
   // fill in the HepMC record
   unsigned int barcode = 0;
