@@ -20,6 +20,7 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 #include <CLHEP/Random/RandExponential.h>
+#include <CLHEP/Random/RandBreitWigner.h>
 
 using namespace edm;
 using namespace std;
@@ -30,8 +31,15 @@ PPXZGenerator::PPXZGenerator(const edm::ParameterSet& pset) :
   verbosity(pset.getUntrackedParameter<unsigned int>("verbosity", 0)),
   debug(pset.getUntrackedParameter<unsigned int>("debug", 0)),
 
+  decayZToElectrons(pset.getParameter<bool>("decayZToElectrons")),
+  decayZToMuons(pset.getParameter<bool>("decayZToMuons")),
+
   m_X(pset.getParameter<double>("m_X")),
-  m_Z(pset.getParameter<double>("m_Z")),
+  m_Z_mean(pset.getParameter<double>("m_Z_mean")),
+  m_Z_gamma(pset.getParameter<double>("m_Z_gamma")),
+  m_e(pset.getParameter<double>("m_e")),
+  m_mu(pset.getParameter<double>("m_mu")),
+
   p_beam(pset.getParameter<double>("p_beam")),
   m_XZ_min(pset.getParameter<double>("m_XZ_min")),
   c_XZ(pset.getParameter<double>("c_XZ")),
@@ -40,6 +48,10 @@ PPXZGenerator::PPXZGenerator(const edm::ParameterSet& pset) :
 {
   if (debug)
   {
+    h_m_Z = new TH1D("h_m_Z", ";m_{Z}   (GeV)", 100, 80., 100.);
+    h_m_XZ = new TH1D("h_m_XZ", ";m_{XZ}   (GeV)", 100, 1200., 1500.);
+    h_p_z_LAB_2p = new TH1D("h_p_z_LAB_2p", ";p_{z}(2 protons)   (GeV)", 100, -2000., +2000.);
+
     h_p_T_X = new TH1D("h_p_T_X", "p_T_X distribution; [MeV/c]; # counts", 100, -10., 170.);
     h_p_z_X = new TH1D("h_p_z_X", "p_z_X distribution; [MeV/c]; # counts", 100, -1500., 1500.);
     h_p_tot_X = new TH1D("h_p_tot_X", "p_tot_X distribution; [MeV/c]; # counts", 100, -300., 1450.);
@@ -87,6 +99,9 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
   //const HepPDT::ParticleData *pData = pdgTable->particle(HepPDT::ParticleID(particleId));
   //double mass_1 = pData->mass().value();
   //double mass_2 = pData->mass().value();
+
+  // generate mass of Z
+  const double m_Z = CLHEP::RandBreitWigner::shoot(engine, m_Z_mean, m_Z_gamma);
 
   // generate invariant mass of the X-Z system
   const double c_XZ_mean = 1. / c_XZ;
@@ -199,6 +214,10 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
     const double theta_Z = acos(p_z_Z/p_tot_Z);
     const double eta_Z = -log(tan(theta_Z/2.));
 
+    h_m_Z->Fill(m_Z);
+    h_m_XZ->Fill(m_XZ);
+    h_p_z_LAB_2p->Fill(p_z_LAB_2p);
+
     h_p_T_X->Fill(p_T_X);
     h_p_z_X->Fill(p_z_X);
     h_p_tot_X->Fill(p_tot_X);
@@ -225,6 +244,10 @@ PPXZGenerator::~PPXZGenerator()
   if (debug)
   {
     TFile *f_out = TFile::Open("PPXZGenerator_debug.root", "recreate");
+
+    h_m_Z->Write();
+    h_m_XZ->Write();
+    h_p_z_LAB_2p->Write();
 
     h_p_T_X->Write();
     h_p_z_X->Write();

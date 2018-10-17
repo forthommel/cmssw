@@ -36,18 +36,29 @@ class PPXZGenerator : public one::EDProducer<>
     unsigned int verbosity;
     unsigned int debug;
 
-    const double m_X; // mass of the X particle, GeV
-    const double m_Z; // mass of the Z particle, GeV
+    bool decayZToElectrons;
+    bool decayZToMuons;
 
-    const double p_beam; // beam momentum, GeV
+    const double m_X;       // mass of the X particle, GeV
+    const double m_Z_mean;  // mass of the Z particle, mean, GeV
+    const double m_Z_gamma; // mass of the Z particle, gamma, GeV
 
-    const double m_XZ_min; // minimal value of invariant mass of the X-Z system, GeV
-    const double c_XZ; // parameter of the exponential distribution for the invariant mass of the X-Z system, GeV
+    const double m_e;       // mass of the X electron, GeV
+    const double m_mu;      // mass of the X electron, GeV
+
+    const double p_beam;    // beam momentum, GeV
+
+    const double m_XZ_min;  // minimal value of invariant mass of the X-Z system, GeV
+    const double c_XZ;      // parameter of the exponential distribution for the invariant mass of the X-Z system, GeV
 
     const double p_z_LAB_2p_mean; // mean p_z of the 2-proton system in the LAB frame, GeV
     const double p_z_LAB_2p_sigma; // RMS p_z of the 2-proton system in the LAB frame, GeV
 
     // debug histograms
+    TH1D *h_m_Z;
+    TH1D *h_m_XZ;
+    TH1D *h_p_z_LAB_2p;
+
     TH1D *h_p_T_X;
     TH1D *h_p_z_X;
     TH1D *h_p_tot_X;
