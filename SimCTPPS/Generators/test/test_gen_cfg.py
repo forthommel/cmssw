@@ -24,7 +24,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 # particle generator
 process.load("SimCTPPS.Generators.PPXZGenerator_cfi")
-process.generator.debug = 1
+process.generator.debug = 0
 process.generator.verbosity = 1
 
 # random seeds
