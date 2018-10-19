@@ -1,0 +1,127 @@
+\input slides.tex
+\input utf8-t1
+
+\newpage %-------------------------------------------------------------------------------------------
+
+\def\author{PPS}
+\def\caption{PPXZ generator}
+\def\date{17 Oct 2018}
+
+\newpage %-------------------------------------------------------------------------------------------
+\hbox{}
+\vfil
+\title{Toy generator of $\rm p + p \rightarrow p + Z + X + p$ processes}
+\vskip3mm
+\centerline{N.~Turini, F.~Turini, L.~Marini, J.~Ka\v spar}
+\vfil
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{Introduction}
+
+\> process $\rm p + p \rightarrow p + Z + X + p$ is generated as follows
+
+\>> invariant mass of the X-Z system is generated according to exponential distribution
+\vskip-3mm
+\cThird
+$$m_{\rm XZ} = m_{\rm XZ,min} + RandExponential(1/c)$$
+\vskip2mm
+
+\>> X and Z have isotropic momentum distributions in the c.m.s.~system of X-Z
+
+\>> $p_z$ of the system of the 2 outgoing protons is generated according to a Gaussian
+\cThird
+\vskip-2mm
+$$p_z(\hbox{2 protons}) = RandGauss(\hbox{mean, sigma})$$
+\vskip2mm
+
+\>> mass of the Z generated as
+\cThird
+\vskip-2mm
+$$m_Z = RandBreitWigner(\hbox{mean, gamma})$$
+\vskip2mm
+
+\>> Z can be decayed to a pair of electrons or muons
+\>>> isotropic decay in Z's rest frame
+
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{CMSSW implementation}
+
+\> implementation: standard CMSSW ``particle gun'' with HepMC(Product) output
+
+\> CMSSW branch:\\ \link{https://github.com/CTPPS/cmssw/tree/ctpps_initial_proton_reconstruction_CMSSW_10_2_0}{\SmallerFonts https://github.com/CTPPS/cmssw/tree/ctpps\_initial\_proton\_reconstruction\_CMSSW\_10\_2\_0}
+
+\NormalFonts
+
+\> module: ParticleGuns/src/PPXZGenerator.cc
+
+\> example config: IOMC/ParticleGuns/test/test\_gen\_cfg.py
+
+\> default parameters
+\>> mass of particle X: m\_X = $1200\un{GeV}$
+\>> mass of particle Z: m\_Z\_mean = $91.1876\un{GeV}$, m\_Z\_gamma = $2.4952\un{GeV}$
+\>> mass of electron: m\_e = $0.5109e-3\un{GeV}$
+\>> mass of electron: m\_mu = $105.658e-3\un{GeV}$
+\>> momentum of beam protons: p\_beam = $6500\un{GeV}$
+\>> generation of $m_{\rm XZ}$
+\>>> minimal value m\_XZ\_min = $1300\un{GeV}$
+\>>> parameter of exponential distribution: c = $0.04$
+\>> generation of $p_z(\hbox{2 protons})$
+\>>> mean: p\_z\_LAB\_2p\_mean = $180\un{GeV}$
+\>>> sigma: p\_z\_LAB\_2p\_sigma = $450\un{GeV}$
+
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{Validation}
+
+\> TODO: mention validation checks
+\>> total momentum of p + p + X + Z is zero and energy corresponds to $\sqrt s$
+\>> total momentum of p + p + X + l + l is zero and energy corresponds to $\sqrt s$
+
+\> plots on next slides obtained with
+\>> the default parameters
+\>> no additional proton $\xi$ cuts (to reflect the RP acceptance)
+\>> TODO: ... events
+
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{Distributions of directly generated quantities}
+
+\centerline{\fig[16cm]{fig/make_plots.pdf}}
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\ctitle{Distributions}{$p_{\rm T}$}
+
+\centerline{\fig[16cm]{fig/p_T.pdf}}
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\ctitle{Distributions}{$p_{z}$}
+
+\centerline{\fig[16cm]{fig/p_z.pdf}}
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\ctitle{Distributions}{$p$ (total)}
+
+\centerline{\fig[16cm]{fig/p_tot.pdf}}
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\ctitle{Distributions}{$\th$}
+
+\centerline{\fig[16cm]{fig/theta.pdf}}
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\ctitle{Distributions}{$\et$}
+
+\centerline{\fig[16cm]{fig/eta.pdf}}
+
+\vfil
+\eject
+\bye
