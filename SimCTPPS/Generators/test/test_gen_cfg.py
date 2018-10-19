@@ -23,7 +23,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 # particle generator
-process.load("IOMC.ParticleGuns.PPXZGenerator_cfi")
+process.load("SimCTPPS.Generators.PPXZGenerator_cfi")
 process.generator.debug = 1
 process.generator.verbosity = 1
 
