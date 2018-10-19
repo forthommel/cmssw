@@ -20,11 +20,12 @@
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
+#include "CLHEP/Vector/LorentzVector.h"
+
 #include "TFile.h"
 #include "TH1D.h"
-#include "TH2D.h"
 
-#include <map>
+#include "SimCTPPS/Generators/plugins/particle_ids.h"
 
 //----------------------------------------------------------------------------------------------------
 
@@ -82,11 +83,11 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
         h_theta_l_pl = new TH1D("", "theta(l_pl)", 100, -0.4, 4.5);
         h_eta_l_pl = new TH1D("", "eta(l_pl)", 100, -5., 5.);
 
-        h_p_T_l_min = new TH1D("", "p_{T}(l_min)   (GeV)", 100, -10., 180.);
-        h_p_z_l_min = new TH1D("", "p_{z}(l_min)   (GeV)", 100, -300., 300.);
-        h_p_tot_l_min = new TH1D("", "p(l_min)   (GeV)", 100, -50., 300.);
-        h_theta_l_min = new TH1D("", "theta(l_min)", 100, -0.4, 4.5);
-        h_eta_l_min = new TH1D("", "eta(l_min)", 100, -5., 5.);
+        h_p_T_l_mi = new TH1D("", "p_{T}(l_mi)   (GeV)", 100, -10., 180.);
+        h_p_z_l_mi = new TH1D("", "p_{z}(l_mi)   (GeV)", 100, -300., 300.);
+        h_p_tot_l_mi = new TH1D("", "p(l_mi)   (GeV)", 100, -50., 300.);
+        h_theta_l_mi = new TH1D("", "theta(l_mi)", 100, -0.4, 4.5);
+        h_eta_l_mi = new TH1D("", "eta(l_mi)", 100, -5., 5.);
       }
 
       void fill(const CLHEP::HepLorentzVector &momentum_p1, const CLHEP::HepLorentzVector &momentum_p2,
@@ -102,27 +103,27 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
 
         h_p_T_X->Fill(momentum_X.perp());
         h_p_z_X->Fill(momentum_X.z());
-        h_p_tot_X->Fill(momentum_X.mag());
+        h_p_tot_X->Fill(momentum_X.rho());
         h_theta_X->Fill(momentum_X.theta());
-        h_eta_X->Fill(momentum_X.et());
+        h_eta_X->Fill(momentum_X.pseudoRapidity());
 
         h_p_T_Z->Fill(momentum_Z.perp());
         h_p_z_Z->Fill(momentum_Z.z());
-        h_p_tot_Z->Fill(momentum_Z.mag());
+        h_p_tot_Z->Fill(momentum_Z.rho());
         h_theta_Z->Fill(momentum_Z.theta());
-        h_eta_Z->Fill(momentum_Z.et());
+        h_eta_Z->Fill(momentum_Z.pseudoRapidity());
 
         h_p_T_l_pl->Fill(momentum_l_pl.perp());
         h_p_z_l_pl->Fill(momentum_l_pl.z());
-        h_p_tot_l_pl->Fill(momentum_l_pl.mag());
+        h_p_tot_l_pl->Fill(momentum_l_pl.rho());
         h_theta_l_pl->Fill(momentum_l_pl.theta());
-        h_eta_l_pl->Fill(momentum_l_pl.et());
+        h_eta_l_pl->Fill(momentum_l_pl.pseudoRapidity());
 
         h_p_T_l_mi->Fill(momentum_l_mi.perp());
         h_p_z_l_mi->Fill(momentum_l_mi.z());
-        h_p_tot_l_mi->Fill(momentum_l_mi.mag());
+        h_p_tot_l_mi->Fill(momentum_l_mi.rho());
         h_theta_l_mi->Fill(momentum_l_mi.theta());
-        h_eta_l_mi->Fill(momentum_l_mi.et());
+        h_eta_l_mi->Fill(momentum_l_mi.pseudoRapidity());
       }
 
       void write() const
@@ -158,6 +159,11 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
     };
 
     Plots plotsBeforeSimulation, plotsAfterSimulation;
+
+    inline CLHEP::HepLorentzVector convertTo(const HepMC::FourVector &v)
+    {
+      return CLHEP::HepLorentzVector(v.x(), v.y(), v.z(), v.t());
+    }
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -189,7 +195,38 @@ void PPXZGeneratorValidation::analyze(const edm::Event& iEvent, const edm::Event
   // process HepMC record
   CLHEP::HepLorentzVector momentum_p1, momentum_p2, momentum_X, momentum_Z, momentum_l_pl, momentum_l_mi;
 
-  // TODO
+  // loop over event vertices
+  auto evt = hHepMCProduct->GetEvent();
+  for (auto it_vtx = evt->vertices_begin(); it_vtx != evt->vertices_end(); ++it_vtx)
+  {
+    auto vtx = *it_vtx;
+
+    // loop over outgoing particles
+    for (auto it_part = vtx->particles_out_const_begin(); it_part != vtx->particles_out_const_end(); ++it_part)
+    {
+      auto part = *it_part;
+
+      if (part->pdg_id() == particleId_p)
+      {
+        if (part->momentum().z() > 0)
+          momentum_p1 = convertTo(part->momentum());
+        else
+          momentum_p2 = convertTo(part->momentum());
+      }
+
+      if (part->pdg_id() == particleId_X)
+        momentum_X = convertTo(part->momentum());
+
+      if (part->pdg_id() == particleId_Z)
+        momentum_Z = convertTo(part->momentum());
+
+      if (part->pdg_id() == particleId_e_pl || part->pdg_id() == particleId_mu_pl)
+        momentum_l_pl = convertTo(part->momentum());
+
+      if (part->pdg_id() == particleId_e_mi || part->pdg_id() == particleId_mu_mi)
+        momentum_l_mi = convertTo(part->momentum());
+    }
+  }
 
   // process tracks
   bool protonIn45 = false, protonIn56 = false;
@@ -197,14 +234,14 @@ void PPXZGeneratorValidation::analyze(const edm::Event& iEvent, const edm::Event
   {
     CTPPSDetId rpId(tr.getRPId());
     if (rpId.arm() == 0) protonIn45 = true;
-    if (rpId.arm() == 0) protonIn56 = true;
+    if (rpId.arm() == 1) protonIn56 = true;
   }
 
   // fill plots
-  plotsBeforeSimulation.Fill(momentum_p1, momentum_p2, momentum_X, momentum_Z, momentum_l_pl, momentum_l_mi);
+  plotsBeforeSimulation.fill(momentum_p1, momentum_p2, momentum_X, momentum_Z, momentum_l_pl, momentum_l_mi);
 
   if (protonIn45 && protonIn56)
-    plotsAfterSimulation.Fill(momentum_p1, momentum_p2, momentum_X, momentum_Z, momentum_l_pl, momentum_l_mi);
+    plotsAfterSimulation.fill(momentum_p1, momentum_p2, momentum_X, momentum_Z, momentum_l_pl, momentum_l_mi);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -219,11 +256,11 @@ void PPXZGeneratorValidation::endJob()
 {
   TFile *f_out = TFile::Open(outputFile.c_str(), "recreate");
   
-  gDirectory->mkdir("before simulation");
-  plotsBeforeSimulation.Write();
+  gDirectory = f_out->mkdir("before simulation");
+  plotsBeforeSimulation.write();
   
-  gDirectory->mkdir("after simulation");
-  plotsAfter.Write();
+  gDirectory = f_out->mkdir("after simulation");
+  plotsAfterSimulation.write();
 
   delete f_out;
 }
