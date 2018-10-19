@@ -32,7 +32,7 @@ for (int fi : files.keys)
 		hist.vExec("Rebin2D", 2, 2);
 
 		draw(hist);
-		limits((0, -25), (50, 25), Crop);
+		limits((0, -10), (20, 10), Crop);
 		AttachLegend(rp_labels[rpi]);
 	}
 }

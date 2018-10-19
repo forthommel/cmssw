@@ -15,7 +15,7 @@ void MakeOnePlot(string tag, string alabel, string caption="")
 {
 	NewPad(alabel);
 	draw(RootGetObject(f, "before simulation/" + tag), "vl,eb", blue);
-	draw(RootGetObject(f, "after simulation/" + tag), "vl,eb", red+dashed);
+	draw(RootGetObject(f, "after simulation/" + tag), "vl,eb", red);
 
 	if (caption != "")
 		AttachLegend(caption);
@@ -36,7 +36,6 @@ particles.push("Z"); p_labels.push("Z");
 particles.push("l_mi"); p_labels.push("$\rm l^-$");
 particles.push("l_pl"); p_labels.push("$\rm l^+$");
 
-/*
 for (int qi : quantities.keys)
 {
 	for (int pti : particles.keys)
@@ -59,7 +58,6 @@ MakeOnePlot("h_m_XZ", "$m_{\rm XZ}\ung{GeV}$");
 MakeOnePlot("h_p_z_LAB_2p", "$p_z(\hbox{2 protons})\ung{GeV}$");
 
 GShipout("make_plots", hSkip=2mm, vSkip=0mm);
-*/
 
 //----------------------------------------------------------------------------------------------------
 

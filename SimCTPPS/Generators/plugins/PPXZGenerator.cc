@@ -62,8 +62,8 @@ class PPXZGenerator : public edm::one::EDProducer<>
     const double m_XZ_min;  // minimal value of invariant mass of the X-Z system, GeV
     const double c_XZ;      // parameter of the exponential distribution for the invariant mass of the X-Z system, GeV
 
-    const double p_z_LAB_2p_mean; // mean p_z of the 2-proton system in the LAB frame, GeV
-    const double p_z_LAB_2p_sigma; // RMS p_z of the 2-proton system in the LAB frame, GeV
+    const double p_z_LAB_2p_min; // minimum of p_z of the 2-proton system in the LAB frame, GeV
+    const double p_z_LAB_2p_max; // maximum of p_z of the 2-proton system in the LAB frame, GeV
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -89,8 +89,8 @@ PPXZGenerator::PPXZGenerator(const edm::ParameterSet& pset) :
   p_beam(pset.getParameter<double>("p_beam")),
   m_XZ_min(pset.getParameter<double>("m_XZ_min")),
   c_XZ(pset.getParameter<double>("c_XZ")),
-  p_z_LAB_2p_mean(pset.getParameter<double>("p_z_LAB_2p_mean")),
-  p_z_LAB_2p_sigma(pset.getParameter<double>("p_z_LAB_2p_sigma"))
+  p_z_LAB_2p_min(pset.getParameter<double>("p_z_LAB_2p_min")),
+  p_z_LAB_2p_max(pset.getParameter<double>("p_z_LAB_2p_max"))
 {
   produces<HepMCProduct>("unsmeared");
 }
@@ -142,7 +142,7 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
     throw cms::Exception("PPXZGenerator") << "Failed to generate m_Z and m_XZ.";
 
   // generate p_z of the 2-proton system in the LAB frame
-  const double p_z_LAB_2p = CLHEP::RandGauss::shoot(engine, p_z_LAB_2p_mean, p_z_LAB_2p_sigma);
+  const double p_z_LAB_2p = CLHEP::RandFlat::shoot(engine, p_z_LAB_2p_min, p_z_LAB_2p_max);
 
   // generate spherical angles in the CMS frame of the X-Z system
   const double theta_c = CLHEP::RandFlat::shoot(engine) * M_PI;

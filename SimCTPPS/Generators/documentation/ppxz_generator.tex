@@ -47,10 +47,10 @@ $$m_{\rm XZ} = m_{\rm XZ,min} + RandExponential(1/c)$$
 
 \>> X and Z have isotropic momentum distributions in the c.m.s.~system of X-Z
 
-\>> $p_z$ of the system of the 2 outgoing protons is generated according to a Gaussian
+\>> $p_z$ of the system of the 2 outgoing protons is generated with a uniform distribution
 \cThird
 \vskip-2mm
-$$p_z(\hbox{2 protons}) = RandGauss(\hbox{mean, sigma})$$
+$$p_z(\hbox{2 protons}) = RandFlat(\hbox{min, max})$$
 \vskip2mm
 
 \>> mass of the Z generated as
@@ -79,8 +79,8 @@ $$m_Z = RandBreitWigner(\hbox{mean, gamma})$$
 \>> minimal value m\_XZ\_min = $1300\un{GeV}$
 \>> parameter of exponential distribution: c = $0.04$
 \> generation of $p_z(\hbox{2 protons})$
-\>> mean: p\_z\_LAB\_2p\_mean = $180\un{GeV}$
-\>> sigma: p\_z\_LAB\_2p\_sigma = $450\un{GeV}$
+\>> mean: p\_z\_LAB\_2p\_min = $-1000\un{GeV}$
+\>> sigma: p\_z\_LAB\_2p\_max = $+1500\un{GeV}$
 
 
 \newpage %-------------------------------------------------------------------------------------------
