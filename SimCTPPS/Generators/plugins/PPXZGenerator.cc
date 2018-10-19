@@ -125,16 +125,20 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
   const double c_XZ_mean = 1. / c_XZ;
   double m_Z = -1., m_XZ = -1.;
 
-  for (unsigned int n_attempt = 0; n_attempt < 1000; ++n_attempt)
+  bool massesOK = false;
+  for (unsigned int n_attempt = 0; n_attempt < 10000; ++n_attempt)
   {
     m_Z = CLHEP::RandBreitWigner::shoot(engine, m_Z_mean, m_Z_gamma);
     m_XZ = m_XZ_min + CLHEP::RandExponential::shoot(engine, c_XZ_mean);
 
     if (m_XZ > m_Z + m_X)
+    {
+      massesOK = true;
       break;
+    }
   }
 
-  if (m_Z < 0.)
+  if (!massesOK)
     throw cms::Exception("PPXZGenerator") << "Failed to generate m_Z and m_XZ.";
 
   // generate p_z of the 2-proton system in the LAB frame
