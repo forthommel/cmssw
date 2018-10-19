@@ -24,6 +24,7 @@
 
 #include "TFile.h"
 #include "TH1D.h"
+#include "TH2D.h"
 
 #include "SimCTPPS/Generators/plugins/particle_ids.h"
 
@@ -53,6 +54,8 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
       TH1D *h_m_XZ;
       TH1D *h_p_z_LAB_2p;
 
+      TH2D *h_xi2_vs_xi1;
+
       TH1D *h_p_T_X, *h_p_z_X, *h_p_tot_X, *h_theta_X, *h_eta_X;
       TH1D *h_p_T_Z, *h_p_z_Z, *h_p_tot_Z, *h_theta_Z, *h_eta_Z;
 
@@ -64,6 +67,8 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
         h_m_Z = new TH1D("", ";m_{Z}   (GeV)", 100, 80., 100.);
         h_m_XZ = new TH1D("", ";m_{XZ}   (GeV)", 100, 1200., 1500.);
         h_p_z_LAB_2p = new TH1D("", ";p_{z}(2 protons)   (GeV)", 100, -2000., +2000.);
+
+        h_xi2_vs_xi1 = new TH2D("", ";#xi_{1};#xi_{2}", 50., 0., 0.20, 50., 0., 0.20);
 
         h_p_T_X = new TH1D("", "p_{T}(X)   (GeV)", 100, -10., 170.);
         h_p_z_X = new TH1D("", "p_{z}(X)   (GeV)", 100, -1500., 1500.);
@@ -101,6 +106,11 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
         h_m_XZ->Fill((momentum_Z + momentum_X).m());
         h_p_z_LAB_2p->Fill((momentum_p1 + momentum_p2).z());
 
+        const double p_beam = (momentum_p1 + momentum_p2 + momentum_Z + momentum_X).m() / 2.;
+        const double xi1 = 1. - momentum_p1.t() / p_beam;
+        const double xi2 = 1. - momentum_p2.t() / p_beam;
+        h_xi2_vs_xi1->Fill(xi1, xi2);
+
         h_p_T_X->Fill(momentum_X.perp());
         h_p_z_X->Fill(momentum_X.z());
         h_p_tot_X->Fill(momentum_X.rho());
@@ -131,6 +141,8 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
         h_m_Z->Write("h_m_Z");
         h_m_XZ->Write("h_m_XZ");
         h_p_z_LAB_2p->Write("h_p_z_LAB_2p");
+
+        h_xi2_vs_xi1->Write("h_xi2_vs_xi1");
 
         h_p_T_X->Write("h_p_T_X");
         h_p_z_X->Write("h_p_z_X");

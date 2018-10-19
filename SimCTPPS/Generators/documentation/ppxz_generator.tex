@@ -59,6 +59,8 @@ $$p_z(\hbox{2 protons}) = RandGauss(\hbox{mean, sigma})$$
 $$m_Z = RandBreitWigner(\hbox{mean, gamma})$$
 \vskip2mm
 
+\>> if $m_{\rm XZ} < m_{\rm X} + m_{\rm Z}$, then generation repeated
+
 \>> Z can be decayed to a pair of electrons or muons
 \>>> isotropic decay in Z's rest frame
 
@@ -110,6 +112,8 @@ $$m_Z = RandBreitWigner(\hbox{mean, gamma})$$
 \> plots on next slides
 \>> obtained with the default parameters
 \>> TODO: explain colours
+\>>> blue: without requiring protons in RP acceptance
+\>>> red dashed: protons required in RP acceptance
 
 
 \newpage %-------------------------------------------------------------------------------------------
@@ -122,6 +126,13 @@ $$m_Z = RandBreitWigner(\hbox{mean, gamma})$$
 \title{Distributions of directly generated quantities}
 
 \centerline{\fig[16cm]{fig/make_plots.pdf}}
+
+\newpage %-------------------------------------------------------------------------------------------
+\ctitle{Distributions}{$\xi_1$ vs.~$\xi_2$}
+
+\> proton 1: plus side (LHC sector 45), proton 2: minus side (sector 56)
+
+\centerline{\fig[16cm]{fig/xi2_vs_xi1.pdf}}
 
 
 \newpage %-------------------------------------------------------------------------------------------

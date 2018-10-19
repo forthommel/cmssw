@@ -36,6 +36,7 @@ particles.push("Z"); p_labels.push("Z");
 particles.push("l_mi"); p_labels.push("$\rm l^-$");
 particles.push("l_pl"); p_labels.push("$\rm l^+$");
 
+/*
 for (int qi : quantities.keys)
 {
 	for (int pti : particles.keys)
@@ -58,5 +59,22 @@ MakeOnePlot("h_m_XZ", "$m_{\rm XZ}\ung{GeV}$");
 MakeOnePlot("h_p_z_LAB_2p", "$p_z(\hbox{2 protons})\ung{GeV}$");
 
 GShipout("make_plots", hSkip=2mm, vSkip=0mm);
+*/
+
+//----------------------------------------------------------------------------------------------------
+
+NewPad("$\xi_1$", "$\xi_2$");
+draw(RootGetObject(f, "before simulation/h_xi2_vs_xi1"));
+limits((0, 0), (0.2, 0.2));
+AttachLegend("no acceptance requirement");
+
+NewPad("$\xi_1$", "$\xi_2$");
+draw(RootGetObject(f, "after simulation/h_xi2_vs_xi1"));
+limits((0, 0), (0.2, 0.2));
+AttachLegend("protons in RP acceptance");
+
+GShipout("xi2_vs_xi1", hSkip=2mm, vSkip=0mm);
+
+//----------------------------------------------------------------------------------------------------
 
 write("finished");
