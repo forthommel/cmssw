@@ -5,18 +5,37 @@
 
 \def\author{PPS}
 \def\caption{PPXZ generator}
-\def\date{17 Oct 2018}
+\def\date{19 Oct 2018}
 
 \newpage %-------------------------------------------------------------------------------------------
 \hbox{}
 \vfil
-\title{Toy generator of $\rm p + p \rightarrow p + Z + X + p$ processes}
+\title{Toy simulation of $\rm p + p \rightarrow p + Z + X + p$ processes}
 \vskip3mm
 \centerline{N.~Turini, F.~Turini, L.~Marini, J.~Ka\v spar}
 \vfil
 
+
 \newpage %-------------------------------------------------------------------------------------------
-\title{Introduction}
+\ctitle{Simulation package}{contents/sequence}
+
+\> toy MC generator of $\rm p + p \rightarrow p + Z + X + p$
+\>> Z can be decayed to lepton pair
+
+\> fast forward-proton simulation in PPS Roman Pots
+\>> includes beam and vertex smearing at IP
+\>> includes proton transport IP $\rightarrow$ RPs
+\>> simulation of RecHits: with sensor acceptance and resolution
+
+\> standard reconstruction RecHits $\rightarrow$ light tracks
+
+\> distribution plotter
+\>> plots generator level quantities (X, Z, ...) with and without condition on protons reconstructed in RPs
+
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{MC generator}
 
 \> process $\rm p + p \rightarrow p + Z + X + p$ is generated as follows
 
@@ -44,47 +63,59 @@ $$m_Z = RandBreitWigner(\hbox{mean, gamma})$$
 \>>> isotropic decay in Z's rest frame
 
 
+\newpage %-------------------------------------------------------------------------------------------
+\ctitle{MC generator}{Default parameters}
+
+\> TODO: update
+
+\> mass of particle X: m\_X = $1200\un{GeV}$
+\> mass of particle Z: m\_Z\_mean = $91.1876\un{GeV}$, m\_Z\_gamma = $2.4952\un{GeV}$
+\> mass of electron: m\_e = $0.5109e-3\un{GeV}$
+\> mass of electron: m\_mu = $105.658e-3\un{GeV}$
+\> momentum of beam protons: p\_beam = $6500\un{GeV}$
+\> generation of $m_{\rm XZ}$
+\>> minimal value m\_XZ\_min = $1300\un{GeV}$
+\>> parameter of exponential distribution: c = $0.04$
+\> generation of $p_z(\hbox{2 protons})$
+\>> mean: p\_z\_LAB\_2p\_mean = $180\un{GeV}$
+\>> sigma: p\_z\_LAB\_2p\_sigma = $450\un{GeV}$
+
 
 \newpage %-------------------------------------------------------------------------------------------
 \title{CMSSW implementation}
 
-\> implementation: standard CMSSW ``particle gun'' with HepMC(Product) output
 
-\> CMSSW branch:\\ \link{https://github.com/CTPPS/cmssw/tree/ctpps_initial_proton_reconstruction_CMSSW_10_2_0}{\SmallerFonts https://github.com/CTPPS/cmssw/tree/ctpps\_initial\_proton\_reconstruction\_CMSSW\_10\_2\_0}
+\> available in CMSSW branch:\\ \link{https://github.com/CTPPS/cmssw/tree/ctpps_initial_proton_reconstruction_CMSSW_10_2_0}{\SmallerFonts https://github.com/CTPPS/cmssw/tree/ctpps\_initial\_proton\_reconstruction\_CMSSW\_10\_2\_0}
 
 \NormalFonts
 
-\> module: ParticleGuns/src/PPXZGenerator.cc
+\> modules
+\>> MC generator:\\ SimCTPPS/Generators/plugins/PPXZGenerator.cc
+\>> fast simulation:\\ SimCTPPS/OpticsParameterisation/plugins/CTPPSFastProtonSimulation.cc
+\>> distribution plotter:\\ SimCTPPS/Generators/plugins/PPXZGeneratorValidation.cc
 
 \> example config: IOMC/ParticleGuns/test/test\_gen\_cfg.py
-
-\> default parameters
-\>> mass of particle X: m\_X = $1200\un{GeV}$
-\>> mass of particle Z: m\_Z\_mean = $91.1876\un{GeV}$, m\_Z\_gamma = $2.4952\un{GeV}$
-\>> mass of electron: m\_e = $0.5109e-3\un{GeV}$
-\>> mass of electron: m\_mu = $105.658e-3\un{GeV}$
-\>> momentum of beam protons: p\_beam = $6500\un{GeV}$
-\>> generation of $m_{\rm XZ}$
-\>>> minimal value m\_XZ\_min = $1300\un{GeV}$
-\>>> parameter of exponential distribution: c = $0.04$
-\>> generation of $p_z(\hbox{2 protons})$
-\>>> mean: p\_z\_LAB\_2p\_mean = $180\un{GeV}$
-\>>> sigma: p\_z\_LAB\_2p\_sigma = $450\un{GeV}$
-
+\>> 2017 layout of RPs, geometry not yet tuned, high-$x$ cutoff not yet tuned
+\>> 2016 optics used at the moment
+\>> realistic values for beam and vertex smearing
 
 
 \newpage %-------------------------------------------------------------------------------------------
 \title{Validation}
 
-\> TODO: mention validation checks
+\> TODO: list MC validation checks
 \>> total momentum of p + p + X + Z is zero and energy corresponds to $\sqrt s$
 \>> total momentum of p + p + X + l + l is zero and energy corresponds to $\sqrt s$
 
-\> plots on next slides obtained with
-\>> the default parameters
-\>> no additional proton $\xi$ cuts (to reflect the RP acceptance)
-\>> TODO: ... events
+\> plots on next slides
+\>> obtained with the default parameters
+\>> TODO: explain colours
 
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{Example hit distribution in RPs}
+
+\centerline{\fig[16cm]{fig/hit_distribution.pdf}}
 
 
 \newpage %-------------------------------------------------------------------------------------------
