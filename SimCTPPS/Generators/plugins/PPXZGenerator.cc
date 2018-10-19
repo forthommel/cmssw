@@ -121,12 +121,21 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
   //double mass_1 = pData->mass().value();
   //double mass_2 = pData->mass().value();
 
-  // generate mass of Z
-  const double m_Z = CLHEP::RandBreitWigner::shoot(engine, m_Z_mean, m_Z_gamma);
-
-  // generate invariant mass of the X-Z system
+  // generate mass of Z and mass of the X-Z system
   const double c_XZ_mean = 1. / c_XZ;
-  const double m_XZ = m_XZ_min + CLHEP::RandExponential::shoot(engine, c_XZ_mean);
+  double m_Z = -1., m_XZ = -1.;
+
+  for (unsigned int n_attempt = 0; n_attempt < 1000; ++n_attempt)
+  {
+    m_Z = CLHEP::RandBreitWigner::shoot(engine, m_Z_mean, m_Z_gamma);
+    m_XZ = m_XZ_min + CLHEP::RandExponential::shoot(engine, c_XZ_mean);
+
+    if (m_XZ > m_Z + m_X)
+      break;
+  }
+
+  if (m_Z < 0.)
+    throw cms::Exception("PPXZGenerator") << "Failed to generate m_Z and m_XZ.";
 
   // generate p_z of the 2-proton system in the LAB frame
   const double p_z_LAB_2p = CLHEP::RandGauss::shoot(engine, p_z_LAB_2p_mean, p_z_LAB_2p_sigma);
@@ -151,6 +160,9 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
 
   // determine momenta of the X and Z particles in the CMS frame of the X-Z system
   const double p_c = sqrt( pow(m_XZ*m_XZ - m_X*m_X - m_Z*m_Z, 2.) / (4. * m_XZ * m_XZ) - m_X*m_X * m_Z*m_Z / (m_XZ*m_XZ) );
+
+  if (verbosity)
+    printf("  p_c = %.3f\n", p_c);
 
   CLHEP::HepLorentzVector momentum_X_CMS(
     + p_c * sin(theta_c) * cos(phi_c),
