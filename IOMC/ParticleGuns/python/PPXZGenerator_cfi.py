@@ -20,6 +20,7 @@ generator = cms.EDProducer("PPXZGenerator",
   m_XZ_min = cms.double(1300),
   c_XZ = cms.double(0.04),
 
+  # TODO: make wider
   p_z_LAB_2p_mean = cms.double(180),
   p_z_LAB_2p_sigma = cms.double(450)
 )

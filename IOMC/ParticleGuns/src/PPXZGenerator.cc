@@ -19,8 +19,12 @@
 #include "HepPDT/ParticleDataTable.hh"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
-#include <CLHEP/Random/RandExponential.h>
-#include <CLHEP/Random/RandBreitWigner.h>
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandExponential.h"
+#include "CLHEP/Random/RandBreitWigner.h"
+#include "CLHEP/Vector/LorentzVector.h"
+#include "CLHEP/Vector/ThreeVector.h"
 
 using namespace edm;
 using namespace std;
@@ -91,9 +95,13 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
   fEvt->add_vertex(vtx);
 
   // particle ids
-  const unsigned int particleId_Z = 23;
-  const unsigned int particleId_X = 999999;
-  const unsigned int particleId_p = 2212;
+  const signed int particleId_Z = 23;
+  const signed int particleId_X = 999999;
+  const signed int particleId_p = 2212;
+  const signed int particleId_e_mi = +11;
+  const signed int particleId_e_pl = -11;
+  const signed int particleId_mu_mi = +13;
+  const signed int particleId_mu_pl = -13;
 
   // TODO
   //const HepPDT::ParticleData *pData = pdgTable->particle(HepPDT::ParticleID(particleId));
@@ -121,6 +129,7 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
 
   if (verbosity)
   {
+    printf("  m_Z = %.1f\n", m_Z);
     printf("  m_XZ = %.1f\n", m_XZ);
     printf("  p_z_LAB_2p = %.1f\n", p_z_LAB_2p);
     printf("  xi1 = %.3f, xi2 = %.3f\n", xi1, xi2);
@@ -130,59 +139,47 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
   // determine momenta of the X and Z particles in the CMS frame of the X-Z system
   const double p_c = sqrt( pow(m_XZ*m_XZ - m_X*m_X - m_Z*m_Z, 2.) / (4. * m_XZ * m_XZ) - m_X*m_X * m_Z*m_Z / (m_XZ*m_XZ) );
 
-  const double E_X_CMS = sqrt(p_c*p_c + m_X*m_X);
-  const double p_X_x_CMS = p_c * sin(theta_c) * cos(phi_c);
-  const double p_X_y_CMS = p_c * sin(theta_c) * sin(phi_c);
-  const double p_X_z_CMS = p_c * sin(theta_c);
+  CLHEP::HepLorentzVector momentum_X_CMS(
+    + p_c * sin(theta_c) * cos(phi_c),
+    + p_c * sin(theta_c) * sin(phi_c),
+    + p_c * cos(theta_c),
+    sqrt(p_c*p_c + m_X*m_X)
+  );
 
-  const double E_Z_CMS = sqrt(p_c*p_c + m_Z*m_Z);
-  const double p_Z_x_CMS = - p_c * sin(theta_c) * cos(phi_c);
-  const double p_Z_y_CMS = - p_c * sin(theta_c) * sin(phi_c);
-  const double p_Z_z_CMS = - p_c * sin(theta_c);
-
-  //const double E_XZ_CMS = E_X_CMS + E_Z_CMS;
+  CLHEP::HepLorentzVector momentum_Z_CMS(
+    - p_c * sin(theta_c) * cos(phi_c),
+    - p_c * sin(theta_c) * sin(phi_c),
+    - p_c * cos(theta_c),
+    sqrt(p_c*p_c + m_Z*m_Z)
+  );
 
   // determine boost from X-Z CMS frame to the LAB frame
-  //const double E_XZ_LAB = p_beam * (xi1 + xi2);
-  const double beta = - (xi1 - xi2) / (xi1 + xi2);
-  const double gamma = 1. / sqrt(1. - beta*beta);
+  const double beta = (xi1 - xi2) / (xi1 + xi2);
+  const CLHEP::Hep3Vector betaVector(0., 0., beta);
 
   if (verbosity)
     printf("  beta = %.3f\n", beta);
 
   // determine four-momenta of the outgoing particles in the LAB frame
+  const CLHEP::HepLorentzVector momentum_Z = CLHEP::boostOf(momentum_Z_CMS, betaVector);
+  const CLHEP::HepLorentzVector momentum_X = CLHEP::boostOf(momentum_X_CMS, betaVector);
 
-  HepMC::FourVector momentum_X(
-    p_X_x_CMS,
-    p_X_y_CMS,
-    gamma * (p_X_z_CMS - beta * E_X_CMS),
-    gamma * (E_X_CMS - beta * p_X_z_CMS)
-  );
-
-  HepMC::FourVector momentum_Z(
-    p_Z_x_CMS,
-    p_Z_y_CMS,
-    gamma * (p_Z_z_CMS - beta * E_Z_CMS),
-    gamma * (E_Z_CMS - beta * p_Z_z_CMS)
-  );
-
-  HepMC::FourVector momentum_p1(0., 0., +p_beam * (1. - xi1), p_beam * (1. - xi1));
-
-  HepMC::FourVector momentum_p2(0., 0., -p_beam * (1. - xi2), p_beam * (1. - xi2));
+  const CLHEP::HepLorentzVector momentum_p1(0., 0., +p_beam * (1. - xi1), p_beam * (1. - xi1));
+  const CLHEP::HepLorentzVector momentum_p2(0., 0., -p_beam * (1. - xi2), p_beam * (1. - xi2));
 
   if (verbosity)
   {
     printf("  p_X_z = %.1f\n", momentum_X.z());
     printf("  p_Z_z = %.1f\n", momentum_Z.z());
 
-    printf("  p_x lab sum = %.1f\n", momentum_X.x() + momentum_Z.x());
-    printf("  p_y lab sum = %.1f\n", momentum_X.y() + momentum_Z.y());
-    printf("  p_z lab sum = %.1f\n", momentum_X.z() + momentum_Z.z() + p_z_LAB_2p);
+    const CLHEP::HepLorentzVector m_tot = momentum_p1 + momentum_p2 + momentum_X + momentum_Z;
+    printf("  four-momentum of p + p + X + Z: (%.1f, %.1f, %.1f | %.1f)\n", m_tot.x(), m_tot.y(), m_tot.z(), m_tot.t());
   }
 
   // fill in the HepMC record
   unsigned int barcode = 0;
 
+  // TODO: make status as intermediate particle ??
   HepMC::GenParticle* particle_Z = new HepMC::GenParticle(momentum_Z, particleId_Z, 1);
   particle_Z->suggest_barcode(++barcode);
   vtx->add_particle_out(particle_Z);
@@ -198,6 +195,61 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
   HepMC::GenParticle* particle_p2 = new HepMC::GenParticle(momentum_p2, particleId_p, 1);
   particle_p2->suggest_barcode(++barcode);
   vtx->add_particle_out(particle_p2);
+
+  // decay Z if desired
+  if (decayZToElectrons || decayZToMuons)
+  {
+    double m_l = 0.;
+    signed int particleId_l_mi=0, particleId_l_pl=0;
+
+    if (decayZToElectrons) m_l = m_e, particleId_l_mi = particleId_e_mi, particleId_l_pl = particleId_e_pl;
+    if (decayZToMuons) m_l = m_mu, particleId_l_mi = particleId_mu_mi, particleId_l_pl = particleId_mu_pl;
+
+    // generate decay angles in Z's rest frame;
+    const double theta_d = CLHEP::RandFlat::shoot(engine) * M_PI;
+    const double phi_d = CLHEP::RandFlat::shoot(engine) * 2. * M_PI;
+
+    // lepton momentum and energy in Z's rest frame
+    const double E_l = m_Z / 2.;
+    const double p_l = sqrt(E_l*E_l - m_l*m_l);
+
+    // lepton four-momenta in Z's rest frame
+    CLHEP::HepLorentzVector momentum_l_mi(
+      p_l * sin(theta_d) * cos(phi_d),
+      p_l * sin(theta_d) * sin(phi_d),
+      p_l * cos(theta_d),
+      E_l
+    );
+
+    CLHEP::HepLorentzVector momentum_l_pl(
+      -p_l * sin(theta_d) * cos(phi_d),
+      -p_l * sin(theta_d) * sin(phi_d),
+      -p_l * cos(theta_d),
+      E_l
+    );
+
+    // apply boost
+    double beta = momentum_Z.rho() / momentum_Z.t();
+    CLHEP::Hep3Vector betaVector(momentum_Z.x(), momentum_Z.y(), momentum_Z.z());
+    betaVector *= beta / betaVector.mag();
+    momentum_l_mi = CLHEP::boostOf(momentum_l_mi, betaVector);
+    momentum_l_pl = CLHEP::boostOf(momentum_l_pl, betaVector);
+
+    if (verbosity)
+    {
+      const CLHEP::HepLorentzVector m_tot = momentum_p1 + momentum_p2 + momentum_X + momentum_l_mi + momentum_l_pl;
+      printf("  four-momentum of p + p + X + l + l: (%.1f, %.1f, %.1f | %.1f)\n", m_tot.x(), m_tot.y(), m_tot.z(), m_tot.t());
+    }
+
+    // add particles to vertex
+    HepMC::GenParticle* particle_l_mi = new HepMC::GenParticle(momentum_l_mi, particleId_l_mi, 1);
+    particle_l_mi->suggest_barcode(++barcode);
+    vtx->add_particle_out(particle_l_mi);
+
+    HepMC::GenParticle* particle_l_pl = new HepMC::GenParticle(momentum_l_pl, particleId_l_pl, 1);
+    particle_l_pl->suggest_barcode(++barcode);
+    vtx->add_particle_out(particle_l_pl);
+  }
 
   // validation
   if (debug)
