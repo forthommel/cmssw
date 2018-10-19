@@ -6,8 +6,6 @@
  *
  ****************************************************************************/
 
-#include "IOMC/ParticleGuns/interface/PPXZGenerator.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -15,9 +13,10 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "HepPDT/ParticleDataTable.hh"
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+//#include "HepPDT/ParticleDataTable.hh"
+//#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
@@ -25,6 +24,69 @@
 #include "CLHEP/Random/RandBreitWigner.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Vector/ThreeVector.h"
+
+#include "FWCore/Framework/interface/one/EDProducer.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
+#include "TH1D.h"
+#include "TFile.h"
+
+//----------------------------------------------------------------------------------------------------
+  
+class PPXZGenerator : public edm::one::EDProducer<>
+{
+
+  public:
+    PPXZGenerator(const edm::ParameterSet &);
+
+    virtual ~PPXZGenerator();
+
+  private:
+    virtual void produce(edm::Event & e, const edm::EventSetup& es) override;
+
+    // input parameters
+    unsigned int verbosity;
+    unsigned int debug;
+
+    bool decayZToElectrons;
+    bool decayZToMuons;
+
+    const double m_X;       // mass of the X particle, GeV
+    const double m_Z_mean;  // mass of the Z particle, mean, GeV
+    const double m_Z_gamma; // mass of the Z particle, gamma, GeV
+
+    const double m_e;       // mass of the X electron, GeV
+    const double m_mu;      // mass of the X electron, GeV
+
+    const double p_beam;    // beam momentum, GeV
+
+    const double m_XZ_min;  // minimal value of invariant mass of the X-Z system, GeV
+    const double c_XZ;      // parameter of the exponential distribution for the invariant mass of the X-Z system, GeV
+
+    const double p_z_LAB_2p_mean; // mean p_z of the 2-proton system in the LAB frame, GeV
+    const double p_z_LAB_2p_sigma; // RMS p_z of the 2-proton system in the LAB frame, GeV
+
+    // debug histograms
+    TH1D *h_m_Z;
+    TH1D *h_m_XZ;
+    TH1D *h_p_z_LAB_2p;
+
+    TH1D *h_p_T_X;
+    TH1D *h_p_z_X;
+    TH1D *h_p_tot_X;
+    TH1D *h_theta_X;
+    TH1D *h_eta_X;
+
+    TH1D *h_p_T_Z;
+    TH1D *h_p_z_Z;
+    TH1D *h_p_tot_Z;
+    TH1D *h_theta_Z;
+    TH1D *h_eta_Z;
+};
+
+//----------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
 
 using namespace edm;
 using namespace std;
@@ -83,8 +145,8 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
-  ESHandle<HepPDT::ParticleDataTable> pdgTable;
-  es.getData(pdgTable);
+  //ESHandle<HepPDT::ParticleDataTable> pdgTable;
+  //es.getData(pdgTable);
 
   // prepare HepMC event
   HepMC::GenEvent *fEvt = new HepMC::GenEvent();
@@ -322,3 +384,7 @@ PPXZGenerator::~PPXZGenerator()
     delete f_out;
   }
 }
+
+//----------------------------------------------------------------------------------------------------
+
+DEFINE_FWK_MODULE(PPXZGenerator);

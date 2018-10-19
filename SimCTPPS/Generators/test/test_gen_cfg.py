@@ -16,7 +16,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(10000)
 )
 
 # particle-data table
@@ -24,6 +24,8 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 # particle generator
 process.load("IOMC.ParticleGuns.PPXZGenerator_cfi")
+process.generator.debug = 1
+process.generator.verbosity = 1
 
 # random seeds
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
