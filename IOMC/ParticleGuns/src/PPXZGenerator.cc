@@ -179,20 +179,26 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
   // fill in the HepMC record
   unsigned int barcode = 0;
 
-  // TODO: make status as intermediate particle ??
-  HepMC::GenParticle* particle_Z = new HepMC::GenParticle(momentum_Z, particleId_Z, 1);
+  // status codes
+  //const int statusInitial = 3;
+  const int statusFinal = 1;
+  const int statusDecayed = 2;
+
+  int status_Z = (decayZToElectrons || decayZToMuons) ? statusDecayed : statusFinal;
+
+  HepMC::GenParticle* particle_Z = new HepMC::GenParticle(momentum_Z, particleId_Z, status_Z);
   particle_Z->suggest_barcode(++barcode);
   vtx->add_particle_out(particle_Z);
 
-  HepMC::GenParticle* particle_X = new HepMC::GenParticle(momentum_X, particleId_X, 1);
+  HepMC::GenParticle* particle_X = new HepMC::GenParticle(momentum_X, particleId_X, statusFinal);
   particle_X->suggest_barcode(++barcode);
   vtx->add_particle_out(particle_X);
 
-  HepMC::GenParticle* particle_p1 = new HepMC::GenParticle(momentum_p1, particleId_p, 1);
+  HepMC::GenParticle* particle_p1 = new HepMC::GenParticle(momentum_p1, particleId_p, statusFinal);
   particle_p1->suggest_barcode(++barcode);
   vtx->add_particle_out(particle_p1);
 
-  HepMC::GenParticle* particle_p2 = new HepMC::GenParticle(momentum_p2, particleId_p, 1);
+  HepMC::GenParticle* particle_p2 = new HepMC::GenParticle(momentum_p2, particleId_p, statusFinal);
   particle_p2->suggest_barcode(++barcode);
   vtx->add_particle_out(particle_p2);
 
