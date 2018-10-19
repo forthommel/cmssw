@@ -58,13 +58,15 @@ class CTPPSFastProtonSimulation : public edm::stream::EDProducer<>
   private:
     struct CTPPSPotInfo
     {
-      CTPPSPotInfo() : detid( 0 ), z_position( 0.0 ), approximator( 0 ) {}
-      CTPPSPotInfo( const CTPPSDetId& det_id, double z_position, LHCOpticsApproximator* approx ) :
-        detid( det_id ), z_position( z_position ), approximator( approx ) {}
+      CTPPSPotInfo() : detid( 0 ), z_position( 0.0 ), approximator( 0 ), x_max(0.) {}
+
+      CTPPSPotInfo( const CTPPSDetId& det_id, double z_position, LHCOpticsApproximator* approx, double _x_max ) :
+        detid( det_id ), z_position( z_position ), approximator( approx ), x_max(_x_max) {}
 
       CTPPSDetId detid;
       double z_position;
       LHCOpticsApproximator* approximator;
+      double x_max;
     };
 
     virtual void beginRun( const edm::Run&, const edm::EventSetup& ) override;
@@ -193,12 +195,14 @@ CTPPSFastProtonSimulation::CTPPSFastProtonSimulation( const edm::ParameterSet& i
     const std::string interp_name = rp.getParameter<std::string>( "interpolatorName" );
     const unsigned int raw_detid = rp.getParameter<unsigned int>( "potId" );
     const double z_position = rp.getParameter<double>( "zPosition" );
+    const double x_max = rp.getParameter<double>( "maxX" );
+
     CTPPSDetId detid( raw_detid );
 
     if ( detid.arm()==0 ) // sector 45 -- beam 2
-      pots_.emplace_back( detid, z_position, dynamic_cast<LHCOpticsApproximator*>( f_in_optics_beam2->Get( interp_name.c_str() ) ) );
+      pots_.emplace_back( detid, z_position, dynamic_cast<LHCOpticsApproximator*>( f_in_optics_beam2->Get( interp_name.c_str() ) ), x_max );
     if ( detid.arm()==1 ) // sector 56 -- beam 1
-      pots_.emplace_back( detid, z_position, dynamic_cast<LHCOpticsApproximator*>( f_in_optics_beam1->Get( interp_name.c_str() ) ) );
+      pots_.emplace_back( detid, z_position, dynamic_cast<LHCOpticsApproximator*>( f_in_optics_beam1->Get( interp_name.c_str() ) ), x_max );
   }
 }
 
@@ -366,6 +370,10 @@ void CTPPSFastProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, co
       printf("    proton transported: a_x = %.3E rad, a_y = %.3E rad, b_x = %.3f mm, b_y = %.3f mm, z = %.3f mm\n",
         a_x, a_y, b_x, b_y, approximator_z);
     }
+
+    // check whether within the x_max limit
+    if (b_x > rp.x_max)
+      continue;
   
     // save scoring plane hit
     if (produceScoringPlaneHits_)

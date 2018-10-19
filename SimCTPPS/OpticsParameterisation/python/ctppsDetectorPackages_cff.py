@@ -6,6 +6,7 @@ genericStripsPackage = cms.PSet(
     resolution = cms.double(12.e-6), # RP resolution, m
     minXi = cms.double(0.03),
     maxXi = cms.double(0.17),
+    maxX = cms.double(100.) # mm
 )
 
 # list of detector packages to simulate
