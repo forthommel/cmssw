@@ -32,6 +32,8 @@
 #include "TH1D.h"
 #include "TFile.h"
 
+#include "SimCTPPS/Generators/plugins/particle_ids.h"
+
 //----------------------------------------------------------------------------------------------------
   
 class PPXZGenerator : public edm::one::EDProducer<>
@@ -155,15 +157,6 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
   // generate vertex position
   HepMC::GenVertex *vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0., 0.));
   fEvt->add_vertex(vtx);
-
-  // particle ids
-  const signed int particleId_Z = 23;
-  const signed int particleId_X = 999999;
-  const signed int particleId_p = 2212;
-  const signed int particleId_e_mi = +11;
-  const signed int particleId_e_pl = -11;
-  const signed int particleId_mu_mi = +13;
-  const signed int particleId_mu_pl = -13;
 
   // TODO
   //const HepPDT::ParticleData *pData = pdgTable->particle(HepPDT::ParticleID(particleId));
