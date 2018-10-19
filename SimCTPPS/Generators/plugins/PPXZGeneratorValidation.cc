@@ -68,25 +68,25 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
         h_p_T_X = new TH1D("", "p_{T}(X)   (GeV)", 100, -10., 170.);
         h_p_z_X = new TH1D("", "p_{z}(X)   (GeV)", 100, -1500., 1500.);
         h_p_tot_X = new TH1D("", "p(X)   (GeV)", 100, -300., 1450.);
-        h_theta_X = new TH1D("", "theta(X)", 100, -0.4, 4.5);
+        h_theta_X = new TH1D("", "theta(X)", 100, -0.1, 3.2);
         h_eta_X = new TH1D("", "eta(X)", 100, -8., 8.);
 
         h_p_T_Z = new TH1D("", "p_{T}(Z)   (GeV)", 100, -10., 180.);
         h_p_z_Z = new TH1D("", "p_{z}(Z)   (GeV)", 100, -300., 300.);
         h_p_tot_Z = new TH1D("", "p(Z)   (GeV)", 100, -50., 300.);
-        h_theta_Z = new TH1D("", "theta(Z)", 100, -0.4, 4.5);
+        h_theta_Z = new TH1D("", "theta(Z)", 100, -0.1, 3.2);
         h_eta_Z = new TH1D("", "eta(Z)", 100, -5., 5.);
 
         h_p_T_l_pl = new TH1D("", "p_{T}(l_pl)   (GeV)", 100, -10., 180.);
         h_p_z_l_pl = new TH1D("", "p_{z}(l_pl)   (GeV)", 100, -300., 300.);
         h_p_tot_l_pl = new TH1D("", "p(l_pl)   (GeV)", 100, -50., 300.);
-        h_theta_l_pl = new TH1D("", "theta(l_pl)", 100, -0.4, 4.5);
+        h_theta_l_pl = new TH1D("", "theta(l_pl)", 100, -0.1, 3.2);
         h_eta_l_pl = new TH1D("", "eta(l_pl)", 100, -5., 5.);
 
         h_p_T_l_mi = new TH1D("", "p_{T}(l_mi)   (GeV)", 100, -10., 180.);
         h_p_z_l_mi = new TH1D("", "p_{z}(l_mi)   (GeV)", 100, -300., 300.);
         h_p_tot_l_mi = new TH1D("", "p(l_mi)   (GeV)", 100, -50., 300.);
-        h_theta_l_mi = new TH1D("", "theta(l_mi)", 100, -0.4, 4.5);
+        h_theta_l_mi = new TH1D("", "theta(l_mi)", 100, -0.1, 3.2);
         h_eta_l_mi = new TH1D("", "eta(l_mi)", 100, -5., 5.);
       }
 
