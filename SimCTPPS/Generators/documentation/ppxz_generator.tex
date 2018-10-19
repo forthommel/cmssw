@@ -20,14 +20,15 @@
 \ctitle{Simulation package}{contents/sequence}
 
 \> toy MC generator of $\rm p + p \rightarrow p + Z + X + p$
-\>> Z can be decayed to lepton pair
+\>> Z can be decayed to a lepton pair
 
 \> fast forward-proton simulation in PPS Roman Pots
 \>> includes beam and vertex smearing at IP
 \>> includes proton transport IP $\rightarrow$ RPs
+\>> simple simulation of aperture limitations (high-x cutoff)
 \>> simulation of RecHits: with sensor acceptance and resolution
 
-\> standard reconstruction RecHits $\rightarrow$ light tracks
+\> standard reconstruction RecHits $\rightarrow$ (lite) tracks
 
 \> distribution plotter
 \>> plots generator level quantities (X, Z, ...) with and without condition on protons reconstructed in RPs
@@ -68,8 +69,6 @@ $$m_Z = RandBreitWigner(\hbox{mean, gamma})$$
 \newpage %-------------------------------------------------------------------------------------------
 \ctitle{MC generator}{Default parameters}
 
-\> TODO: update
-
 \> mass of particle X: m\_X = $1200\un{GeV}$
 \> mass of particle Z: m\_Z\_mean = $91.1876\un{GeV}$, m\_Z\_gamma = $2.4952\un{GeV}$
 \> mass of electron: m\_e = $0.5109e-3\un{GeV}$
@@ -96,8 +95,10 @@ $$m_Z = RandBreitWigner(\hbox{mean, gamma})$$
 \>> fast simulation:\\ SimCTPPS/OpticsParameterisation/plugins/CTPPSFastProtonSimulation.cc
 \>> distribution plotter:\\ SimCTPPS/Generators/plugins/PPXZGeneratorValidation.cc
 
-\> example config: IOMC/ParticleGuns/test/test\_gen\_cfg.py
-\>> 2017 layout of RPs, geometry not yet tuned, high-$x$ cutoff not yet tuned
+\> example config: SimCTPPS/Generators/test/test\_gen\_simu\_smear\_cfg.py
+\>> 2017 layout of RPs (strips in 210-fr, pixels in 220-fr)
+\>> preliminary 2017 geometry (RP position), yet to be tuned
+\>> aperture limitations simulated with a simple high-$x$ cutoff, preliminary tuning
 \>> 2016 optics used at the moment
 \>> realistic values for beam and vertex smearing
 
@@ -105,15 +106,19 @@ $$m_Z = RandBreitWigner(\hbox{mean, gamma})$$
 \newpage %-------------------------------------------------------------------------------------------
 \title{Validation}
 
-\> TODO: list MC validation checks
+\> list MC validation checks
 \>> total momentum of p + p + X + Z is zero and energy corresponds to $\sqrt s$
 \>> total momentum of p + p + X + l + l is zero and energy corresponds to $\sqrt s$
+\>> $p_{\rm T}$ distributions of X and Z compatible -- the XZ system is only boosted along z
+\>> all distributions of positive and negative charge leptons from Z are compatible
 
 \> plots on next slides
 \>> obtained with the default parameters
-\>> TODO: explain colours
+\>> Z decayed to an electron pair
+\>> colour code in 1D histograms:
 \>>> blue: without requiring protons in RP acceptance
-\>>> red dashed: protons required in RP acceptance
+\>>> red: protons required in RP acceptance
+\>>> RP acceptance defined: proton reconstructed in both arms, but in any RP (strip or pixel)
 
 
 \newpage %-------------------------------------------------------------------------------------------
