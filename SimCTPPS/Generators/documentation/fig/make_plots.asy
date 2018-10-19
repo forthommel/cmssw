@@ -1,21 +1,21 @@
 import root;
 import pad_layout;
 
-string f_old = "../../PPXZGenerator_debug.root";
 string f = "../../ppxzGeneratorValidation.root";
 
 string particles[];
 particles.push("X"); 
 particles.push("Z"); 
 
+xSizeDef = 7cm;
+
 //----------------------------------------------------------------------------------------------------
 
 void MakeOnePlot(string tag, string alabel, string caption="")
 {
 	NewPad(alabel);
-	draw(RootGetObject(f, "before simulation/" + tag), "vl,eb", black);
-	draw(RootGetObject(f_old, tag), "vl,eb", red+dashed);
-	//draw(RootGetObject(f, "after simulation/" + tag), "vl,eb", green);
+	draw(RootGetObject(f, "before simulation/" + tag), "vl,eb", blue);
+	draw(RootGetObject(f, "after simulation/" + tag), "vl,eb", red+dashed);
 
 	if (caption != "")
 		AttachLegend(caption);
@@ -33,8 +33,8 @@ quantities.push("eta"); q_labels.push("$\et$");
 string particles[], p_labels[];
 particles.push("X"); p_labels.push("X");
 particles.push("Z"); p_labels.push("Z");
-//particles.push("l_mi"); p_labels.push("$\rm l^-$");
-//particles.push("l_pl"); p_labels.push("$\rm l^+$");
+particles.push("l_mi"); p_labels.push("$\rm l^-$");
+particles.push("l_pl"); p_labels.push("$\rm l^+$");
 
 for (int qi : quantities.keys)
 {
@@ -46,7 +46,7 @@ for (int qi : quantities.keys)
 		MakeOnePlot("h_" + quantities[qi] + "_" + particles[pti], q_labels[qi], p_labels[pti]);
 	}
 
-	GShipout(quantities[qi]);
+	GShipout(quantities[qi], hSkip=2mm, vSkip=0mm);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -56,3 +56,7 @@ MakeOnePlot("h_m_Z", "$m_{\rm Z}\ung{GeV}$");
 MakeOnePlot("h_m_XZ", "$m_{\rm XZ}\ung{GeV}$");
 
 MakeOnePlot("h_p_z_LAB_2p", "$p_z(\hbox{2 protons})\ung{GeV}$");
+
+GShipout("make_plots", hSkip=2mm, vSkip=0mm);
+
+write("finished");
