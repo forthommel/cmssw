@@ -99,7 +99,7 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
         if (!h_xi)
           Init();
 
-        if (trk.protonTrackExtra()->valid()) {
+        if (trk.protonTrackExtra()->validFit()) {
           h_xi->Fill(trk.xi());
 
           const double th_y = trk.py() / trk.p();
@@ -172,7 +172,7 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
         if (!h_xi)
           Init();
 
-        if (trk.protonTrackExtra()->valid()) {
+        if (trk.protonTrackExtra()->validFit()) {
           const double th_x = trk.px() / trk.p();
           const double th_y = trk.py() / trk.p();
           const double mt = - CalculateT(trk.xi(), th_x, th_y);
@@ -266,8 +266,8 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
         if (!h2_xi_mu_vs_xi_si)
           Init();
 
-        if ( p_single.protonTrackExtra()->valid()
-          && p_multi.protonTrackExtra()->valid() ) {
+        if ( p_single.protonTrackExtra()->validFit()
+          && p_multi.protonTrackExtra()->validFit() ) {
           h2_xi_mu_vs_xi_si->Fill(p_single.xi(), p_multi.xi());
           h_xi_diff_mu_si->Fill(p_multi.xi() - p_single.xi());
           h_xi_diff_si_mu->Fill(p_single.xi() - p_multi.xi());
@@ -309,9 +309,9 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
         if (!h_xi_si_diffNF)
           Init();
 
-        if ( p_s_N.protonTrackExtra()->valid()
-          && p_s_F.protonTrackExtra()->valid()
-          && p_m.protonTrackExtra()->valid() ) {
+        if ( p_s_N.protonTrackExtra()->validFit()
+          && p_s_F.protonTrackExtra()->validFit()
+          && p_m.protonTrackExtra()->validFit() ) {
           h_xi_si_diffNF->Fill(p_s_F.xi() - p_s_N.xi());
           p_xi_si_diffNF_vs_xi_mu->Fill(p_m.xi(), p_s_F.xi() - p_s_N.xi());
         }

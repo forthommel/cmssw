@@ -27,8 +27,6 @@ namespace reco
   typedef edm::RefProd<ProtonTrackExtraCollection> ProtonTrackExtraRefProd;
   /// Vector of references to ProtonTrackExtra in the same collection
   typedef edm::RefVector<ProtonTrackExtraCollection> ProtonTrackExtraRefVector;
-  /// Iterator over a vector of references to ProtonTrackExtra in the same collection
-  typedef ProtonTrackExtraRefVector::iterator gsfTrackExtra_iterator;
 }
 
 #endif

@@ -13,7 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
-#include "DataFormats/ProtonReco/interface/ProtonTrack.h"
+#include "DataFormats/ProtonReco/interface/ProtonTrackFwd.h"
 #include "DataFormats/ProtonReco/interface/ProtonTrackExtraFwd.h"
 
 #include "CondFormats/CTPPSOpticsObjects/interface/LHCOpticsApproximator.h"

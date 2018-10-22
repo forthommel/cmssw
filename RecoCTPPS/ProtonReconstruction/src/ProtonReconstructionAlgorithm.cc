@@ -14,6 +14,7 @@
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 
+#include "DataFormats/ProtonReco/interface/ProtonTrack.h"
 #include "DataFormats/ProtonReco/interface/ProtonTrackExtra.h"
 
 #include "TF1.h"

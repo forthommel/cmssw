@@ -270,9 +270,8 @@ void CTPPSProtonReconstructionValidator::analyze(const edm::Event& iEvent, const
   //printf("proton_45_set=%u, proton_56_set=%u\n", proton_45_set, proton_56_set);
 
   // do comparison
-  for (const auto &rec_pr : *hRecoProtons)
-  {
-    if (! rec_pr.protonTrackExtra()->valid())
+  for (const auto &rec_pr : *hRecoProtons) {
+    if (! rec_pr.protonTrackExtra()->validFit())
       continue;
 
     unsigned int idx;
