@@ -214,7 +214,7 @@ struct AlignmentResultsCollection : public std::map<std::string, AlignmentResult
 	{
 		FILE *f = fopen(fn.c_str(), "w");
 		if (!f)
-			return -1;
+			return 1;
 
 		Write(f);
 
@@ -235,12 +235,14 @@ struct AlignmentResultsCollection : public std::map<std::string, AlignmentResult
 	int Load(const std::string &fn)
 	{
 		FILE *f = fopen(fn.c_str(), "r");
+
 		if (!f)
-			return -1;
+			return 1;
 
-		return Load(f);
-
+		int r = Load(f);
 		fclose(f);
+
+		return r;
 	}
 
 	int Load(FILE *f)
