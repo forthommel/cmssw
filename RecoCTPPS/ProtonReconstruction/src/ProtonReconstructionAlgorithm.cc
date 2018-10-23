@@ -412,8 +412,12 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CT
 
   const reco::TrackBase::Point vertex( 0., params[3]*1.e2, 0. ); // CMS convention in cm
   const reco::TrackBase::Vector momentum( -p*th_x, +p*th_y, -sign_z_lhc*p*cos_th ); // signs reflect change LHC --> CMS convention
+  reco::TrackBase::CovarianceMatrix cov;
+  for ( unsigned short i = 0; i < (unsigned short)reco::ProtonTrack::Index::num_indices; ++i )
+    for ( unsigned short j = 0; j < (unsigned short)reco::ProtonTrack::Index::num_indices; ++j )
+      cov[i][j] = result.CovMatrix( i, j );
 
-  reco::ProtonTrack pt( result.Chi2(), 2*tracks.size()-4, vertex, momentum, params[0] );
+  reco::ProtonTrack pt( result.Chi2(), 2*tracks.size()-4, vertex, momentum, params[0], cov );
 
   reco::ProtonTrackExtra::RPList contributing_rps;
   for ( const auto& track : tracks )

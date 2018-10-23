@@ -14,32 +14,29 @@
 #include "DataFormats/ProtonReco/interface/ProtonTrackExtraFwd.h"
 #include <set>
 
-/**
- * FIXME make use of the general reco::Candidate object, with appropriate set'ters and get'ters
- */
-
 namespace reco
 {
   class ProtonTrack : public Track
   {
     public:
-      //typedef ProtonTrackExtra::ReconstructionMethod ReconstructionMethod;
-      //typedef ProtonTrackExtra::LHCSector LHCSector;
       /// Default constructor
       ProtonTrack();
       /// Constructor from refit parameters, fitted vertex and direction, and longitudinal fractional momentum loss
-      ProtonTrack( double chi2, double ndof, const Point& vtx, const Vector& dir, float xi, float xi_unc = 0. );
+      ProtonTrack( double chi2, double ndof, const Point& vtx, const Vector& dir, float xi, const CovarianceMatrix& cov = CovarianceMatrix() );
+
+      /// Indices to the covariance matrix
+      enum struct Index : unsigned short { xi, th_x, th_y, vtx_y, num_indices };
+
       /// Longitudinal fractional momentum loss
       float xi() const { return xi_; }
       /// Absolute uncertainty on longitudinal fractional momentum loss
-      float xiError() const { return xi_unc_; }
+      float xiError() const { return error( (int)Index::xi ); }
 
       void setProtonTrackExtra( const ProtonTrackExtraRef& ref ) { pt_extra_ = ref; }
       const ProtonTrackExtraRef& protonTrackExtra() const { return pt_extra_; }
 
     private:
       float xi_; ///< Longitudinal fractional momentum loss
-      float xi_unc_; ///< Absolute uncertainty on longitudinal fractional momentum loss
       ProtonTrackExtraRef pt_extra_; ///< Additional information on proton track
   };
 }
