@@ -46,7 +46,7 @@ class CTPPSProtonReconstruction : public edm::stream::EDProducer<>
     edm::FileInPath opticsFileBeam1_, opticsFileBeam2_;
 
     bool applyExperimentalAlignment;
-    edm::FileInPath alignmentFile_;
+    std::vector<std::string> alignmentFiles_;
 
     bool applyTestAlignment;
     double de_x_N, de_x_F, de_y_N, de_y_F;
@@ -74,7 +74,7 @@ CTPPSProtonReconstruction::CTPPSProtonReconstruction( const edm::ParameterSet& i
   opticsFileBeam2_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam2" ) ),
 
   applyExperimentalAlignment  ( iConfig.getParameter<bool>( "applyExperimentalAlignment" ) ),
-  alignmentFile_              ( iConfig.getParameter<edm::FileInPath>( "alignmentFile" ) ),
+  alignmentFiles_              ( iConfig.getParameter<std::vector<std::string>>( "alignmentFiles" ) ),
 
   applyTestAlignment  ( iConfig.getParameter<bool>( "applyTestAlignment" ) ),
   de_x_N(iConfig.getParameter<double>("de_x_N")),
@@ -89,8 +89,12 @@ CTPPSProtonReconstruction::CTPPSProtonReconstruction( const edm::ParameterSet& i
   //  load alignment collection
   if (applyExperimentalAlignment)
   {
-    if (alignmentCollection_.Load(alignmentFile_.fullPath()) != 0)
-      throw cms::Exception("CTPPSProtonReconstruction") << "Cannot load alignment.";
+    for (const auto &f : alignmentFiles_)
+    {
+      FileInPath fip(f);
+      if (alignmentCollection_.Load(fip.fullPath()) != 0)
+        throw cms::Exception("CTPPSProtonReconstruction") << "Cannot load alignment from file '" << f << "'.";
+    }
   }
 
   // load fill-alignment mapping
