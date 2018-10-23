@@ -99,11 +99,7 @@ struct AlignmentResults : public std::map<unsigned int, AlignmentResult>
 			if (strcmp(s_key, "id") == 0)
 			{
 				idSet = true;
-				unsigned int decId = atoi(s_val);
-                unsigned int arm = decId / 100;
-                unsigned int station = (decId / 10) % 10;
-                unsigned int rp = decId % 10;
-                id = TotemRPDetId(arm, station, rp);
+				id = atoi(s_val);
 				continue;
 			}
 
@@ -111,6 +107,8 @@ struct AlignmentResults : public std::map<unsigned int, AlignmentResult>
 			{
 				idSet = true;
                 id = atoi(s_val);
+                CTPPSDetId rpId(id);
+                id = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
 				continue;
 			}
 
@@ -195,9 +193,12 @@ struct AlignmentResults : public std::map<unsigned int, AlignmentResult>
 
 		for (auto &t : input)
 		{
-			auto ait = find(t.getRPId());
+            CTPPSDetId rpId(t.getRPId());
+            unsigned int rpDecId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
+
+			auto ait = find(rpDecId);
 			if (ait == end())
-              throw cms::Exception("alignment") << "No alignment data for RP " << t.getRPId() << ", i.e." << CTPPSDetId(t.getRPId());
+              throw cms::Exception("alignment") << "No alignment data for RP " << rpDecId;
 
             output.emplace_back(ait->second.Apply(t));
 		}
