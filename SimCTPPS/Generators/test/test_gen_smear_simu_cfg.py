@@ -16,7 +16,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(400000)
+    input = cms.untracked.int32(10000)
 )
 
 # particle-data table
@@ -61,6 +61,7 @@ process.beamDivergenceVtxGenerator.vertexSigmaZ = 5
 
 # fast simulation
 process.load('SimCTPPS.OpticsParameterisation.year_2017.ctppsFastProtonSimulation_cfi')
+process.ctppsFastProtonSimulation.verbosity = 0
 process.ctppsFastProtonSimulation.hepMCTag = cms.InputTag('beamDivergenceVtxGenerator')
 process.ctppsFastProtonSimulation.produceScoringPlaneHits = False
 process.ctppsFastProtonSimulation.produceRecHits = True

@@ -13,6 +13,8 @@ rp_dirs.push("RP 23"); rp_labels.push("45-220-fr-hr");
 rp_dirs.push("RP 103"); rp_labels.push("56-210-fr-hr");
 rp_dirs.push("RP 123"); rp_labels.push("56-220-fr-hr");
 
+xTicksDef = LeftTicks(5., 1.);
+
 //----------------------------------------------------------------------------------------------------
 
 for (int fi : files.keys)
