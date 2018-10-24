@@ -138,6 +138,12 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
 
       void write() const
       {
+        if (!h_m_Z)
+        {
+          printf("ERROR in Plots::write > object not initialised.\n");
+          return;
+        }
+
         h_m_Z->Write("h_m_Z");
         h_m_XZ->Write("h_m_XZ");
         h_p_z_LAB_2p->Write("h_p_z_LAB_2p");
