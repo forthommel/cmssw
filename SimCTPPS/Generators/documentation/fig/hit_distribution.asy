@@ -27,6 +27,9 @@ for (int fi : files.keys)
 
 	for (int rpi : rp_dirs.keys)
 	{
+		if (rpi == 2)
+			NewRow();
+
 		NewPad("$x\ung{mm}$", "$y\ung{mm}$");
 		scale(Linear, Linear, Log);
 
@@ -39,4 +42,4 @@ for (int fi : files.keys)
 	}
 }
 
-GShipout(hSkip=1mm);
+GShipout(hSkip=1mm, vSkip=1mm);

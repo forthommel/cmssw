@@ -5,7 +5,7 @@
 
 \def\author{PPS}
 \def\caption{PPXZ generator}
-\def\date{19 Oct 2018}
+\def\date{24 Oct 2018}
 
 \newpage %-------------------------------------------------------------------------------------------
 \hbox{}
@@ -95,11 +95,11 @@ $$m_Z = RandBreitWigner(\hbox{mean, gamma})$$
 \>> fast simulation:\\ SimCTPPS/OpticsParameterisation/plugins/CTPPSFastProtonSimulation.cc
 \>> distribution plotter:\\ SimCTPPS/Generators/plugins/PPXZGeneratorValidation.cc
 
-\> example config: SimCTPPS/Generators/test/test\_gen\_simu\_smear\_cfg.py
+\> example config: SimCTPPS/Generators/test/test\_gen\_smear\_simu\_OF\_cfg.py
 \>> 2017 layout of RPs (strips in 210-fr, pixels in 220-fr)
-\>> preliminary 2017 geometry (RP position), yet to be tuned
-\>> aperture limitations simulated with a simple high-$x$ cutoff, preliminary tuning
-\>> 2016 optics used at the moment
+\>> preliminary 2017 geometry (RP position): $x_{\rm min}$ from data
+\>> aperture limitations simulated with a simple $x_{\rm max}$ cutoff, preliminary tuning
+\>> proton transport with 2017 optical functions
 \>> realistic values for beam and vertex smearing
 
 
@@ -124,7 +124,7 @@ $$m_Z = RandBreitWigner(\hbox{mean, gamma})$$
 \newpage %-------------------------------------------------------------------------------------------
 \title{Example hit distribution in RPs}
 
-\centerline{\fig[16cm]{fig/hit_distribution.pdf}}
+\centerline{\fig[13cm]{fig/hit_distribution.pdf}}
 
 
 \newpage %-------------------------------------------------------------------------------------------
