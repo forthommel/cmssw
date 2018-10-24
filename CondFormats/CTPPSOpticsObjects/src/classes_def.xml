@@ -8,4 +8,7 @@
   <class name="TMultiDimFet" ClassVersion="1">
     <version ClassVersion="1" checksum="2981266364"/>
   </class>
+  <class name="LHCOpticsApproximatorOF" ClassVersion="1">
+    <version ClassVersion="1" checksum="176219994"/>
+  </class>
 </lcgdict>

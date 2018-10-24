@@ -1,4 +1,5 @@
 #include "CondFormats/CTPPSOpticsObjects/interface/LHCOpticsApproximator.h"
+#include "CondFormats/CTPPSOpticsObjects/interface/LHCOpticsApproximatorOF.h"
 #include "CondFormats/CTPPSOpticsObjects/interface/TMultiDimFet.h"
 
 namespace CondFormats_CTPPSOpticsObjects
@@ -8,5 +9,7 @@ namespace CondFormats_CTPPSOpticsObjects
     LHCOpticsApproximator loa;
     LHCApertureApproximator laa;
     TMultiDimFet mdf;
+
+    LHCOpticsApproximatorOF loaOF;
   };
 }
