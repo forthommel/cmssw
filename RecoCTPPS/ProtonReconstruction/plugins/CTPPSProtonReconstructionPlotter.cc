@@ -42,6 +42,9 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
     edm::EDGetTokenT<std::vector<CTPPSLocalTrackLite>> tokenTracks;
     edm::EDGetTokenT<std::vector<reco::ProtonTrack>> tokenRecoProtons;
 
+    unsigned int rpId_45_N, rpId_45_F;
+    unsigned int rpId_56_N, rpId_56_F;
+
     std::string outputFile;
 
     signed int maxNonEmptyEvents;
@@ -343,6 +346,12 @@ using namespace edm;
 CTPPSProtonReconstructionPlotter::CTPPSProtonReconstructionPlotter(const edm::ParameterSet &ps) :
   tokenTracks(consumes< std::vector<CTPPSLocalTrackLite>>(ps.getParameter<edm::InputTag>("tagTracks"))),
   tokenRecoProtons(consumes<std::vector<reco::ProtonTrack>>(ps.getParameter<InputTag>("tagRecoProtons"))),
+
+  rpId_45_N(ps.getParameter<unsigned int>("rpId_45_N")),
+  rpId_45_F(ps.getParameter<unsigned int>("rpId_45_F")),
+  rpId_56_N(ps.getParameter<unsigned int>("rpId_56_N")),
+  rpId_56_F(ps.getParameter<unsigned int>("rpId_56_F")),
+
   outputFile(ps.getParameter<string>("outputFile")),
   maxNonEmptyEvents(ps.getUntrackedParameter<signed int>("maxNonEmptyEvents", -1))
 {
@@ -383,10 +392,10 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
     CTPPSDetId rpId(tr.getRPId());
     unsigned int decRPId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
 
-    if (decRPId == 2) tr_L_N = &tr;
-    if (decRPId == 3) tr_L_F = &tr;
-    if (decRPId == 102) tr_R_N = &tr;
-    if (decRPId == 103) tr_R_F = &tr;
+    if (decRPId == rpId_45_N) tr_L_N = &tr;
+    if (decRPId == rpId_45_F) tr_L_F = &tr;
+    if (decRPId == rpId_56_N) tr_R_N = &tr;
+    if (decRPId == rpId_56_F) tr_R_F = &tr;
   }
 
   if (tr_L_N && tr_L_F)
@@ -461,11 +470,11 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
     if (proton.method == reco::ProtonTrack::rmMultiRP && proton.lhcSector == reco::ProtonTrack::sector45) p_arm0_m = &proton;
     if (proton.method == reco::ProtonTrack::rmMultiRP && proton.lhcSector == reco::ProtonTrack::sector56) p_arm1_m = &proton;
 
-    if (proton.method == reco::ProtonTrack::rmSingleRP && rpDecId == 2) p_arm0_s_N = &proton;
-    if (proton.method == reco::ProtonTrack::rmSingleRP && rpDecId == 3) p_arm0_s_F = &proton;
+    if (proton.method == reco::ProtonTrack::rmSingleRP && rpDecId == rpId_45_N) p_arm0_s_N = &proton;
+    if (proton.method == reco::ProtonTrack::rmSingleRP && rpDecId == rpId_45_F) p_arm0_s_F = &proton;
 
-    if (proton.method == reco::ProtonTrack::rmSingleRP && rpDecId == 102) p_arm1_s_N = &proton;
-    if (proton.method == reco::ProtonTrack::rmSingleRP && rpDecId == 103) p_arm1_s_F = &proton;
+    if (proton.method == reco::ProtonTrack::rmSingleRP && rpDecId == rpId_56_N) p_arm1_s_N = &proton;
+    if (proton.method == reco::ProtonTrack::rmSingleRP && rpDecId == rpId_56_F) p_arm1_s_F = &proton;
   }
 
   if (p_arm0_s_N && p_arm0_s_F && p_arm0_m)

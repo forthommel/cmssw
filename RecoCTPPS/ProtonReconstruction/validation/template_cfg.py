@@ -30,6 +30,12 @@ process.ctppsProtonReconstruction.alignmentFile = "RecoCTPPS/ProtonReconstructio
 process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstructionPlotter",
     tagTracks = cms.InputTag("ctppsLocalTrackLiteProducer"),
     tagRecoProtons = cms.InputTag("ctppsProtonReconstruction"),
+
+    rpId_45_F = cms.uint32(3),
+    rpId_45_N = cms.uint32(2),
+    rpId_56_N = cms.uint32(102),
+    rpId_56_F = cms.uint32(103),
+
     outputFile = cms.string("$output"),
     maxNonEmptyEvents = cms.untracked.int32(200000)
 )
