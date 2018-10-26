@@ -4,7 +4,7 @@ import pad_layout;
 string topDir = "../../data_eos/";
 
 string alignments[], a_labels[];
-alignments.push("2018_10_26.1"); a_labels.push("2018-10-26.1");
+alignments.push("2018_10_26.4"); a_labels.push("2018-10-26.4");
 
 string cols[], c_labels[];
 cols.push("arm0"); c_labels.push("sector 45 (L)");

@@ -8,9 +8,7 @@ string dataset = "fill_6041/xangle_140";
 string stream = "DoubleEG";
 
 string alignments[], a_labels[];
-//alignments.push("2018_10_26.1"); a_labels.push("2018-10-26.1");
-//alignments.push("2018_10_26.2"); a_labels.push("2018-10-26.2");
-alignments.push("2018_10_26.3"); a_labels.push("2018-10-26.3");
+alignments.push("2018_10_26.4"); a_labels.push("2018-10-26.4");
 
 string cols[], c_labels[], c_si_rps[];
 cols.push("arm0"); c_labels.push("sector 45 (L)"); c_si_rps.push("rp23");

@@ -7,7 +7,7 @@ string dataset = "fill_6041/xangle_140";
 
 string stream = "DoubleEG";
 
-string alignment = "2018_10_26.3";
+string alignment = "2018_10_26.4";
 
 string f = topDir + dataset + "/" + stream + "/alignment_" + alignment + "/output.root";
 

@@ -3,7 +3,7 @@ import pad_layout;
 
 string topDir = "../../data_eos/";
 
-string dataset = "fill_6185/xangle_140";
+string dataset = "fill_6192/xangle_140";
 
 string stream = "DoubleEG";
 

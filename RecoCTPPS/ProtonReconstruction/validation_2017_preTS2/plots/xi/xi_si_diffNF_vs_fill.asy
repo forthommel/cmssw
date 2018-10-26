@@ -10,8 +10,6 @@ string stream = "DoubleEG";
 int xangle = 140;
 
 string alignments[], a_labels[];
-//alignments.push("2018_10_26.1"); a_labels.push("2018-10-26.1");
-//alignments.push("2018_10_26.2"); a_labels.push("2018-10-26.2");
 alignments.push("2018_10_26.4"); a_labels.push("2018-10-26.4");
 
 string cols[], c_labels[];

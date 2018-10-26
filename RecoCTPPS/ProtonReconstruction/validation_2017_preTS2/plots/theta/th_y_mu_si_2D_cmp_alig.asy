@@ -8,7 +8,7 @@ string stream = "DoubleEG";
 string dataset = "fill_6041/xangle_140";
 
 string alignments[], a_labels[];
-alignments.push("2018_10_26.3"); a_labels.push("2018-10-26.3");
+alignments.push("2018_10_26.4"); a_labels.push("2018-10-26.4");
 
 string cols[], c_labels[];
 cols.push("si_rp3_mu_arm0"); c_labels.push("multi(L) vs.~single(RP3)");
