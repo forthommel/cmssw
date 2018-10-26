@@ -19,7 +19,7 @@
 using namespace std;
 using namespace edm;
 
-//#define DEBUG 1
+#define DEBUG 1
 
 //----------------------------------------------------------------------------------------------------
 
@@ -95,7 +95,7 @@ ProtonReconstructionAlgorithmOF::ProtonReconstructionAlgorithmOF(const std::stri
     rpod.x0 = kin_out_zero[0];
     rpod.y0 = kin_out_zero[2];
 
-    for (double xi = 0.; xi <= 0.251; xi += 0.005)
+    for (double xi = 0.; xi <= 0.3001; xi += 0.005)
     {
       // input: only xi
       double kin_in_xi[5] = { 0., 0., vtx0_y, 0., xi };
