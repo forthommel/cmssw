@@ -56,6 +56,8 @@ namespace reco
 
       std::set<unsigned int> contributingRPIds;
 
+      double halfCrossingAngleSector45=0., halfCrossingAngleSector56=0.;
+
     private:
 
       // TODO: describe, mention CMS coordinate notation

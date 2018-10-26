@@ -394,6 +394,8 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CT
 
   reco::ProtonTrack pt;
   pt.method = reco::ProtonTrack::rmMultiRP;
+  pt.halfCrossingAngleSector45 = halfCrossingAngleSector45_;
+  pt.halfCrossingAngleSector56 = halfCrossingAngleSector56_;
 
   pt.fitChiSq = result.Chi2();
   pt.fitNDF = 2.*tracks.size() - 4;
@@ -460,6 +462,8 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(const vector<const C
     pt.method = reco::ProtonTrack::rmSingleRP;
     pt.lhcSector = (CTPPSDetId(track->getRPId()).arm() == 0) ? reco::ProtonTrack::sector45 : reco::ProtonTrack::sector56;
     pt.contributingRPIds.insert(track->getRPId());
+    pt.halfCrossingAngleSector45 = halfCrossingAngleSector45_;
+    pt.halfCrossingAngleSector56 = halfCrossingAngleSector56_;
 
     const double p_nom = 6500.;  // GeV
     const double p = p_nom *  (1. - xi);

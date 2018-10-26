@@ -1,6 +1,6 @@
 <lcgdict>
-  <class name="reco::ProtonTrack" ClassVersion="2">
-    <version ClassVersion="2" checksum="3116433677"/>
+  <class name="reco::ProtonTrack" ClassVersion="3">
+    <version ClassVersion="3" checksum="3792167985"/>
   </class>
   <class name="std::vector<reco::ProtonTrack>"/>
   <class name="edm::View<reco::ProtonTrack>"/>
