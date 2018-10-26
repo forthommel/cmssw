@@ -52,9 +52,9 @@ class CTPPSTrackDistributionPlotter : public edm::one::EDAnalyzer<>
 
       void init()
       {
-        h2_y_vs_x = new TH2D("", "", 300, -10., +50., 300, -30, +30.);
-        p_y_vs_x = new TProfile("", "", 300, -10., +50.);
-        h_x = new TH1D("", "", 600, -10., +50.);
+        h2_y_vs_x = new TH2D("", "", 300, -10., +70., 300, -30, +30.);
+        p_y_vs_x = new TProfile("", "", 300, -10., +70.);
+        h_x = new TH1D("", "", 600, -10., +70.);
       }
 
       void fill(double x, double y)
