@@ -29,13 +29,16 @@ ctppsProtonReconstructionOF = cms.EDProducer('CTPPSProtonReconstructionOF',
 
 import FWCore.PythonUtilities.LumiList as LumiList
 import FWCore.ParameterSet.Types as CfgTypes
+import os
+
+cmsswBase = os.environ["CMSSW_BASE"]
 
 def UseCrossingAngle100(source):
   ctppsProtonReconstructionOF.opticsFileBeam1 = cms.FileInPath('CondFormats/CTPPSOpticsObjects/data/2017/optical_functions_2017_100urad.root')
   ctppsProtonReconstructionOF.opticsFileBeam2 = cms.FileInPath('CondFormats/CTPPSOpticsObjects/data/2017/optical_functions_2017_100urad.root')
 
   source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
-  myLumis = LumiList.LumiList(filename = "../../data/json/2017_postTS2/xangle_100.json").getCMSSWString().split(',')
+  myLumis = LumiList.LumiList(filename = cmsswBase + "/src/RecoCTPPS/ProtonReconstruction/data/json/2017_postTS2/xangle_100.json").getCMSSWString().split(',')
   source.lumisToProcess.extend(myLumis)
 
 def UseCrossingAngle110(source):
@@ -43,7 +46,7 @@ def UseCrossingAngle110(source):
   ctppsProtonReconstructionOF.opticsFileBeam2 = cms.FileInPath('CondFormats/CTPPSOpticsObjects/data/2017/optical_functions_2017_110urad.root')
 
   source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
-  myLumis = LumiList.LumiList(filename = "../../data/json/2017_postTS2/xangle_110.json").getCMSSWString().split(',')
+  myLumis = LumiList.LumiList(filename = cmsswBase + "/src/RecoCTPPS/ProtonReconstruction/data/json/2017_postTS2/xangle_110.json").getCMSSWString().split(',')
   source.lumisToProcess.extend(myLumis)
 
 def UseCrossingAngle120(source):
@@ -51,9 +54,9 @@ def UseCrossingAngle120(source):
   ctppsProtonReconstructionOF.opticsFileBeam2 = cms.FileInPath('CondFormats/CTPPSOpticsObjects/data/2017/optical_functions_2017_120urad.root')
 
   source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
-  myLumis = LumiList.LumiList(filename = "../../data/json/2017_preTS2/xangle_120.json").getCMSSWString().split(',')
+  myLumis = LumiList.LumiList(filename = cmsswBase + "/src/RecoCTPPS/ProtonReconstruction/data/json/2017_preTS2/xangle_120.json").getCMSSWString().split(',')
   source.lumisToProcess.extend(myLumis)
-  myLumis = LumiList.LumiList(filename = "../../data/json/2017_postTS2/xangle_120.json").getCMSSWString().split(',')
+  myLumis = LumiList.LumiList(filename = cmsswBase + "/src/RecoCTPPS/ProtonReconstruction/data/json/2017_postTS2/xangle_120.json").getCMSSWString().split(',')
   source.lumisToProcess.extend(myLumis)
 
 def UseCrossingAngle130(source):
@@ -61,9 +64,9 @@ def UseCrossingAngle130(source):
   ctppsProtonReconstructionOF.opticsFileBeam2 = cms.FileInPath('CondFormats/CTPPSOpticsObjects/data/2017/optical_functions_2017_130urad.root')
 
   source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
-  myLumis = LumiList.LumiList(filename = "../../data/json/2017_preTS2/xangle_130.json").getCMSSWString().split(',')
+  myLumis = LumiList.LumiList(filename = cmsswBase + "/src/RecoCTPPS/ProtonReconstruction/data/json/2017_preTS2/xangle_130.json").getCMSSWString().split(',')
   source.lumisToProcess.extend(myLumis)
-  myLumis = LumiList.LumiList(filename = "../../data/json/2017_postTS2/xangle_130.json").getCMSSWString().split(',')
+  myLumis = LumiList.LumiList(filename = cmsswBase + "/src/RecoCTPPS/ProtonReconstruction/data/json/2017_postTS2/xangle_130.json").getCMSSWString().split(',')
   source.lumisToProcess.extend(myLumis)
 
 def UseCrossingAngle140(source):
@@ -71,9 +74,9 @@ def UseCrossingAngle140(source):
   ctppsProtonReconstructionOF.opticsFileBeam2 = cms.FileInPath('CondFormats/CTPPSOpticsObjects/data/2017/optical_functions_2017_140urad.root')
 
   source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
-  myLumis = LumiList.LumiList(filename = "../../data/json/2017_preTS2/xangle_140.json").getCMSSWString().split(',')
+  myLumis = LumiList.LumiList(filename = cmsswBase + "/src/RecoCTPPS/ProtonReconstruction/data/json/2017_preTS2/xangle_140.json").getCMSSWString().split(',')
   source.lumisToProcess.extend(myLumis)
-  myLumis = LumiList.LumiList(filename = "../../data/json/2017_postTS2/xangle_140.json").getCMSSWString().split(',')
+  myLumis = LumiList.LumiList(filename = cmsswBase + "/src/RecoCTPPS/ProtonReconstruction/data/json/2017_postTS2/xangle_140.json").getCMSSWString().split(',')
   source.lumisToProcess.extend(myLumis)
 
 def UseCrossingAngle150(source):
