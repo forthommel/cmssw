@@ -1,0 +1,12 @@
+#!/bin/sh
+export HOME="/afs/cern.ch/exp/totem/scratch/jkaspar"
+
+source "/cvmfs/cms.cern.ch/cmsset_default.sh"
+cd "$CMSSW_BASE"
+cmsenv
+cd "$job_dir"
+
+# grid proxy configuration
+export X509_USER_PROXY="/afs/cern.ch/user/j/jkaspar/x509up_u2177"
+
+cmsRun "cfg.py" &> "log"
