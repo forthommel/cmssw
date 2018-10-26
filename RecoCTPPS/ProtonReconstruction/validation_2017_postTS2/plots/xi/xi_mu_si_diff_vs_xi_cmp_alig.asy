@@ -30,7 +30,7 @@ for (int ai : alignments.keys)
 
 	for (int ci : cols.keys)
 	{
-		NewPad("fill", "mean of $\xi_{\rm multi} - \xi_{\rm single}$");
+		NewPad("$\xi_{\rm multi}$", "mean of $\xi_{\rm single} - \xi_{\rm multi}$");
 
 		string f = topDir + dataset + "/" + stream + "/alignment_" + alignments[ai] + "/do_fits.root";
 		string on = "singleMultiCorrelationPlots/si_" + c_si_rps[ci]  + "_mu_" + cols[ci] + "/p_xi_diff_si_mu_vs_xi_mu";

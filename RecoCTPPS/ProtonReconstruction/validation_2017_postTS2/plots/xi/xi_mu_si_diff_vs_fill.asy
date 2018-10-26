@@ -60,7 +60,7 @@ for (int ai : alignments.keys)
 
 	for (int ci : cols.keys)
 	{
-		NewPad("fill", "mean of $\xi_{\rm multi} - \xi_{\rm single}$");
+		NewPad("fill", "mean of $\xi_{\rm single} - \xi_{\rm multi}$");
 
 		for (int xsi : xi_si_labels.keys)
 		{

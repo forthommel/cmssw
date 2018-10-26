@@ -48,9 +48,9 @@ for (int ai : alignments.keys)
 		
 		draw(obj);
 
-		draw((0, 0)--(0.2, 0.2), black+1pt);
+		draw((0, 0)--(0.25, 0.25), black+1pt);
 
-		limits((0.02, 0.02), (0.20, 0.20), Crop);
+		limits((0.0, 0.0), (0.25, 0.25), Crop);
 	}
 }
 
