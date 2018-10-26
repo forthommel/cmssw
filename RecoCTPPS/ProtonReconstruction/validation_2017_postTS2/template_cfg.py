@@ -24,29 +24,11 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # proton reconstruction
-from SimCTPPS.OpticsParameterisation.year_2017_OF.ctppsDetectorPackages_cff import detectorPackages
-from SimCTPPS.OpticsParameterisation.year_2017_OF.lhcBeamConditions_cff import lhcBeamConditions
+from RecoCTPPS.ProtonReconstruction.year_2017_OF.ctppsProtonReconstructionOF_cfi import *
+process.ctppsProtonReconstructionOF = ctppsProtonReconstructionOF
+process.ctppsProtonReconstructionOF.alignmentFiles = cms.vstring("RecoCTPPS/ProtonReconstruction/data/alignment/2017_postTS2/collect_alignments_$alignment.out")
 
-process.ctppsProtonReconstructionOF = cms.EDProducer('CTPPSProtonReconstructionOF',
-    verbosity = cms.untracked.uint32(0),
-
-    tagLocalTrackLite = cms.InputTag('ctppsLocalTrackLiteProducer'),
-
-    beamConditions = lhcBeamConditions,
-    detectorPackages = detectorPackages,
-
-    opticsFileBeam1 = cms.FileInPath('CondFormats/CTPPSOpticsObjects/data/2017/optical_functions_2017_140urad.root'),
-    opticsFileBeam2 = cms.FileInPath('CondFormats/CTPPSOpticsObjects/data/2017/optical_functions_2017_140urad.root'),
-
-    applyExperimentalAlignment = cms.bool(True),
-    alignmentFiles = cms.vstring("RecoCTPPS/ProtonReconstruction/data/alignment/2017_postTS2/collect_alignments_$alignment.out"),
-
-    applyTestAlignment = cms.bool(False),
-    de_x_N = cms.double(0.),
-    de_x_F = cms.double(0.),
-    de_y_N = cms.double(0.),
-    de_y_F = cms.double(0.)
-)
+UseCrossingAngle($xangle, process.source)
 
 # reconstruction plotter
 process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstructionPlotter",

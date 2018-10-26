@@ -49,6 +49,7 @@ function SubmitOneDir()
 		cat "template_cfg.py" | sed -e "\
 				s|\$input|$input|g;\
 				s|\$fill|$fill|g;\
+				s|\$xangle|$xangle|g;\
 				s|\$alignment|$alignment|g;\
 				s|\$output|output.root|g;\
 			" > "$dir/cfg.py"
