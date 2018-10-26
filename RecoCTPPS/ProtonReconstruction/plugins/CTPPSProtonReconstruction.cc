@@ -169,6 +169,7 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup&)
       CTPPSDetId rpId(t.getRPId());
 
       double de_x = 0., de_y = 0.;
+      // TODO: this is not always correct
       if (rpId.rp() == 2) { de_x = de_x_N; de_y = de_y_N; }
       if (rpId.rp() == 3) { de_x = de_x_F; de_y = de_y_F; }
 
