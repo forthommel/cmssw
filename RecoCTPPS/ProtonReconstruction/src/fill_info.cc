@@ -49,9 +49,6 @@ void InitFillInfoCollection()
 	fillInfoCollection.push_back(FillInfo(5288, false, 280383, 280385, "phys_no_margin/fill_5288"));
 
     // 2017 pre-TS2
-    // TODO
-	fillInfoCollection.push_back(FillInfo(0, false, 297046, 302663, "2017_preTS2/preliminary"));
-    /*
     fillInfoCollection.push_back(FillInfo(5839, false, 297046, 297050, "fill 5839"));
     fillInfoCollection.push_back(FillInfo(5840, false, 297056, 297057, "fill 5840"));
     fillInfoCollection.push_back(FillInfo(5842, false, 297099, 297101, "fill 5842"));
@@ -173,7 +170,6 @@ void InitFillInfoCollection()
     fillInfoCollection.push_back(FillInfo(6191, false, 302634, 302635, "fill 6191"));
     fillInfoCollection.push_back(FillInfo(6192, false, 302646, 302654, "fill 6192"));
     fillInfoCollection.push_back(FillInfo(6193, false, 302660, 302663, "fill 6193"));
-    */
 
     // 2017 post-TS2
 	fillInfoCollection.push_back(FillInfo(6230, false, 303719, 303729, "fill 6230"));
