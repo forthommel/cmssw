@@ -17,6 +17,9 @@ class LHCOpticsApproximatorOF : public TNamed
     {
       if (s_x0_vs_xi)
       {
+        delete g_x0_vs_xi;
+        delete g_y0_vs_xi;
+
         delete s_x0_vs_xi;
         delete s_y0_vs_xi;
         delete s_v_x_vs_xi;
@@ -33,7 +36,12 @@ class LHCOpticsApproximatorOF : public TNamed
       return 6500.;
     }
 
+    static LHCOpticsApproximatorOF* Interpolate(double xangle1, const LHCOpticsApproximatorOF &fo1, double xangle2, const LHCOpticsApproximatorOF &of2, double xangle);
+
   private:
+    TGraph *g_x0_vs_xi = NULL;
+    TGraph *g_y0_vs_xi = NULL;
+
     TSpline3 *s_x0_vs_xi = NULL;
     TSpline3 *s_y0_vs_xi = NULL;
     TSpline3 *s_v_x_vs_xi = NULL;

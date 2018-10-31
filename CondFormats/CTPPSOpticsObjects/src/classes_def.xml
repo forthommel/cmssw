@@ -9,6 +9,6 @@
     <version ClassVersion="1" checksum="2981266364"/>
   </class>
   <class name="LHCOpticsApproximatorOF" ClassVersion="1">
-    <version ClassVersion="1" checksum="176219994"/>
+    <version ClassVersion="1" checksum="1359023235"/>
   </class>
 </lcgdict>

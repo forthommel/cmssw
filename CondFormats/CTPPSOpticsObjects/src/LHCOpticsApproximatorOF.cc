@@ -21,11 +21,13 @@ LHCOpticsApproximatorOF::LHCOpticsApproximatorOF(const std::string &fn, const st
   g = (TGraph *) f_in->Get((dn + "/g_x0_vs_xi").c_str());
   if (!g)
     throw cms::Exception("LHCOpticsApproximatorOF") << "Cannot load object " << dn << "/g_x0_vs_xi.";
+  g_x0_vs_xi = new TGraph(*g);
   s_x0_vs_xi = new TSpline3("", g->GetX(), g->GetY(), g->GetN());
 
   g = (TGraph *) f_in->Get((dn + "/g_y0_vs_xi").c_str());
   if (!g)
     throw cms::Exception("LHCOpticsApproximatorOF") << "Cannot load object " << dn << "/g_y0_vs_xi.";
+  g_y0_vs_xi = new TGraph(*g);
   s_y0_vs_xi = new TSpline3("", g->GetX(), g->GetY(), g->GetN());
 
   g = (TGraph *) f_in->Get((dn + "/g_v_x_vs_xi").c_str());
@@ -66,4 +68,47 @@ void LHCOpticsApproximatorOF::Transport(double *k_in, double *k_out) const
   k_out[2] = s_y0_vs_xi->Eval(xi) + s_v_y_vs_xi->Eval(xi) * vtx_y + s_L_y_vs_xi->Eval(xi) * th_y;
   k_out[3] = 0.;
   k_out[4] = xi;
+}
+
+//----------------------------------------------------------------------------------------------------
+
+LHCOpticsApproximatorOF* LHCOpticsApproximatorOF::Interpolate(double xangle1, const LHCOpticsApproximatorOF &of1,
+  double xangle2, const LHCOpticsApproximatorOF &of2, double xangle)
+{
+  LHCOpticsApproximatorOF *res = new LHCOpticsApproximatorOF;
+
+  TGraph *g = new TGraph();
+  for (int i = 0; i < of1.g_x0_vs_xi->GetN(); ++i)
+  {
+    const double x = of1.g_x0_vs_xi->GetX()[i];
+
+    const double v1 = of1.g_x0_vs_xi->Eval(x);
+    const double v2 = of2.g_x0_vs_xi->Eval(x);
+
+    const double v = v1 + (xangle - xangle1) * (v2 - v1) / (xangle2 - xangle1);
+    g->SetPoint(i, x, v);
+  }
+  res->g_x0_vs_xi = g;
+  res->s_x0_vs_xi = new TSpline3("", g->GetX(), g->GetY(), g->GetN());
+
+  g = new TGraph();
+  for (int i = 0; i < of1.g_y0_vs_xi->GetN(); ++i)
+  {
+    const double x = of1.g_y0_vs_xi->GetX()[i];
+
+    const double v1 = of1.g_y0_vs_xi->Eval(x);
+    const double v2 = of2.g_y0_vs_xi->Eval(x);
+
+    const double v = v1 + (xangle - xangle1) * (v2 - v1) / (xangle2 - xangle1);
+    g->SetPoint(i, x, v);
+  }
+  res->g_y0_vs_xi = g;
+  res->s_y0_vs_xi = new TSpline3("", g->GetX(), g->GetY(), g->GetN());
+
+  res->s_v_x_vs_xi = new TSpline3(*of1.s_v_x_vs_xi);
+  res->s_v_y_vs_xi = new TSpline3(*of1.s_v_y_vs_xi);
+  res->s_L_x_vs_xi = new TSpline3(*of1.s_L_x_vs_xi);
+  res->s_L_y_vs_xi = new TSpline3(*of1.s_L_y_vs_xi);
+
+  return res;
 }
