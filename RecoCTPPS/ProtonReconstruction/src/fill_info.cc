@@ -244,4 +244,7 @@ void InitFillInfoCollection()
 	fillInfoCollection.push_back(FillInfo(6364, false, 306153, 306171, "fill 6364"));
 	fillInfoCollection.push_back(FillInfo(6370, false, 306416, 306432, "fill 6370"));
 	fillInfoCollection.push_back(FillInfo(6371, false, 306454, 306462, "fill 6371"));
+
+    // 2018, preliminary
+	fillInfoCollection.push_back(FillInfo(0, false, 314747, 325175, "preliminary"));
 }
