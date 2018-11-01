@@ -61,6 +61,7 @@ class CTPPSProtonReconstructionOFDB : public edm::stream::EDProducer<>
     ProtonReconstructionAlgorithmOFDB algorithm_;
 
     edm::ESWatcher<LHCInfoRcd> lhcInfoWatcher;
+    float currentCrossingAngle;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -93,7 +94,9 @@ CTPPSProtonReconstructionOFDB::CTPPSProtonReconstructionOFDB( const edm::Paramet
   de_y_N(iConfig.getParameter<double>("de_y_N")),
   de_y_F(iConfig.getParameter<double>("de_y_F")),
 
-  algorithm_(xangle1_, opticsFile1_.fullPath(), xangle2_, opticsFile2_.fullPath(), beamConditions_, detectorPackages_, verbosity)
+  algorithm_(xangle1_, opticsFile1_.fullPath(), xangle2_, opticsFile2_.fullPath(), beamConditions_, detectorPackages_, verbosity),
+
+  currentCrossingAngle(-1.)
 {
   produces<vector<reco::ProtonTrack>>();
 
@@ -136,11 +139,15 @@ void CTPPSProtonReconstructionOFDB::produce(Event& event, const EventSetup &even
   const string label = "";
   eventSetup.get<LHCInfoRcd>().get(label, pSetup);
 
+  // re-initialise algorithm upon crossing-angle change
   if (lhcInfoWatcher.check(eventSetup))
   {
     const LHCInfo* pInfo = pSetup.product();
-    cout << event.id() << endl;
-    algorithm_.Init(pInfo->crossingAngle());
+    if (pInfo->crossingAngle() != currentCrossingAngle)
+    {
+      algorithm_.Init(pInfo->crossingAngle());
+      currentCrossingAngle = pInfo->crossingAngle();
+    }
   }
 
   // get input
