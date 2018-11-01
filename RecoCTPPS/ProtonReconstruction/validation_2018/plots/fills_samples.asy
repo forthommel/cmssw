@@ -121,6 +121,8 @@ void InitDataSets()
 	AddDataSet("fill_6919/xangle_140_beta_0.30");
 	AddDataSet("fill_6923/xangle_140_beta_0.30");
 	AddDataSet("fill_6924/xangle_140_beta_0.30");
+	AddDataSet("fill_6931/xangle_140_beta_0.30");
+	AddDataSet("fill_6940/xangle_140_beta_0.30");
 	AddDataSet("fill_6942/xangle_140_beta_0.30");
 	AddDataSet("fill_6956/xangle_140_beta_0.30");
 	AddDataSet("fill_6957/xangle_140_beta_0.30");
@@ -173,8 +175,6 @@ void InitDataSets()
 	AddDataSet("fill_7139/xangle_140_beta_0.30");
 	AddDataSet("fill_7144/xangle_140_beta_0.30");
 	AddDataSet("fill_7145/xangle_140_beta_0.30");
-	AddDataSet("fill_6931/xangle_140_beta_0.30");
-	AddDataSet("fill_6940/xangle_140_beta_0.30");
 	AddDataSet("fill_7309/xangle_140_beta_0.30");
 	AddDataSet("fill_7310/xangle_140_beta_0.30");
 	AddDataSet("fill_7314/xangle_140_beta_0.30");
