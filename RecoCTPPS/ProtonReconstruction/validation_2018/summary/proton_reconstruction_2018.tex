@@ -1,0 +1,130 @@
+\input slides.tex
+\input utf8-t1
+
+\newpage %-------------------------------------------------------------------------------------------
+
+\def\author{J.~Kašpar}
+\def\caption{Proton reconstruction, 2017, pre-TS2}
+\def\date{?? Nov 2018}
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{Proton reconstruction in 2017, pre-TS2 data}
+
+\> alignment version: 2018\_10\_26.4
+
+\> optics: described by xi-dependent optical functions (presented by Frici on 23 Oct 2018)
+
+\> currently only for xangle = $140\un{\mu rad}$
+
+\> ``single-RP'' reconstruction: uses x-to-xi curves
+
+\> ``multi-RP'' reconstruction: $\ch^2$ optimisation of all (accessible) proton kinematical parameters
+
+\> reconstruction run on ZeroBias sample
+
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{$\xi$ reconstruction}
+
+\> correlation between $\xi$'s from single-RP and multi-RP reconstruction
+
+\centerline{\fig[16cm]{../plots/xi/xi_mu_si_cmp_2D.pdf}}
+
+\>> bulk of the distribution close to the black diagonal line ($\xi_{\rm single} = \xi_{\rm multi}$)
+\>>> ``on average'' good agreement between the two reconstruction methods
+\>> deviations expectable at high
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{$\xi$ reconstruction}
+
+\> plots from previous slide (for 220-fr units) represented as profile histogram
+
+\centerline{\fig[16cm]{../plots/xi/xi_mu_si_diff_vs_xi_cmp_alig.pdf}}
+
+\>> in the middle $\xi$ range: almost flat and close to 0 (as expected)
+
+\>> low and high $\xi$: $\xi_{\rm single}$ significantly biased (distribution of $\th^*_x$ asymmetric due to acceptance limitations)
+
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{$\xi$ reconstruction}
+
+\> mean value of $\xi_{\rm multi} - \xi_{\rm single}$ over safe $\xi$ range (red fits from the previous slide) plotted as function of fill number
+
+\centerline{\fig[16cm]{../plots/xi/xi_mu_si_diff_vs_fill.pdf}}
+
+\>> stable, very close to zero as expected
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{$\xi$ reconstruction}
+
+\> mean value of $\xi_{\rm single}(\hbox{far}) - \xi_{\rm single}(\hbox{near})$ over safe $\xi$ range plotted as function of fill number
+\>> control quantity for near-far alignment
+
+\centerline{\fig[16cm]{../plots/xi/xi_si_diffNF_vs_fill.pdf}}
+
+\>> stable, very close to zero as expected
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{$\th^*_x$ vs.~$\xi$}
+
+\centerline{\fig[16cm]{../plots/theta/th_x_vs_xi_2D_cmp_alig.pdf}}
+
+\> almost flat as expected
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{$\th^*_x$ vs.~$\xi$}
+
+\> plots from previous slide represented as profile histogram
+
+\centerline{\fig[16cm]{../plots/theta/th_x_vs_xi_profile_cmp_alig.pdf}}
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{mean $\th^*_x$ vs.~fill}
+
+\> mean $\th^*_x$ over safe $\xi$ range (red fits on the previous slide) plotted vs.~fill number
+
+\centerline{\fig[16cm]{../plots/theta/th_x_mean_vs_fill.pdf}}
+
+\>> stable, very close to zero as expected
+
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{$\th^*_y$ vs.~$\xi$}
+
+\centerline{\fig[16cm]{../plots/theta/th_y_vs_xi_2D_cmp_alig.pdf}}
+
+\> sector 56: almost flat as expected
+\> sector 45: significant slope, reason not yet known
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{$\th^*_y$ vs.~$\xi$}
+
+\> plots from previous slide represented as profile histogram
+
+\centerline{\fig[16cm]{../plots/theta/th_y_vs_xi_profile_cmp_alig.pdf}}
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{mean $\th^*_y$ vs.~fill}
+
+\> mean $\th^*_y$ over safe $\xi$ range (red fits on the previous slide) plotted vs.~fill number
+
+\centerline{\fig[16cm]{../plots/theta/th_y_mean_vs_fill.pdf}}
+
+\>> sector 56: stable, very close to zero as expected
+
+\>> sector 45
+\>>> distributed around zero as expected
+\>>> larger fluctuation after fill 6060 -- under investigation
+
+\vfil
+\eject
+\bye
