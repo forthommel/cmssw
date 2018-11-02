@@ -49,7 +49,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 # TODO: use 2016 geometry
 process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi")
 del(process.XMLIdealGeometryESSource_CTPPS.geomXMLFiles[-1])
-process.XMLIdealGeometryESSource_CTPPS.geomXMLFiles.append("Validation/CTPPS/test/rp_positions/data/2016_preTS2_without_margin_end/RP_Dist_Beam_Cent.xml")
+process.XMLIdealGeometryESSource_CTPPS.geomXMLFiles.append("Validation/CTPPS/test_2016/rp_positions/data/2016_preTS2_without_margin_end/RP_Dist_Beam_Cent.xml")
 
 # beam-smearing settings
 process.load("IOMC.EventVertexGenerators.beamDivergenceVtxGenerator_cfi")
@@ -72,7 +72,7 @@ process.beamDivergenceVtxGenerator.vertexSigmaY = 10E-4
 process.beamDivergenceVtxGenerator.vertexSigmaZ = 5
 
 # fast simulation
-process.load('SimCTPPS.OpticsParameterisation.ctppsFastProtonSimulation_cfi')
+process.load('SimCTPPS.OpticsParameterisation.year_2016.ctppsFastProtonSimulation_cfi')
 process.ctppsFastProtonSimulation.hepMCTag = cms.InputTag('beamDivergenceVtxGenerator')
 process.ctppsFastProtonSimulation.checkApertures = False
 process.ctppsFastProtonSimulation.roundToPitch = True
@@ -94,13 +94,20 @@ process.ctppsLocalTrackLiteProducer.includeDiamonds = False
 process.ctppsLocalTrackLiteProducer.includePixels = False
 
 # proton reconstruction
-process.load("RecoCTPPS.ProtonReconstruction.ctppsProtonReconstruction_cfi")
+process.load("RecoCTPPS.ProtonReconstruction.year_2016.ctppsProtonReconstruction_cfi")
 process.ctppsProtonReconstruction.tagLocalTrackLite = cms.InputTag('ctppsLocalTrackLiteProducer')
+process.ctppsProtonReconstruction.applyExperimentalAlignment = False
 
 # reconstruction plotter
 process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstructionPlotter",
     tagTracks = cms.InputTag("ctppsLocalTrackLiteProducer"),
     tagRecoProtons = cms.InputTag("ctppsProtonReconstruction"),
+
+    rpId_45_F = cms.uint32(3),
+    rpId_45_N = cms.uint32(2),
+    rpId_56_N = cms.uint32(102),
+    rpId_56_F = cms.uint32(103),
+
     outputFile = cms.string("output.root")
 )
 
