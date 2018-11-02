@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimCTPPS.OpticsParameterisation.ctppsDetectorPackages_cff import detectorPackages
-from SimCTPPS.OpticsParameterisation.lhcBeamConditions_cff import lhcBeamConditions
+from SimCTPPS.OpticsParameterisation.year_2016.ctppsDetectorPackages_cff import detectorPackages
+from SimCTPPS.OpticsParameterisation.year_2016.lhcBeamConditions_cff import lhcBeamConditions
 
 ctppsFastProtonSimulation = cms.EDProducer('CTPPSFastProtonSimulation',
     verbosity = cms.untracked.uint32(0),
