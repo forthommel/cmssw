@@ -11,9 +11,7 @@ string datasets[] = {
 
 string stream = "DoubleEG";
 
-//string alignment = "2018_07_17";
-//string alignment = "2018_07_24.3";
-string alignment = "2018_07_30.5";
+string alignment = "2018_11_02.3";
 
 string cols[], c_labels[];
 cols.push("si_rp2_mu_arm0"); c_labels.push("multi(L) vs.~single(RP2)");

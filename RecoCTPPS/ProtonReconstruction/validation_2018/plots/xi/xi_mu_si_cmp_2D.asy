@@ -8,8 +8,10 @@ string dataset = "fill_7334/xangle_140_beta_0.30";
 string stream = "ZeroBias";
 
 string alignments[], a_labels[];
-//alignments.push("2018_10_26.4"); a_labels.push("2018-10-26.4");
-alignments.push("PRELIMINARY"); a_labels.push("PRELIMINARY");
+//alignments.push("PRELIMINARY"); a_labels.push("PRELIMINARY");
+//alignments.push("2018_11_01.1"); a_labels.push("2018-11-01.1");
+//alignments.push("2018_11_02.1"); a_labels.push("2018-11-02.1");
+alignments.push("2018_11_02.3"); a_labels.push("2018-11-02.3");
 
 string cols[], c_labels[];
 cols.push("si_rp3_mu_arm0"); c_labels.push("multi(L) vs.~single(RP3)");

@@ -13,9 +13,7 @@ AddDataSet("phys_no_margin/fill_5027");
 
 string stream = "DoubleEG";
 
-//string alignment = "2018_07_17";
-//string alignment = "2018_07_24.3";
-string alignment = "2018_07_30.5";
+string alignment = "2018_11_02.3";
 
 string cols[], c_labels[];
 cols.push("arm0"); c_labels.push("sector 45 (L)");

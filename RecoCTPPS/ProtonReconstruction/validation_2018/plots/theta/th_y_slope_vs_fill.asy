@@ -9,9 +9,7 @@ string topDir = "../../data_eos/";
 string stream = "DoubleEG";
 
 string alignments[], a_labels[];
-alignments.push("2017_01_17"); a_labels.push("2017-01-17");
-alignments.push("2018_07_24.3"); a_labels.push("2018-07-24.3");
-alignments.push("2018_07_30.5"); a_labels.push("2018-07-30.5");
+alignments.push("2018_11_02.3"); a_labels.push("2018-11-02.3");
 
 string cols[], c_labels[];
 cols.push("arm0"); c_labels.push("sector 45 (L)");

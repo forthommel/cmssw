@@ -11,7 +11,9 @@ string xangle = "140";
 string beta = "0.30";
 
 string alignments[], a_labels[];
-alignments.push("PRELIMINARY"); a_labels.push("PRELIMINARY");
+//alignments.push("2018_11_02.1"); a_labels.push("2018-11-02.1");
+//alignments.push("2018_11_02.2"); a_labels.push("2018-11-02.2");
+alignments.push("2018_11_02.3"); a_labels.push("2018-11-02.3");
 
 string cols[], c_labels[];
 cols.push("arm0"); c_labels.push("sector 45 (L)");
@@ -90,7 +92,7 @@ for (int ai : alignments.keys)
 			}
 		}
 
-		//limits((-1, -80.), (fill_data.length, +80.), Crop);
+		limits((-1, -150.), (fill_data.length, +150.), Crop);
 
 		xaxis(YEquals(0., false), dashed);
 	}

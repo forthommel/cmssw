@@ -9,7 +9,7 @@ string datasets[] = {
 	"fill_7334/xangle_140_beta_0.30",
 };
 
-string alignment = "PRELIMINARY";
+string alignment = "2018_11_02.3";
 
 string cols[], c_labels[];
 cols.push("arm0"); c_labels.push("sector 45 (L)");

@@ -3,12 +3,12 @@ import pad_layout;
 
 string topDir = "../../data_eos/";
 
-string dataset = "fill_7334/xangle_140_beta_0.30";
+string dataset = "fill_7333/xangle_140_beta_0.30";
 
 string stream = "ZeroBias";
 
 string alignments[], a_labels[];
-alignments.push("PRELIMINARY"); a_labels.push("PRELIMINARY");
+alignments.push("2018_11_02.3"); a_labels.push("2018-11-02.3");
 
 string cols[], c_labels[];
 cols.push("arm0"); c_labels.push("sector 45 (L)");
@@ -48,7 +48,7 @@ for (int ai : alignments.keys)
 
 		draw(scale(1., 1e6), obj);
 
-		limits((0.00, -300), (0.20, +300), Crop);
+		limits((0.00, -300), (0.25, +300), Crop);
 	}
 }
 

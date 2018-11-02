@@ -3,11 +3,11 @@ import pad_layout;
 
 string topDir = "../../data_eos/";
 
-string dataset = "fill_7334/xangle_140_beta_0.30";
+string dataset = "fill_7333/xangle_140_beta_0.30";
 
 string stream = "ZeroBias";
 
-string alignment = "PRELIMINARY";
+string alignment = "2018_11_02.3";
 
 string f = topDir + dataset + "/" + stream + "/alignment_" + alignment + "/output.root";
 

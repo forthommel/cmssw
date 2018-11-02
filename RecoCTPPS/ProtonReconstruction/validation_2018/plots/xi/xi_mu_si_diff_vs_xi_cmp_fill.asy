@@ -4,12 +4,12 @@ import pad_layout;
 string topDir = "../../data_eos/";
 
 string datasets[] = {
-	"fill_7334/xangle_140_beta_0.30",
+	"fill_7333/xangle_140_beta_0.30",
 };
 
 string stream = "ZeroBias";
 
-string alignment = "PRELIMINARY";
+string alignment = "2018_11_02.3";
 
 string cols[], c_labels[], c_si_rps[];
 cols.push("arm0"); c_labels.push("sector 45 (L)"); c_si_rps.push("rp23");

@@ -8,7 +8,7 @@ InitDataSets("short");
 
 string stream = "ZeroBias";
 
-string alignment = "PRELIMINARY";
+string alignment = "2018_11_02.3";
 
 string cols[], c_labels[];
 cols.push("arm0"); c_labels.push("sector 45 (L)");
