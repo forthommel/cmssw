@@ -12,7 +12,7 @@ process.MessageLogger = cms.Service("MessageLogger",
   )
 )
 
-# raw data source
+# data source
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(
     # run 275371
@@ -29,18 +29,32 @@ process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(10000)
 )
 
-process.load("RecoCTPPS.ProtonReconstruction.ctppsProtonReconstruction_cfi")
-process.ctppsProtonReconstruction.applyExperimentalAlignment = True
-process.ctppsProtonReconstruction.alignmentFiles = cms.vstring("RecoCTPPS/ProtonReconstruction/data/alignment/2016_preTS2/collect_alignments_2018_07_30.5.out")
+# proton reconstruction
+process.load("RecoCTPPS.ProtonReconstruction.year_2016.ctppsProtonReconstruction_cfi")
 
+# track distribution plotter
+process.ctppsTrackDistributionPlotter = cms.EDAnalyzer("CTPPSTrackDistributionPlotter",
+    tracksTag = cms.InputTag("ctppsLocalTrackLiteProducer"),
+    outputFile = cms.string("track_plots.root")
+)
+
+# reconstruction plotter
 process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstructionPlotter",
     tagTracks = cms.InputTag("ctppsLocalTrackLiteProducer"),
     tagRecoProtons = cms.InputTag("ctppsProtonReconstruction"),
-    outputFile = cms.string("test_data_plots_275371.root")
-    #outputFile = cms.string("test_data_plots_279766.root")
+
+    rpId_45_F = cms.uint32(3),
+    rpId_45_N = cms.uint32(2),
+    rpId_56_N = cms.uint32(102),
+    rpId_56_F = cms.uint32(103),
+
+    outputFile = cms.string("reco_plots.root")
 )
 
+# processing sequence
 process.p = cms.Path(
     process.ctppsProtonReconstruction
+
+    * process.ctppsTrackDistributionPlotter
     * process.ctppsProtonReconstructionPlotter
 )

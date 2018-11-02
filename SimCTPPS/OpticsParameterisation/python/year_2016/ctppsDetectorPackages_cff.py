@@ -11,7 +11,7 @@ genericStripsPackage = cms.PSet(
 
 # list of detector packages to simulate
 # z coordinates in TOTEM/LHC coordinate system, in m
-detectorPackages_2016PreTS2 = cms.VPSet(
+detectorPackages = cms.VPSet(
     #----- sector 45
     genericStripsPackage.clone(
         potId = cms.uint32(0x76100000), # 002
