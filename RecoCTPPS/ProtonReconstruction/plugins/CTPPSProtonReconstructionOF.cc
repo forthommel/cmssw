@@ -18,7 +18,7 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 #include "DataFormats/ProtonReco/interface/ProtonTrack.h"
 
-#include "RecoCTPPS/ProtonReconstruction/interface/ProtonReconstructionAlgorithmOF.h"
+#include "RecoCTPPS/ProtonReconstruction/interface/ProtonReconstructionAlgorithmOFDB.h"
 
 #include "RecoCTPPS/ProtonReconstruction/interface/alignment_classes.h"
 #include "RecoCTPPS/ProtonReconstruction/interface/fill_info.h"
@@ -43,7 +43,10 @@ class CTPPSProtonReconstructionOF : public edm::stream::EDProducer<>
     edm::ParameterSet beamConditions_;
     std::vector<edm::ParameterSet> detectorPackages_;
 
-    edm::FileInPath opticsFileBeam1_, opticsFileBeam2_;
+    double xangle_;
+
+    double xangle1_, xangle2_;
+    edm::FileInPath opticsFile1_, opticsFile2_;
 
     bool applyExperimentalAlignment;
     std::vector<std::string> alignmentFiles_;
@@ -53,7 +56,7 @@ class CTPPSProtonReconstructionOF : public edm::stream::EDProducer<>
 
     AlignmentResultsCollection alignmentCollection_;
 
-    ProtonReconstructionAlgorithmOF algorithm_;
+    ProtonReconstructionAlgorithmOFDB algorithm_;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -70,8 +73,13 @@ CTPPSProtonReconstructionOF::CTPPSProtonReconstructionOF( const edm::ParameterSe
 
   beamConditions_             ( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ) ),
   detectorPackages_           ( iConfig.getParameter<std::vector<edm::ParameterSet>>( "detectorPackages" ) ),
-  opticsFileBeam1_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam1" ) ),
-  opticsFileBeam2_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam2" ) ),
+
+  xangle_                     ( iConfig.getParameter<double>("xangle") ),
+  xangle1_                    ( iConfig.getParameter<double>("xangle1") ),
+  xangle2_                    ( iConfig.getParameter<double>("xangle2") ),
+
+  opticsFile1_            ( iConfig.getParameter<edm::FileInPath>( "opticsFile1" ) ),
+  opticsFile2_            ( iConfig.getParameter<edm::FileInPath>( "opticsFile2" ) ),
 
   applyExperimentalAlignment  ( iConfig.getParameter<bool>( "applyExperimentalAlignment" ) ),
   alignmentFiles_              ( iConfig.getParameter<std::vector<std::string>>( "alignmentFiles" ) ),
@@ -82,7 +90,7 @@ CTPPSProtonReconstructionOF::CTPPSProtonReconstructionOF( const edm::ParameterSe
   de_y_N(iConfig.getParameter<double>("de_y_N")),
   de_y_F(iConfig.getParameter<double>("de_y_F")),
 
-  algorithm_(opticsFileBeam1_.fullPath(), opticsFileBeam2_.fullPath(), beamConditions_, detectorPackages_, verbosity)
+  algorithm_(xangle1_, opticsFile1_.fullPath(), xangle2_, opticsFile2_.fullPath(), beamConditions_, detectorPackages_, verbosity)
 {
   produces<vector<reco::ProtonTrack>>();
 
@@ -99,6 +107,8 @@ CTPPSProtonReconstructionOF::CTPPSProtonReconstructionOF( const edm::ParameterSe
 
   // load fill-alignment mapping
   InitFillInfoCollection();
+
+  algorithm_.Init(xangle_);
 }
 
 //----------------------------------------------------------------------------------------------------
