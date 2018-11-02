@@ -12,7 +12,7 @@ ctppsProtonReconstructionOFDB = cms.EDProducer('CTPPSProtonReconstructionOFDB',
     detectorPackages = detectorPackages,
 
     xangle1 = cms.double(120), # in urad
-    opticsFile1 = cms.FileInPath("CondFormats/CTPPSOpticsObjects/data/2017/optical_functions_2017_120urad_B1_FAKE.root"),
+    opticsFile1 = cms.FileInPath("CondFormats/CTPPSOpticsObjects/data/2017/optical_functions_2017_120urad_B1_FAKE.root"), # TODO: update
 
     xangle2 = cms.double(140),
     opticsFile2 = cms.FileInPath("CondFormats/CTPPSOpticsObjects/data/2017/optical_functions_2017_140urad.root"),
