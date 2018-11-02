@@ -212,7 +212,10 @@ void ProtonReconstructionAlgorithmOFDB::Init(double xangle)
   delete f_debug;
 #endif
 
+  // update settings
   initialized = true;
+  halfCrossingAngleSector45_ = xangle;
+  halfCrossingAngleSector56_ = xangle;
 }
 
 //----------------------------------------------------------------------------------------------------
