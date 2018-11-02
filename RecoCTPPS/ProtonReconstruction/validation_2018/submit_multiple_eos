@@ -96,7 +96,7 @@ queue="8nh"
 eos_dir="/eos/totem/data/ctpps/reconstruction/2018/physics_runs/version2"
 
 alignments=(
-	"PRELIMINARY"
+	"2018_11_02.3"
 )
 
 SubmitOneGroup "xangle140" "data_eos/"

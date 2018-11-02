@@ -38,7 +38,7 @@ function ProcessOne()
 # collect data
 idx=0
 input=()
-for dir in data_eos/fill_*/xangle_140*/ZeroBias/*
+for dir in data_eos/fill_*/xangle_140*/ZeroBias/*2018_11_02*
 do
 	if [ -f "$dir/output.root" ]
 	then
