@@ -252,6 +252,8 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
       TH2D *h2_xi_mu_vs_xi_si = NULL;
       TH1D *h_xi_diff_mu_si = NULL;
       TH1D *h_xi_diff_si_mu = NULL;
+
+      TH2D *h2_xi_diff_si_mu_vs_xi_mu = NULL;
       TProfile *p_xi_diff_si_mu_vs_xi_mu = NULL;
 
       TH2D *h2_th_y_mu_vs_th_y_si = NULL;
@@ -261,6 +263,8 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
         h2_xi_mu_vs_xi_si = new TH2D("", ";#xi_{single};#xi_{multi}", 100, 0., 0.25, 100, 0., 0.25);
         h_xi_diff_mu_si = new TH1D("", ";#xi_{multi} - #xi_{single}", 100, -0.1, +0.1);
         h_xi_diff_si_mu = new TH1D("", ";#xi_{single} - #xi_{multi}", 100, -0.1, +0.1);
+
+        h2_xi_diff_si_mu_vs_xi_mu = new TH2D("", ";#xi_{multi};#xi_{single} - #xi_{multi}", 100, 0., 0.25, 100, -0.10, 0.10);
         p_xi_diff_si_mu_vs_xi_mu = new TProfile("", ";#xi_{multi};#xi_{single} - #xi_{multi}", 100, 0., 0.25);
 
         h2_th_y_mu_vs_th_y_si = new TH2D("", ";#theta^{*}_{y,si};#theta^{*}_{y,mu}", 100, -500E-6, +500E-6, 100, -500E-6, +500E-6);
@@ -276,6 +280,8 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
           h2_xi_mu_vs_xi_si->Fill(p_single.xi(), p_multi.xi());
           h_xi_diff_mu_si->Fill(p_multi.xi() - p_single.xi());
           h_xi_diff_si_mu->Fill(p_single.xi() - p_multi.xi());
+
+          h2_xi_diff_si_mu_vs_xi_mu->Fill(p_multi.xi(), p_single.xi() - p_multi.xi());
           p_xi_diff_si_mu_vs_xi_mu->Fill(p_multi.xi(), p_single.xi() - p_multi.xi());
 
           const double th_y_si = p_single.direction().y() / p_single.direction().mag();
@@ -290,6 +296,8 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
         h2_xi_mu_vs_xi_si->Write("h2_xi_mu_vs_xi_si");
         h_xi_diff_mu_si->Write("h_xi_diff_mu_si");
         h_xi_diff_si_mu->Write("h_xi_diff_si_mu");
+
+        h2_xi_diff_si_mu_vs_xi_mu->Write("h2_xi_diff_si_mu_vs_xi_mu");
         p_xi_diff_si_mu_vs_xi_mu->Write("p_xi_diff_si_mu_vs_xi_mu");
 
         h2_th_y_mu_vs_th_y_si->Write("h2_th_y_mu_vs_th_y_si");
