@@ -45,6 +45,8 @@ class CTPPSProtonReconstruction : public edm::stream::EDProducer<>
 
     edm::FileInPath opticsFileBeam1_, opticsFileBeam2_;
 
+    bool fitVtxY_;
+
     bool applyExperimentalAlignment;
     std::vector<std::string> alignmentFiles_;
 
@@ -73,6 +75,8 @@ CTPPSProtonReconstruction::CTPPSProtonReconstruction( const edm::ParameterSet& i
   opticsFileBeam1_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam1" ) ),
   opticsFileBeam2_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam2" ) ),
 
+  fitVtxY_                    ( iConfig.getParameter<bool>( "fitVtxY" ) ),
+
   applyExperimentalAlignment  ( iConfig.getParameter<bool>( "applyExperimentalAlignment" ) ),
   alignmentFiles_              ( iConfig.getParameter<std::vector<std::string>>( "alignmentFiles" ) ),
 
@@ -82,7 +86,7 @@ CTPPSProtonReconstruction::CTPPSProtonReconstruction( const edm::ParameterSet& i
   de_y_N(iConfig.getParameter<double>("de_y_N")),
   de_y_F(iConfig.getParameter<double>("de_y_F")),
 
-  algorithm_(opticsFileBeam1_.fullPath(), opticsFileBeam2_.fullPath(), beamConditions_, detectorPackages_, verbosity)
+  algorithm_(opticsFileBeam1_.fullPath(), opticsFileBeam2_.fullPath(), beamConditions_, detectorPackages_, fitVtxY_, verbosity)
 {
   produces<vector<reco::ProtonTrack>>();
 

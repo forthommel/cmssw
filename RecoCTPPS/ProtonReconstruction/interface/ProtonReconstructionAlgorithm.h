@@ -30,7 +30,7 @@ class ProtonReconstructionAlgorithm
 {
   public:
     ProtonReconstructionAlgorithm(const std::string &optics_file_beam1, const std::string &optics_file_beam2,
-      const edm::ParameterSet &beam_conditions, const std::vector<edm::ParameterSet> &detector_packages, unsigned int _verbosity);
+      const edm::ParameterSet &beam_conditions, const std::vector<edm::ParameterSet> &detector_packages, bool _fit_vtx_y, unsigned int _verbosity);
 
     ~ProtonReconstructionAlgorithm();
 
@@ -46,6 +46,7 @@ class ProtonReconstructionAlgorithm
     edm::ParameterSet beamConditions_;
     double halfCrossingAngleSector45_, halfCrossingAngleSector56_;
     double yOffsetSector45_, yOffsetSector56_;
+    bool fitVtxY_;
 
     /// optics data associated with 1 RP
     struct RPOpticsData

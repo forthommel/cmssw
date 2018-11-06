@@ -24,7 +24,7 @@ using namespace edm;
 //----------------------------------------------------------------------------------------------------
 
 ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm(const std::string &optics_file_beam1, const std::string &optics_file_beam2,
-    const edm::ParameterSet &beam_conditions, const std::vector<edm::ParameterSet> &detector_packages, unsigned int _verbosity) :
+    const edm::ParameterSet &beam_conditions, const std::vector<edm::ParameterSet> &detector_packages, bool _fit_vtx_y, unsigned int _verbosity) :
 
   verbosity(_verbosity),
   beamConditions_(beam_conditions),
@@ -32,6 +32,7 @@ ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm(const std::string &
   halfCrossingAngleSector56_(beamConditions_.getParameter<double>("halfCrossingAngleSector56" )),
   yOffsetSector45_(beamConditions_.getParameter<double>("yOffsetSector45")),
   yOffsetSector56_(beamConditions_.getParameter<double>("yOffsetSector56")),
+  fitVtxY_(_fit_vtx_y),
 
   fitter_(std::make_unique<ROOT::Fit::Fitter>()),
   chiSquareCalculator_(std::make_unique<ChiSquareCalculator>(beamConditions_))
@@ -355,9 +356,18 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CT
     y_idx++;
   }
 
-  const double det_y = v_y[0] * L_y[1] - L_y[0] * v_y[1];
-  const double vtx_y_init = (L_y[1] * y[0] - L_y[0] * y[1]) / det_y;
-  const double th_y_init = (v_y[0] * y[1] - v_y[1] * y[0]) / det_y;
+  double vtx_y_init = 0.;
+  double th_y_init = 0.;
+
+  if (fitVtxY_)
+  {
+    const double det_y = v_y[0] * L_y[1] - L_y[0] * v_y[1];
+    vtx_y_init = (L_y[1] * y[0] - L_y[0] * y[1]) / det_y;
+    th_y_init = (v_y[0] * y[1] - v_y[1] * y[0]) / det_y;
+  } else {
+    vtx_y_init = 0.;
+    th_y_init = (y[1]/L_y[1] + y[0]/L_y[0]) / 2.;
+  }
 
   if (verbosity)
   {
@@ -371,6 +381,9 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CT
   fitter_->Config().ParSettings(1).Set("th_x", th_x_init, 2E-6);
   fitter_->Config().ParSettings(2).Set("th_y", th_y_init, 2E-6);
   fitter_->Config().ParSettings(3).Set("vtx_y", vtx_y_init, 10E-6);
+
+  if (!fitVtxY_)
+    fitter_->Config().ParSettings(3).Fix();
 
   chiSquareCalculator_->tracks = &tracks;
   chiSquareCalculator_->m_rp_optics = &m_rp_optics_;
