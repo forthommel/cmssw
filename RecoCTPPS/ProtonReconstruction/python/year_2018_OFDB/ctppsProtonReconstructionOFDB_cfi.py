@@ -19,7 +19,7 @@ ctppsProtonReconstructionOFDB = cms.EDProducer('CTPPSProtonReconstructionOFDB',
 
     applyExperimentalAlignment = cms.bool(True),
     alignmentFiles = cms.vstring(
-      "RecoCTPPS/ProtonReconstruction/data/alignment/2018/preliminary_alignment.out",
+      "RecoCTPPS/ProtonReconstruction/data/alignment/2018/collect_alignments_2018_11_02.3.out",
     ),
 
     applyTestAlignment = cms.bool(False),
