@@ -257,11 +257,11 @@ double ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() (const dou
     // calculate chi^2 contributions, convert track data mm --> m
     double x_unc = track->getXUnc();
     if (x_unc < 1E-3)
-      x_unc = 1E-3;
+      x_unc = 40E-3;
 
     double y_unc = track->getYUnc();
     if (y_unc < 1E-3)
-      y_unc = 1E-3;
+      y_unc = 40E-3;
 
     const double x_diff_norm = (x - track->getX()*1E-3) / (x_unc*1E-3);
     const double y_diff_norm = (y - track->getY()*1E-3) / (y_unc*1E-3);
@@ -411,7 +411,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CT
   pt.halfCrossingAngleSector56 = halfCrossingAngleSector56_;
 
   pt.fitChiSq = result.Chi2();
-  pt.fitNDF = 2.*tracks.size() - 4;
+  pt.fitNDF = 2.*tracks.size() - ((fitVtxY_) ? 4. : 3.);
   pt.lhcSector = (CTPPSDetId(tracks[0]->getRPId()).arm() == 0) ? reco::ProtonTrack::sector45 : reco::ProtonTrack::sector56;
 
   pt.setVertex(Local3DPoint(0., params[3]*1E3, 0.));  // vertext in mm
@@ -434,9 +434,13 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CT
   for (const auto &track : tracks)
     pt.contributingRPIds.insert(track->getRPId());
 
-  const double max_chi_sq = 1. + 3. * pt.fitNDF;
+  const double max_chi_sq = 2.;
 
-  pt.setValid(result.IsValid() && pt.fitChiSq < max_chi_sq);
+  const bool valid = result.IsValid() && pt.fitChiSq < max_chi_sq;
+  pt.setValid(valid);
+
+  if (verbosity && !valid)
+    printf("WARNING: invalid proton-reconstruction fit (result.IsValid = %u, fitChiSq = %.2E).\n", result.IsValid(), pt.fitChiSq);
 
   out.push_back(move(pt));
 }
