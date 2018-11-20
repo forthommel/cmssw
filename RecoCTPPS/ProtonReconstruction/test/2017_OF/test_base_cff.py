@@ -22,6 +22,9 @@ ctppsTrackDistributionPlotter = cms.EDAnalyzer("CTPPSTrackDistributionPlotter",
 # proton reconstruction
 from RecoCTPPS.ProtonReconstruction.year_2017_OF.ctppsProtonReconstructionOF_cfi import *
 
+#ctppsProtonReconstructionOF.fitVtxY = False
+#ctppsProtonReconstructionOF.verbosity = 0
+
 # reconstruction plotter
 ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstructionPlotter",
     tagTracks = cms.InputTag("ctppsLocalTrackLiteProducer"),
