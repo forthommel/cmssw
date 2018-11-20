@@ -65,7 +65,7 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
       void init()
       {
         h_m_Z = new TH1D("", ";m_{Z}   (GeV)", 100, 80., 100.);
-        h_m_XZ = new TH1D("", ";m_{XZ}   (GeV)", 100, 1200., 1500.);
+        h_m_XZ = new TH1D("", ";m_{XZ}   (GeV)", 200, 800., 2000.);
         h_p_z_LAB_2p = new TH1D("", ";p_{z}(2 protons)   (GeV)", 100, -2000., +2000.);
 
         h_xi2_vs_xi1 = new TH2D("", ";#xi_{1};#xi_{2}", 50., 0., 0.20, 50., 0., 0.20);
