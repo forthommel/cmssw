@@ -97,6 +97,7 @@ process.ctppsLocalTrackLiteProducer.includePixels = False
 process.load("RecoCTPPS.ProtonReconstruction.year_2016.ctppsProtonReconstruction_cfi")
 process.ctppsProtonReconstruction.tagLocalTrackLite = cms.InputTag('ctppsLocalTrackLiteProducer')
 process.ctppsProtonReconstruction.applyExperimentalAlignment = False
+#process.ctppsProtonReconstruction.fitVtxY = False
 
 # reconstruction plotter
 process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstructionPlotter",
