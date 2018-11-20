@@ -22,6 +22,12 @@ ctppsFastProtonSimulation = cms.EDProducer('CTPPSFastProtonSimulationOF',
 
     checkApertures = cms.bool(False),
 
+    useEmpiricalApertures = cms.bool(False),
+    empiricalAperture45_xi0 = cms.double(0.153),
+    empiricalAperture45_a = cms.double(-230),
+    empiricalAperture56_xi0 = cms.double(0.190),
+    empiricalAperture56_a = cms.double(-330),
+
     roundToPitch = cms.bool(False),
     checkIsHit = cms.bool(True),
 

@@ -115,14 +115,20 @@ class CTPPSFastProtonSimulationOF : public edm::stream::EDProducer<>
 
     /// simulation parameters
     bool checkApertures_;
+
+    bool useEmpiricalApertures_;
+    double empiricalAperture45_xi0_, empiricalAperture45_a_;
+    double empiricalAperture56_xi0_, empiricalAperture56_a_;
+
     bool produceHitsRelativeToBeam_;
     bool roundToPitch_;
     bool checkIsHit_;
+
     double pitchStrips_; ///< strip pitch in mm
-    double pitchPixelsHor_;
-    double pitchPixelsVer_;
     double insensitiveMarginStrips_; ///< size of insensitive margin at sensor's edge facing the beam, in mm
 
+    double pitchPixelsHor_;
+    double pitchPixelsVer_;
 
     // ------------ internal parameters ------------
 
@@ -163,13 +169,22 @@ CTPPSFastProtonSimulationOF::CTPPSFastProtonSimulationOF( const edm::ParameterSe
   produceRecHits_             ( iConfig.getParameter<bool>( "produceRecHits" ) ),
 
   checkApertures_             ( iConfig.getParameter<bool>( "checkApertures" ) ),
+
+  useEmpiricalApertures_      ( iConfig.getParameter<bool>( "useEmpiricalApertures" ) ),
+  empiricalAperture45_xi0_      ( iConfig.getParameter<double>( "empiricalAperture45_xi0" ) ),
+  empiricalAperture45_a_       ( iConfig.getParameter<double>( "empiricalAperture45_a" ) ),
+  empiricalAperture56_xi0_      ( iConfig.getParameter<double>( "empiricalAperture56_xi0" ) ),
+  empiricalAperture56_a_       ( iConfig.getParameter<double>( "empiricalAperture56_a" ) ),
+
   produceHitsRelativeToBeam_  ( iConfig.getParameter<bool>( "produceHitsRelativeToBeam" ) ),
   roundToPitch_               ( iConfig.getParameter<bool>( "roundToPitch" ) ),
   checkIsHit_                 ( iConfig.getParameter<bool>( "checkIsHit" ) ),
+
   pitchStrips_                ( iConfig.getParameter<double>( "pitchStrips" ) ),
+  insensitiveMarginStrips_    ( iConfig.getParameter<double>( "insensitiveMarginStrips" ) ),
+
   pitchPixelsHor_             ( iConfig.getParameter<double>( "pitchPixelsHor" ) ),
   pitchPixelsVer_             ( iConfig.getParameter<double>( "pitchPixelsVer" ) ),
-  insensitiveMarginStrips_    ( iConfig.getParameter<double>( "insensitiveMarginStrips" ) ),
 
   verbosity_                  ( iConfig.getUntrackedParameter<unsigned int>( "verbosity", 0 ) )
 {
@@ -289,6 +304,7 @@ void CTPPSFastProtonSimulationOF::processProton(const HepMC::GenVertex* in_vtx, 
   unsigned int arm = 3;
   double half_cr_angle = 0.0, vtx_y_offset = 0.0;
   double z_sign;
+  double empiricalAperture_xi0, empiricalAperture_a;
 
   if (mom_lhc.z() < 0)  // sector 45
   {
@@ -296,11 +312,15 @@ void CTPPSFastProtonSimulationOF::processProton(const HepMC::GenVertex* in_vtx, 
     z_sign = -1;
     vtx_y_offset = yOffsetSector45_;
     half_cr_angle = halfCrossingAngleSector45_;
+    empiricalAperture_xi0 = empiricalAperture45_xi0_;
+    empiricalAperture_a = empiricalAperture45_a_;
   } else {  // sector 56
     arm = 1;
     z_sign = +1;
     vtx_y_offset = yOffsetSector56_;
     half_cr_angle = halfCrossingAngleSector56_;
+    empiricalAperture_xi0 = empiricalAperture56_xi0_;
+    empiricalAperture_a = empiricalAperture56_a_;
   }
   
   // transport the proton into each pot
@@ -332,6 +352,22 @@ void CTPPSFastProtonSimulationOF::processProton(const HepMC::GenVertex* in_vtx, 
       const unsigned int rpDecId = rp.detid.arm()*100 + rp.detid.station()*10 + rp.detid.rp();
       printf("simu: RP=%u, xi=%.4f, th_x=%.3E, %.3E, vtx_lhc_eff_x=%.3E, vtx_lhc_eff_y=%.3E\n", rpDecId,
         xi, th_x_phys, th_y_phys, vtx_lhc_eff_x, vtx_lhc_eff_y);
+    }
+
+    // check empirical aperture
+    if (useEmpiricalApertures_)
+    {
+      const double xi_th = empiricalAperture_xi0 + th_x_phys * empiricalAperture_a;
+
+      // TODO
+      //printf("th_x_phys = %E, xi_th = %.3f\n", th_x_phys, xi_th);
+
+      if (xi > xi_th)
+      {
+        // TODO
+        //printf("skip\n");
+        continue;
+      }
     }
 
     // transport proton
