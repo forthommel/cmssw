@@ -50,7 +50,10 @@ DateSource::produce( edm::Event& iEvent )
 {
   //auto result = std::make_unique<ThingCollection>();
 
-  reader_->NextEvent();
+  if ( !reader_->NextEvent() && fileId_ < fileNames().size()-1 ) {
+    reader_.reset( new AliRawReaderDate( fileNames()[++fileId_].c_str() ) );
+    reader_->NextEvent();
+  }
   edm::LogError("DateSource")
     << reader_->GetRunNumber() << "|"
     << *reader_->GetEventId() << "|"

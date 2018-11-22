@@ -1,5 +1,9 @@
 <use name="DataFormats/Common"/>
 <use name="root"/>
+<use name="rootcore"/>
+<use name="rootgraphics"/> <!-- TCanvas -->
+<lib name="Spectrum"/> <!-- TSpectrum -->
+<flags REM_CXXFLAGS="-Wunused-variable"/>
 <export>
   <lib name="1"/>
 </export>

@@ -7,5 +7,63 @@
   <class name="AliRawReaderDate" ClassVersion="1">
     <version ClassVersion="1" checksum="817380243"/>
   </class>
+
+  <class name="SRSAPVEvent" ClassVersion="1">
+    <version ClassVersion="1" checksum="3193445985"/>
+  </class>
+  <class name="SRSHit" ClassVersion="1">
+    <version ClassVersion="1" checksum="860016098"/>
+  </class>
+  <class name="SRSCluster" ClassVersion="1">
+    <version ClassVersion="1" checksum="4276262493"/>
+  </class>
+  <class name="SRSRawPedestal" ClassVersion="4">
+    <version ClassVersion="4" checksum="503930676"/>
+  </class>
+  <class name="SRSPedestal" ClassVersion="6">
+    <version ClassVersion="6" checksum="2667417900"/>
+  </class>
+  <class name="SRSTrack" ClassVersion="1">
+    <version ClassVersion="1" checksum="118393559"/>
+  </class>
+  <class name="SRSPositionCorrection" ClassVersion="7">
+    <version ClassVersion="7" checksum="909275109"/>
+  </class>
+  <class name="SRSTrackFit" ClassVersion="1">
+    <version ClassVersion="1" checksum="3433065344"/>
+  </class>
+  <class name="SRSAPVSignalFit" ClassVersion="1">
+    <version ClassVersion="1" checksum="4251489553"/>
+  </class>
+  <class name="SRSDoubleGaussianFit" ClassVersion="1">
+    <version ClassVersion="1" checksum="2057229633"/>
+  </class>
+  <class name="SRSAlignment" ClassVersion="1">
+    <version ClassVersion="1" checksum="2274004780"/>
+  </class>
+  <class name="SRSEventBuilder" ClassVersion="1">
+    <version ClassVersion="1" checksum="1649271783"/>
+  </class>
+  <class name="SRSFECPedestalDecoder" ClassVersion="1">
+    <version ClassVersion="1" checksum="842931090"/>
+  </class>
+  <class name="SRSFECEventDecoder" ClassVersion="1">
+    <version ClassVersion="1" checksum="2630390274"/>
+  </class>
+  <class name="SRSOutputROOT" ClassVersion="1">
+    <version ClassVersion="1" checksum="3088722399"/>
+  </class>
+  <class name="SRSHistoManager" ClassVersion="1">
+    <version ClassVersion="1" checksum="3579344528"/>
+  </class>
+
+  <class name="SRSMapping" ClassVersion="1">
+    <version ClassVersion="1" checksum="2557191105"/>
+  </class>
+  <class name="std::map<TString,std::vector<int> >"/>
+  <class name="std::map<TString,std::vector<float> >"/>
+  <class name="SRSConfiguration" ClassVersion="1">
+    <version ClassVersion="1" checksum="3710447109"/>
+  </class>
 </lcgdict>
 
