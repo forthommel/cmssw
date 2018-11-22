@@ -8,13 +8,17 @@
 #include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "EventFilter/DateRawToDigi/interface/event.h"
 #include "EventFilter/DateRawToDigi/interface/AliRawReaderDate.h"
+//#include "EventFilter/DateRawToDigi/interface/TDATEEventParser.h"
+
+#include <array>
 
 class DateSource : public edm::ProducerSourceFromFiles
 {
   public:
     explicit DateSource( const edm::ParameterSet&, const edm::InputSourceDescription& );
-    ~DateSource() override {}
+    ~DateSource() override;
 
     bool setRunAndEventInfo( edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType& ) override;
     void produce( edm::Event& ) override;
@@ -28,15 +32,24 @@ class DateSource : public edm::ProducerSourceFromFiles
     //std::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
 
     std::unique_ptr<AliRawReaderDate> reader_;
+    std::array<unsigned char,1000> data_;
+    //unsigned char* data_;
     size_t fileId_;
 };
 
 DateSource::DateSource( const edm::ParameterSet& params, const edm::InputSourceDescription& desc ) :
   ProducerSourceFromFiles( params, desc, false ),
   reader_( new AliRawReaderDate( fileNames().begin()->c_str() ) ),
+  //data_( new unsigned char[50000] ),
   fileId_( 0 )
 {
   //produces<ThingCollection>();
+  //reader_->ReadHeader();
+}
+
+DateSource::~DateSource()
+{
+  //delete [] data_;
 }
 
 bool
@@ -51,12 +64,22 @@ DateSource::produce( edm::Event& iEvent )
   //auto result = std::make_unique<ThingCollection>();
 
   if ( !reader_->NextEvent() && fileId_ < fileNames().size()-1 ) {
+  //if ( !reader_->ReadNextData( data_ ) && fileId_ < fileNames().size()-1 ) {
     reader_.reset( new AliRawReaderDate( fileNames()[++fileId_].c_str() ) );
-    reader_->NextEvent();
+    //reader_->ReadHeader();
+    //reader_->NextEvent();
   }
+  //eventHeaderStruct header;
+  //if ( reader_->CheckData() == 1 ) { //FIXME
+  //  reader_->DumpData();
+  //}
+  const unsigned int* event_id = reader_->GetEventId();
   edm::LogError("DateSource")
+    << reader_->CheckData() << "::"
     << reader_->GetRunNumber() << "|"
-    << *reader_->GetEventId() << "|"
+    << EVENT_ID_GET_BUNCH_CROSSING( event_id ) << "|"
+    << EVENT_ID_GET_BURST_NB( event_id ) << "|"
+    << EVENT_ID_GET_NB_IN_BURST( event_id ) << "|"
     << reader_->GetTimestamp() << "|"
     << reader_->GetEquipmentSize() << "|"
     << reader_->GetEquipmentType() << "|"

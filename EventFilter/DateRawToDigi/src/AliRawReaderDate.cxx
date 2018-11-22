@@ -231,6 +231,7 @@ Bool_t AliRawReaderDate::ReadHeader()
 
   fHeader = NULL;
   if (!fEvent) return kFALSE;
+printf("hahaha:%u|%u\n", fEvent->eventSize, fEvent->eventHeadSize);
   // check whether there are sub events
   if (fEvent->eventSize <= fEvent->eventHeadSize) return kFALSE;
 
@@ -262,7 +263,9 @@ Bool_t AliRawReaderDate::ReadHeader()
 	// check the magic word of the sub event
 	if (fSubEvent->eventMagic != EVENT_MAGIC_NUMBER) {
 	  Error("ReadHeader", "wrong magic number in sub event!\n"
+    " should be %d, got %d\n"
 		" run: %d  event: %d %d  LDC: %d  GDC: %d\n",
+    EVENT_MAGIC_NUMBER, fSubEvent->eventMagic,
 		fSubEvent->eventRunNb,
 		fSubEvent->eventId[0], fSubEvent->eventId[1],
 		fSubEvent->eventLdcId, fSubEvent->eventGdcId);

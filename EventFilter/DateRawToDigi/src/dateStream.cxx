@@ -1600,18 +1600,18 @@ RoiHigh/Low reference:0x%x-%x current:0x%x-%x\n",
 				  trig );
 	}
       }
-      for ( trig = 0; trig != 18; trig++ ) {
-	if ( (cdh->cdhTriggerClassesMiddleLow & (1<<trig)) != 0 ) {
-	  SET_TRIGGER_IN_PATTERN( ldc->header.eventTriggerPattern,
-				  32+trig );
-	}
-      }
-      for ( trig = 0; trig != 32; trig++ ) {
-	if ( (cdh->cdhTriggerClassesMiddleHigh & (1<<trig)) != 0 ) {
-	  SET_TRIGGER_IN_PATTERN( ldc->header.eventTriggerPattern,
-				  18+32+trig );
-	}
-      }
+//      for ( trig = 0; trig != 18; trig++ ) {
+//	if ( (cdh->cdhTriggerClassesMiddleLow & (1<<trig)) != 0 ) {
+//	  SET_TRIGGER_IN_PATTERN( ldc->header.eventTriggerPattern,
+//				  32+trig );
+//	}
+//      }
+//      for ( trig = 0; trig != 32; trig++ ) {
+//	if ( (cdh->cdhTriggerClassesMiddleHigh & (1<<trig)) != 0 ) {
+//	  SET_TRIGGER_IN_PATTERN( ldc->header.eventTriggerPattern,
+//				  18+32+trig );
+//	}
+//      }
       for ( trig = 0; trig != 18; trig++ ) {
 	if ( (cdh->cdhTriggerClassesHigh & (1<<trig)) != 0 ) {
 	  SET_TRIGGER_IN_PATTERN( ldc->header.eventTriggerPattern,
