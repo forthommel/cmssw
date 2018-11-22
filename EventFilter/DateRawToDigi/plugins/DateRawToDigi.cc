@@ -2,7 +2,7 @@
 //
 // Package:    EventFilter/DateRawToDigi
 // Class:      DateRawToDigi
-// 
+//
 /**\class DateRawToDigi DateRawToDigi.cc EventFilter/DateRawToDigi/plugins/DateRawToDigi.cc
 
  Description: [one line class summary]
@@ -30,29 +30,27 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
+#include "EventFilter/DateRawToDigi/interface/AliRawReaderDate.h"
 
-//
-// class declaration
-//
+class DateRawToDigi : public edm::stream::EDProducer<>
+{
+  public:
+    explicit DateRawToDigi(const edm::ParameterSet&);
+    ~DateRawToDigi();
 
-class DateRawToDigi : public edm::stream::EDProducer<> {
-   public:
-      explicit DateRawToDigi(const edm::ParameterSet&);
-      ~DateRawToDigi();
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  private:
+    virtual void beginStream(edm::StreamID) override;
+    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    virtual void endStream() override;
 
-   private:
-      virtual void beginStream(edm::StreamID) override;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endStream() override;
+    //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+    //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-      //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-
-      // ----------member data ---------------------------
+    std::unique_ptr<AliRawReaderDate> reader_;
 };
 
 //
@@ -67,7 +65,8 @@ class DateRawToDigi : public edm::stream::EDProducer<> {
 //
 // constructors and destructor
 //
-DateRawToDigi::DateRawToDigi(const edm::ParameterSet& iConfig)
+DateRawToDigi::DateRawToDigi(const edm::ParameterSet& iConfig) :
+  reader_( new AliRawReaderDate( iConfig.getParameter<std::string>( "inputFile" ).c_str() ) )
 {
    //register your products
 /* Examples
@@ -75,18 +74,18 @@ DateRawToDigi::DateRawToDigi(const edm::ParameterSet& iConfig)
 
    //if do put with a label
    produces<ExampleData2>("label");
- 
+
    //if you want to put into the Run
    produces<ExampleData2,InRun>();
 */
    //now do what ever other initialization is needed
-  
+
 }
 
 
 DateRawToDigi::~DateRawToDigi()
 {
- 
+
    // do anything here that needs to be done at destruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -107,7 +106,7 @@ DateRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<ExampleData> pIn;
    iEvent.getByLabel("example",pIn);
 
-   //Use the ExampleData to create an ExampleData2 which 
+   //Use the ExampleData to create an ExampleData2 which
    // is put into the Event
    iEvent.put(std::make_unique<ExampleData2>(*pIn));
 */
@@ -117,7 +116,7 @@ DateRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    ESHandle<SetupData> pSetup;
    iSetup.get<SetupRecord>().get(pSetup);
 */
- 
+
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
@@ -138,7 +137,7 @@ DateRawToDigi::beginRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 */
- 
+
 // ------------ method called when ending the processing of a run  ------------
 /*
 void
@@ -146,7 +145,7 @@ DateRawToDigi::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 */
- 
+
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
 void
@@ -154,7 +153,7 @@ DateRawToDigi::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup
 {
 }
 */
- 
+
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 void
@@ -162,7 +161,7 @@ DateRawToDigi::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup c
 {
 }
 */
- 
+
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 DateRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
