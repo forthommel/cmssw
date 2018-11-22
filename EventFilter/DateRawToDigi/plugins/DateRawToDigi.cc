@@ -30,43 +30,26 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
-#include "EventFilter/DateRawToDigi/interface/AliRawReaderDate.h"
-
 class DateRawToDigi : public edm::stream::EDProducer<>
 {
   public:
-    explicit DateRawToDigi(const edm::ParameterSet&);
-    ~DateRawToDigi();
+    explicit DateRawToDigi( const edm::ParameterSet& );
+    ~DateRawToDigi() = default;
 
-    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
 
   private:
-    virtual void beginStream(edm::StreamID) override;
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
-    virtual void endStream() override;
+    virtual void beginStream( edm::StreamID ) override {}
+    virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+    virtual void endStream() override {}
 
-    //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-    //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-    //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-    //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-
-    std::unique_ptr<AliRawReaderDate> reader_;
+    //virtual void beginRun( const edm::Run&, const edm::EventSetup& ) override {}
+    //virtual void endRun( const edm::Run&, const edm::EventSetup& ) override {}
+    //virtual void beginLuminosityBlock( const edm::LuminosityBlock&, edm::EventSetup const& ) override {}
+    //virtual void endLuminosityBlock( const edm::LuminosityBlock&, edm::EventSetup const& ) override {}
 };
 
-//
-// constants, enums and typedefs
-//
-
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-DateRawToDigi::DateRawToDigi(const edm::ParameterSet& iConfig) :
-  reader_( new AliRawReaderDate( iConfig.getParameter<std::string>( "inputFile" ).c_str() ) )
+DateRawToDigi::DateRawToDigi( const edm::ParameterSet& iConfig )
 {
    //register your products
 /* Examples
@@ -82,25 +65,9 @@ DateRawToDigi::DateRawToDigi(const edm::ParameterSet& iConfig) :
 
 }
 
-
-DateRawToDigi::~DateRawToDigi()
-{
-
-   // do anything here that needs to be done at destruction time
-   // (e.g. close files, deallocate resources etc.)
-
-}
-
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 void
 DateRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
 /* This is an event example
    //Read 'ExampleData' from the Event
    Handle<ExampleData> pIn;
@@ -119,49 +86,6 @@ DateRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 }
 
-// ------------ method called once each stream before processing any runs, lumis or events  ------------
-void
-DateRawToDigi::beginStream(edm::StreamID)
-{
-}
-
-// ------------ method called once each stream after processing all runs, lumis and events  ------------
-void
-DateRawToDigi::endStream() {
-}
-
-// ------------ method called when starting to processes a run  ------------
-/*
-void
-DateRawToDigi::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-void
-DateRawToDigi::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void
-DateRawToDigi::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void
-DateRawToDigi::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 DateRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -173,4 +97,5 @@ DateRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(DateRawToDigi);
+DEFINE_FWK_MODULE( DateRawToDigi );
+

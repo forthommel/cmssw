@@ -230,7 +230,7 @@ class AliRawReader: public TObject {
     Int_t            fErrorCode;            // code of last error
 
     Int_t            fEventNumber;          // current event number
-    TClonesArray     fErrorLogs;            // raw data decoding errors
+    //TClonesArray     fErrorLogs;            // raw data decoding errors
 
     AliRawDataHeader* fHeaderSwapped;       // temporary buffer for swapping header on PowerPC
     AliRawDataHeaderV3* fHeaderSwappedV3;       // temporary buffer for swapping header on PowerPC

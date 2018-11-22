@@ -2,10 +2,10 @@
   <!--<class name="AliRawReader" ClassVersion="1"/>
   <class name="AliRawReaderDate" ClassVersion="1"/>-->
   <class name="AliRawReader" ClassVersion="1">
-    <version ClassVersion="1" checksum="3696010802"/>
+    <version ClassVersion="1" checksum="3898001818"/>
   </class>
   <class name="AliRawReaderDate" ClassVersion="1">
-    <version ClassVersion="1" checksum="1423812011"/>
+    <version ClassVersion="1" checksum="817380243"/>
   </class>
 </lcgdict>
 

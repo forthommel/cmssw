@@ -12,14 +12,16 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 # raw data source
-process.source = cms.Source('EmptySource')
+process.source = cms.Source('DateSource',
+    fileNames = cms.untracked.vstring('file:///eos/home-f/fgarciaf/TOTEM_BeamTest_At_SPS_H8/September2018/DATE/Run000.raw'),
+    #fileNames = cms.untracked.vstring('/eos/home-f/fgarciaf/TOTEM_BeamTest_At_SPS_H8/September2018/DATE/Run000.raw'),
+)
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(100)
+    input = cms.untracked.int32(100)
 )
 
 # raw-to-digi conversion
 process.load("EventFilter.DateRawToDigi.dateDigis_cff")
-process.dateDigis.inputFile = cms.string('file:///eos/home-f/fgarciaf/TOTEM_BeamTest_At_SPS_H8/September2018/DATE/Run000.raw')
 
 # execution configuration
 process.p = cms.Path(

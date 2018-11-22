@@ -80,7 +80,7 @@ AliRawReader::AliRawReader() :
   fExcludeDetectorExpr(0),
   fErrorCode(0),
   fEventNumber(-1),
-  fErrorLogs("AliRawDataErrorLog",100),
+  //fErrorLogs("AliRawDataErrorLog",100),
   fHeaderSwapped(NULL),
   fHeaderSwappedV3(NULL),
   fIsValid(kTRUE),
@@ -150,7 +150,7 @@ AliRawReader::AliRawReader(const AliRawReader& rawReader) :
   fExcludeDetectorExpr(rawReader.fExcludeDetectorExpr),
   fErrorCode(0),
   fEventNumber(-1),
-  fErrorLogs("AliRawDataErrorLog",100),
+  //fErrorLogs("AliRawDataErrorLog",100),
   fHeaderSwapped(NULL),
   fHeaderSwappedV3(NULL),
   fIsValid(rawReader.fIsValid),
@@ -192,7 +192,7 @@ AliRawReader& AliRawReader::operator = (const AliRawReader& rawReader)
   fErrorCode = rawReader.fErrorCode;
 
   fEventNumber = rawReader.fEventNumber;
-  fErrorLogs = *((TClonesArray*)rawReader.fErrorLogs.Clone());
+  //fErrorLogs = *((TClonesArray*)rawReader.fErrorLogs.Clone());
 
   fIsValid = rawReader.fIsValid;
   fIsTriggerClassLoaded = rawReader.fIsTriggerClassLoaded;
@@ -207,7 +207,7 @@ AliRawReader::~AliRawReader()
   // initialized
   if (fEquipmentIdsIn) delete fEquipmentIdsIn;
   if (fEquipmentIdsOut) delete fEquipmentIdsOut;
-  fErrorLogs.Delete();
+  //fErrorLogs.Delete();
   if (fHeaderSwapped) delete fHeaderSwapped;
   if (fHeaderSwappedV3) delete fHeaderSwappedV3;
 }

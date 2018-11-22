@@ -26,7 +26,7 @@
 
 #include "EventFilter/DateRawToDigi/interface/AliRawReaderDate.h"
 #include "EventFilter/DateRawToDigi/interface/event.h"
-
+#include <string>
 
 AliRawReaderDate::AliRawReaderDate(void* event, Bool_t owner) :
   fFile(NULL),
@@ -52,8 +52,11 @@ AliRawReaderDate::AliRawReaderDate(const char* fileName, Int_t eventNumber) :
   fOwner(kTRUE)
 {
 // create an object to read digits from the given date event
-
-  fFile = fopen(fileName, "rb");
+  std::string file( fileName );
+  size_t pos = file.find( "file://" );
+  if ( pos != std::string::npos )
+    file.erase( pos, 7 );
+  fFile = fopen(file.c_str(), "rb");
   if (!fFile) {
     Error("AliRawReaderDate", "could not open file %s", fileName);
     fIsValid = kFALSE;
