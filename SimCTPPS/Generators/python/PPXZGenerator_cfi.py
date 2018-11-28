@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 generator = cms.EDProducer("PPXZGenerator",
   verbosity = cms.untracked.uint32(0),
 
+  decayX = cms.bool(True),
+
   decayZToElectrons = cms.bool(True),
   decayZToMuons = cms.bool(False),
 
@@ -10,6 +12,9 @@ generator = cms.EDProducer("PPXZGenerator",
 
   m_Z_mean = cms.double(91.1876),
   m_Z_gamma = cms.double(2.4952),
+
+  m_X_pr1 = cms.double(100),
+  m_X_pr2 = cms.double(0),
 
   m_e = cms.double(0.5109e-3),
   m_mu = cms.double(105.658e-3),

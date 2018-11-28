@@ -47,12 +47,16 @@ class PPXZGenerator : public edm::one::EDProducer<>
     // input parameters
     unsigned int verbosity;
 
+    bool decayX;
     bool decayZToElectrons;
     bool decayZToMuons;
 
     const double m_X;       // mass of the X particle, GeV
     const double m_Z_mean;  // mass of the Z particle, mean, GeV
     const double m_Z_gamma; // mass of the Z particle, gamma, GeV
+
+    const double m_X_pr1;   // mass of the X particle product 1, GeV
+    const double m_X_pr2;   // mass of the X particle product 2, GeV
 
     const double m_e;       // mass of the X electron, GeV
     const double m_mu;      // mass of the X electron, GeV
@@ -77,12 +81,17 @@ using namespace std;
 PPXZGenerator::PPXZGenerator(const edm::ParameterSet& pset) :
   verbosity(pset.getUntrackedParameter<unsigned int>("verbosity", 0)),
 
+  decayX(pset.getParameter<bool>("decayX")),
   decayZToElectrons(pset.getParameter<bool>("decayZToElectrons")),
   decayZToMuons(pset.getParameter<bool>("decayZToMuons")),
 
   m_X(pset.getParameter<double>("m_X")),
   m_Z_mean(pset.getParameter<double>("m_Z_mean")),
   m_Z_gamma(pset.getParameter<double>("m_Z_gamma")),
+
+  m_X_pr1(pset.getParameter<double>("m_X_pr1")),
+  m_X_pr2(pset.getParameter<double>("m_X_pr2")),
+
   m_e(pset.getParameter<double>("m_e")),
   m_mu(pset.getParameter<double>("m_mu")),
 
@@ -213,13 +222,14 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
   const int statusFinal = 1;
   const int statusDecayed = 2;
 
+  int status_X = (decayX) ? statusDecayed : statusFinal;
   int status_Z = (decayZToElectrons || decayZToMuons) ? statusDecayed : statusFinal;
 
   HepMC::GenParticle* particle_Z = new HepMC::GenParticle(momentum_Z, particleId_Z, status_Z);
   particle_Z->suggest_barcode(++barcode);
   vtx->add_particle_out(particle_Z);
 
-  HepMC::GenParticle* particle_X = new HepMC::GenParticle(momentum_X, particleId_X, statusFinal);
+  HepMC::GenParticle* particle_X = new HepMC::GenParticle(momentum_X, particleId_X, status_X);
   particle_X->suggest_barcode(++barcode);
   vtx->add_particle_out(particle_X);
 
@@ -230,6 +240,57 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
   HepMC::GenParticle* particle_p2 = new HepMC::GenParticle(momentum_p2, particleId_p, statusFinal);
   particle_p2->suggest_barcode(++barcode);
   vtx->add_particle_out(particle_p2);
+
+  // decay X if desired
+  if (decayX)
+  {
+    // generate decay angles in X's rest frame;
+    const double theta_d = CLHEP::RandFlat::shoot(engine) * M_PI;
+    const double phi_d = CLHEP::RandFlat::shoot(engine) * 2. * M_PI;
+
+    // product momentum and energy in X's rest frame
+    const double M2 = m_X*m_X - m_X_pr1*m_X_pr1 - m_X_pr2*m_X_pr2;
+    const double p_pr = sqrt(M2*M2 - 4. * m_X_pr1*m_X_pr1 * m_X_pr2*m_X_pr2) / 2. / m_X;
+    const double E_pr1 = sqrt(p_pr*p_pr + m_X_pr1*m_X_pr1);
+    const double E_pr2 = sqrt(p_pr*p_pr + m_X_pr2*m_X_pr2);
+
+    // product four-momenta in X's rest frame
+    CLHEP::HepLorentzVector momentum_pr1(
+      p_pr * sin(theta_d) * cos(phi_d),
+      p_pr * sin(theta_d) * sin(phi_d),
+      p_pr * cos(theta_d),
+      E_pr1
+    );
+
+    CLHEP::HepLorentzVector momentum_pr2(
+      -p_pr * sin(theta_d) * cos(phi_d),
+      -p_pr * sin(theta_d) * sin(phi_d),
+      -p_pr * cos(theta_d),
+      E_pr2
+    );
+
+    // apply boost
+    double beta = momentum_X.rho() / momentum_X.t();
+    CLHEP::Hep3Vector betaVector(momentum_X.x(), momentum_X.y(), momentum_X.z());
+    betaVector *= beta / betaVector.mag();
+    momentum_pr1 = CLHEP::boostOf(momentum_pr1, betaVector);
+    momentum_pr2 = CLHEP::boostOf(momentum_pr2, betaVector);
+
+    if (verbosity)
+    {
+      const CLHEP::HepLorentzVector m_tot = momentum_p1 + momentum_p2 + momentum_Z + momentum_pr1 + momentum_pr2;
+      printf("  four-momentum of p + p + Z + X_pr1 + X_pr2: (%.1f, %.1f, %.1f | %.1f)\n", m_tot.x(), m_tot.y(), m_tot.z(), m_tot.t());
+    }
+
+    // add particles to vertex
+    HepMC::GenParticle* particle_pr1 = new HepMC::GenParticle(momentum_pr1, particleId_X_pr1, statusFinal);
+    particle_pr1->suggest_barcode(++barcode);
+    vtx->add_particle_out(particle_pr1);
+
+    HepMC::GenParticle* particle_pr2 = new HepMC::GenParticle(momentum_pr2, particleId_X_pr2, statusFinal);
+    particle_pr2->suggest_barcode(++barcode);
+    vtx->add_particle_out(particle_pr2);
+  }
 
   // decay Z if desired
   if (decayZToElectrons || decayZToMuons)
@@ -277,11 +338,11 @@ void PPXZGenerator::produce(edm::Event &e, const edm::EventSetup& es)
     }
 
     // add particles to vertex
-    HepMC::GenParticle* particle_l_mi = new HepMC::GenParticle(momentum_l_mi, particleId_l_mi, 1);
+    HepMC::GenParticle* particle_l_mi = new HepMC::GenParticle(momentum_l_mi, particleId_l_mi, statusFinal);
     particle_l_mi->suggest_barcode(++barcode);
     vtx->add_particle_out(particle_l_mi);
 
-    HepMC::GenParticle* particle_l_pl = new HepMC::GenParticle(momentum_l_pl, particleId_l_pl, 1);
+    HepMC::GenParticle* particle_l_pl = new HepMC::GenParticle(momentum_l_pl, particleId_l_pl, statusFinal);
     particle_l_pl->suggest_barcode(++barcode);
     vtx->add_particle_out(particle_l_pl);
   }
