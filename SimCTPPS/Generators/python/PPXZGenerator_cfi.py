@@ -13,7 +13,7 @@ generator = cms.EDProducer("PPXZGenerator",
   m_Z_mean = cms.double(91.1876),
   m_Z_gamma = cms.double(2.4952),
 
-  m_X_pr1 = cms.double(100),
+  m_X_pr1 = cms.double(1100),
   m_X_pr2 = cms.double(0),
 
   m_e = cms.double(0.5109e-3),

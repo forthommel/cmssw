@@ -82,13 +82,13 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
         h_theta_X = new TH1D("", "theta(X)", 100, -0.1, 3.3);
         h_eta_X = new TH1D("", "eta(X)", 100, -8., 8.);
 
-        h_p_T_X_pr1 = new TH1D("", "p_{T}(X_pr1)   (GeV)", 100, 0., 1500.);
+        h_p_T_X_pr1 = new TH1D("", "p_{T}(X_pr1)   (GeV)", 100, 0., 800.);
         h_p_z_X_pr1 = new TH1D("", "p_{z}(X_pr1)   (GeV)", 100, -1500., 1500.);
         h_p_tot_X_pr1 = new TH1D("", "p(X_pr1)   (GeV)", 100, 0., 1500.);
         h_theta_X_pr1 = new TH1D("", "theta(X_pr1)", 100, -0.1, 3.3);
         h_eta_X_pr1 = new TH1D("", "eta(X_pr1)", 100, -5., 5.);
 
-        h_p_T_X_pr2 = new TH1D("", "p_{T}(X_pr2)   (GeV)", 100, 0., 1500.);
+        h_p_T_X_pr2 = new TH1D("", "p_{T}(X_pr2)   (GeV)", 100, 0., 800.);
         h_p_z_X_pr2 = new TH1D("", "p_{z}(X_pr2)   (GeV)", 100, -1500., 1500.);
         h_p_tot_X_pr2 = new TH1D("", "p(X_pr2)   (GeV)", 100, 0., 1500.);
         h_theta_X_pr2 = new TH1D("", "theta(X_pr2)", 100, -0.1, 3.3);
