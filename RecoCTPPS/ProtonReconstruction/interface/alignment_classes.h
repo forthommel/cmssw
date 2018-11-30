@@ -46,7 +46,8 @@ struct AlignmentResult
         ROOT::Math::RotationZYX R(-rot_z, rot_y, rot_x);
         v = R * v + s;
 
-		return CTPPSLocalTrackLite(tr.getRPId(), v.x(), 0., v.y(), 0.);
+        // TODO: the uncertainty assumes very small rotations
+		return CTPPSLocalTrackLite(tr.getRPId(), v.x(), tr.getXUnc(), v.y(), tr.getYUnc());
 	}
 };
 
