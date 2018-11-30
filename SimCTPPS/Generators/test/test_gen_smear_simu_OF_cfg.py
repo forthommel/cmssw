@@ -65,6 +65,7 @@ process.ctppsFastProtonSimulation.verbosity = 0
 process.ctppsFastProtonSimulation.hepMCTag = cms.InputTag('beamDivergenceVtxGenerator')
 process.ctppsFastProtonSimulation.produceScoringPlaneHits = False
 process.ctppsFastProtonSimulation.produceRecHits = True
+process.ctppsFastProtonSimulation.useEmpiricalApertures = True
 process.ctppsFastProtonSimulation.checkApertures = False
 process.ctppsFastProtonSimulation.produceHitsRelativeToBeam = False
 process.ctppsFastProtonSimulation.roundToPitch = True
