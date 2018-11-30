@@ -57,6 +57,10 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
       TH2D *h_xi2_vs_xi1;
 
       TH1D *h_p_T_X, *h_p_z_X, *h_p_tot_X, *h_theta_X, *h_eta_X;
+
+      TH1D *h_p_T_X_pr1, *h_p_z_X_pr1, *h_p_tot_X_pr1, *h_theta_X_pr1, *h_eta_X_pr1;
+      TH1D *h_p_T_X_pr2, *h_p_z_X_pr2, *h_p_tot_X_pr2, *h_theta_X_pr2, *h_eta_X_pr2;
+
       TH1D *h_p_T_Z, *h_p_z_Z, *h_p_tot_Z, *h_theta_Z, *h_eta_Z;
 
       TH1D *h_p_T_l_pl, *h_p_z_l_pl, *h_p_tot_l_pl, *h_theta_l_pl, *h_eta_l_pl;
@@ -70,33 +74,47 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
 
         h_xi2_vs_xi1 = new TH2D("", ";#xi_{1};#xi_{2}", 50., 0., 0.20, 50., 0., 0.20);
 
-        h_p_T_X = new TH1D("", "p_{T}(X)   (GeV)", 100, -10., 170.);
+        h_p_T_X = new TH1D("", "p_{T}(X)   (GeV)", 100, 0., 170.);
         h_p_z_X = new TH1D("", "p_{z}(X)   (GeV)", 100, -1500., 1500.);
-        h_p_tot_X = new TH1D("", "p(X)   (GeV)", 100, -300., 1450.);
+        h_p_tot_X = new TH1D("", "p(X)   (GeV)", 100, 0., 1500.);
         h_theta_X = new TH1D("", "theta(X)", 100, -0.1, 3.3);
         h_eta_X = new TH1D("", "eta(X)", 100, -8., 8.);
 
-        h_p_T_Z = new TH1D("", "p_{T}(Z)   (GeV)", 100, -10., 180.);
+        h_p_T_X_pr1 = new TH1D("", "p_{T}(X_pr1)   (GeV)", 100, 0., 1500.);
+        h_p_z_X_pr1 = new TH1D("", "p_{z}(X_pr1)   (GeV)", 100, -1500., 1500.);
+        h_p_tot_X_pr1 = new TH1D("", "p(X_pr1)   (GeV)", 100, 0., 1500.);
+        h_theta_X_pr1 = new TH1D("", "theta(X_pr1)", 100, -0.1, 3.3);
+        h_eta_X_pr1 = new TH1D("", "eta(X_pr1)", 100, -5., 5.);
+
+        h_p_T_X_pr2 = new TH1D("", "p_{T}(X_pr2)   (GeV)", 100, 0., 1500.);
+        h_p_z_X_pr2 = new TH1D("", "p_{z}(X_pr2)   (GeV)", 100, -1500., 1500.);
+        h_p_tot_X_pr2 = new TH1D("", "p(X_pr2)   (GeV)", 100, 0., 1500.);
+        h_theta_X_pr2 = new TH1D("", "theta(X_pr2)", 100, -0.1, 3.3);
+        h_eta_X_pr2 = new TH1D("", "eta(X_pr2)", 100, -5., 5.);
+
+        h_p_T_Z = new TH1D("", "p_{T}(Z)   (GeV)", 100, 0., 180.);
         h_p_z_Z = new TH1D("", "p_{z}(Z)   (GeV)", 100, -300., 300.);
-        h_p_tot_Z = new TH1D("", "p(Z)   (GeV)", 100, -50., 300.);
+        h_p_tot_Z = new TH1D("", "p(Z)   (GeV)", 100, 0., 300.);
         h_theta_Z = new TH1D("", "theta(Z)", 100, -0.1, 3.3);
         h_eta_Z = new TH1D("", "eta(Z)", 100, -5., 5.);
 
-        h_p_T_l_pl = new TH1D("", "p_{T}(l_pl)   (GeV)", 100, -10., 180.);
+        h_p_T_l_pl = new TH1D("", "p_{T}(l_pl)   (GeV)", 100, 0., 180.);
         h_p_z_l_pl = new TH1D("", "p_{z}(l_pl)   (GeV)", 100, -300., 300.);
-        h_p_tot_l_pl = new TH1D("", "p(l_pl)   (GeV)", 100, -50., 300.);
+        h_p_tot_l_pl = new TH1D("", "p(l_pl)   (GeV)", 100, 0., 300.);
         h_theta_l_pl = new TH1D("", "theta(l_pl)", 100, -0.1, 3.3);
         h_eta_l_pl = new TH1D("", "eta(l_pl)", 100, -5., 5.);
 
-        h_p_T_l_mi = new TH1D("", "p_{T}(l_mi)   (GeV)", 100, -10., 180.);
+        h_p_T_l_mi = new TH1D("", "p_{T}(l_mi)   (GeV)", 100, 0., 180.);
         h_p_z_l_mi = new TH1D("", "p_{z}(l_mi)   (GeV)", 100, -300., 300.);
-        h_p_tot_l_mi = new TH1D("", "p(l_mi)   (GeV)", 100, -50., 300.);
+        h_p_tot_l_mi = new TH1D("", "p(l_mi)   (GeV)", 100, 0., 300.);
         h_theta_l_mi = new TH1D("", "theta(l_mi)", 100, -0.1, 3.3);
         h_eta_l_mi = new TH1D("", "eta(l_mi)", 100, -5., 5.);
       }
 
       void fill(const CLHEP::HepLorentzVector &momentum_p1, const CLHEP::HepLorentzVector &momentum_p2,
-        const CLHEP::HepLorentzVector &momentum_X, const CLHEP::HepLorentzVector &momentum_Z,
+        const CLHEP::HepLorentzVector &momentum_X,
+        const CLHEP::HepLorentzVector &momentum_X_pr1, const CLHEP::HepLorentzVector &momentum_X_pr2,
+        const CLHEP::HepLorentzVector &momentum_Z,
         const CLHEP::HepLorentzVector &momentum_l_pl, const CLHEP::HepLorentzVector &momentum_l_mi)
       {
         if (h_m_Z == NULL)
@@ -116,6 +134,18 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
         h_p_tot_X->Fill(momentum_X.rho());
         h_theta_X->Fill(momentum_X.theta());
         h_eta_X->Fill(momentum_X.pseudoRapidity());
+
+        h_p_T_X_pr1->Fill(momentum_X_pr1.perp());
+        h_p_z_X_pr1->Fill(momentum_X_pr1.z());
+        h_p_tot_X_pr1->Fill(momentum_X_pr1.rho());
+        h_theta_X_pr1->Fill(momentum_X_pr1.theta());
+        h_eta_X_pr1->Fill(momentum_X_pr1.pseudoRapidity());
+
+        h_p_T_X_pr2->Fill(momentum_X_pr2.perp());
+        h_p_z_X_pr2->Fill(momentum_X_pr2.z());
+        h_p_tot_X_pr2->Fill(momentum_X_pr2.rho());
+        h_theta_X_pr2->Fill(momentum_X_pr2.theta());
+        h_eta_X_pr2->Fill(momentum_X_pr2.pseudoRapidity());
 
         h_p_T_Z->Fill(momentum_Z.perp());
         h_p_z_Z->Fill(momentum_Z.z());
@@ -155,6 +185,18 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
         h_p_tot_X->Write("h_p_tot_X");
         h_theta_X->Write("h_theta_X");
         h_eta_X->Write("h_eta_X");
+
+        h_p_T_X_pr1->Write("h_p_T_X_pr1");
+        h_p_z_X_pr1->Write("h_p_z_X_pr1");
+        h_p_tot_X_pr1->Write("h_p_tot_X_pr1");
+        h_theta_X_pr1->Write("h_theta_X_pr1");
+        h_eta_X_pr1->Write("h_eta_X_pr1");
+
+        h_p_T_X_pr2->Write("h_p_T_X_pr2");
+        h_p_z_X_pr2->Write("h_p_z_X_pr2");
+        h_p_tot_X_pr2->Write("h_p_tot_X_pr2");
+        h_theta_X_pr2->Write("h_theta_X_pr2");
+        h_eta_X_pr2->Write("h_eta_X_pr2");
 
         h_p_T_Z->Write("h_p_T_Z");
         h_p_z_Z->Write("h_p_z_Z");
@@ -211,7 +253,7 @@ void PPXZGeneratorValidation::analyze(const edm::Event& iEvent, const edm::Event
   iEvent.getByToken(recoTracksToken_, hRecoTracks);
 
   // process HepMC record
-  CLHEP::HepLorentzVector momentum_p1, momentum_p2, momentum_X, momentum_Z, momentum_l_pl, momentum_l_mi;
+  CLHEP::HepLorentzVector momentum_p1, momentum_p2, momentum_X, momentum_X_pr1, momentum_X_pr2, momentum_Z, momentum_l_pl, momentum_l_mi;
 
   // loop over event vertices
   auto evt = hHepMCProduct->GetEvent();
@@ -235,6 +277,12 @@ void PPXZGeneratorValidation::analyze(const edm::Event& iEvent, const edm::Event
       if (part->pdg_id() == particleId_X)
         momentum_X = convertTo(part->momentum());
 
+      if (part->pdg_id() == particleId_X_pr1)
+        momentum_X_pr1 = convertTo(part->momentum());
+
+      if (part->pdg_id() == particleId_X_pr2)
+        momentum_X_pr2 = convertTo(part->momentum());
+
       if (part->pdg_id() == particleId_Z)
         momentum_Z = convertTo(part->momentum());
 
@@ -256,10 +304,10 @@ void PPXZGeneratorValidation::analyze(const edm::Event& iEvent, const edm::Event
   }
 
   // fill plots
-  plotsBeforeSimulation.fill(momentum_p1, momentum_p2, momentum_X, momentum_Z, momentum_l_pl, momentum_l_mi);
+  plotsBeforeSimulation.fill(momentum_p1, momentum_p2, momentum_X, momentum_X_pr1, momentum_X_pr2, momentum_Z, momentum_l_pl, momentum_l_mi);
 
   if (protonIn45 && protonIn56)
-    plotsAfterSimulation.fill(momentum_p1, momentum_p2, momentum_X, momentum_Z, momentum_l_pl, momentum_l_mi);
+    plotsAfterSimulation.fill(momentum_p1, momentum_p2, momentum_X, momentum_X_pr1, momentum_X_pr2, momentum_Z, momentum_l_pl, momentum_l_mi);
 }
 
 //----------------------------------------------------------------------------------------------------
