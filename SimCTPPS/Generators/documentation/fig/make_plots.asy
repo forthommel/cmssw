@@ -83,7 +83,29 @@ MakeOnePlot("h_angle_X_pr1_X_pr2", "angle(X product 1, X product 2)");
 
 MakeOnePlot("h_angle_l_pl_l_mi", "angle($l^+$, $l^-$)");
 
-GShipout("angles", hSkip=2mm, vSkip=0mm);
+NewRow();
+
+MakeOnePlot("h_angle_Z_X_pr1", "angle(Z, X product 1)");
+
+MakeOnePlot("h_angle_Z_X_pr2", "angle(Z, X product 2)");
+
+GShipout("angles", hSkip=2mm, vSkip=2mm);
+
+//----------------------------------------------------------------------------------------------------
+
+MakeOnePlot("h_angleT_X_Z", "transverse angle(X, Z)");
+
+MakeOnePlot("h_angleT_X_pr1_X_pr2", "transverse angle(X product 1, X product 2)");
+
+MakeOnePlot("h_angleT_l_pl_l_mi", "transverse angle($l^+$, $l^-$)");
+
+NewRow();
+
+MakeOnePlot("h_angleT_Z_X_pr1", "transverse angle(Z, X product 1)");
+
+MakeOnePlot("h_angleT_Z_X_pr2", "transverse angle(Z, X product 2)");
+
+GShipout("anglesT", hSkip=2mm, vSkip=2mm);
 
 //----------------------------------------------------------------------------------------------------
 

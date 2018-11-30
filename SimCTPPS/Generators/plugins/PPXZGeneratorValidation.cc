@@ -66,7 +66,8 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
       TH1D *h_p_T_l_pl, *h_p_z_l_pl, *h_p_tot_l_pl, *h_theta_l_pl, *h_eta_l_pl;
       TH1D *h_p_T_l_mi, *h_p_z_l_mi, *h_p_tot_l_mi, *h_theta_l_mi, *h_eta_l_mi;
 
-      TH1D *h_angle_X_Z, *h_angle_l_pl_l_mi, *h_angle_X_pr1_X_pr2;
+      TH1D *h_angle_X_Z, *h_angle_l_pl_l_mi, *h_angle_X_pr1_X_pr2, *h_angle_Z_X_pr1, *h_angle_Z_X_pr2;
+      TH1D *h_angleT_X_Z, *h_angleT_l_pl_l_mi, *h_angleT_X_pr1_X_pr2, *h_angleT_Z_X_pr1, *h_angleT_Z_X_pr2;
 
       void init()
       {
@@ -112,9 +113,17 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
         h_theta_l_mi = new TH1D("", "theta(l_mi)", 100, -0.1, 3.3);
         h_eta_l_mi = new TH1D("", "eta(l_mi)", 100, -5., 5.);
 
-        h_angle_X_Z = new TH1D("", "angle(X, Z)", 100, 0., M_PI);
-        h_angle_l_pl_l_mi = new TH1D("", "angle(l_pl, l_mi)", 100, 0., M_PI);
-        h_angle_X_pr1_X_pr2 = new TH1D("", "angle(X_pr1, X_pr2)", 100, 0., M_PI);
+        h_angle_X_Z = new TH1D("", "angle(X, Z)", 100, -1E-3, M_PI + 1E-3);
+        h_angle_l_pl_l_mi = new TH1D("", "angle(l_pl, l_mi)", 100, -1E-3, M_PI + 1E-3);
+        h_angle_X_pr1_X_pr2 = new TH1D("", "angle(X_pr1, X_pr2)", 100, -1E-3, M_PI + 1E-3);
+        h_angle_Z_X_pr1 = new TH1D("", "angle(Z, X_pr1)", 100, -1E-3, M_PI + 1E-3);
+        h_angle_Z_X_pr2 = new TH1D("", "angle(Z, X_pr2)", 100, -1E-3, M_PI + 1E-3);
+
+        h_angleT_X_Z = new TH1D("", "angleT(X, Z)", 100, -1E-3, M_PI + 1E-3);
+        h_angleT_l_pl_l_mi = new TH1D("", "angleT(l_pl, l_mi)", 100, -1E-3, M_PI + 1E-3);
+        h_angleT_X_pr1_X_pr2 = new TH1D("", "angleT(X_pr1, X_pr2)", 100, -1E-3, M_PI + 1E-3);
+        h_angleT_Z_X_pr1 = new TH1D("", "angleT(Z, X_pr1)", 100, -1E-3, M_PI + 1E-3);
+        h_angleT_Z_X_pr2 = new TH1D("", "angleT(Z, X_pr2)", 100, -1E-3, M_PI + 1E-3);
       }
 
       void fill(const CLHEP::HepLorentzVector &momentum_p1, const CLHEP::HepLorentzVector &momentum_p2,
@@ -125,6 +134,13 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
       {
         if (h_m_Z == NULL)
           init();
+
+        CLHEP::Hep3Vector momentumT_X(momentum_X.x(), momentum_X.y(), 0.);
+        CLHEP::Hep3Vector momentumT_X_pr1(momentum_X_pr1.x(), momentum_X_pr1.y(), 0.);
+        CLHEP::Hep3Vector momentumT_X_pr2(momentum_X_pr2.x(), momentum_X_pr2.y(), 0.);
+        CLHEP::Hep3Vector momentumT_Z(momentum_Z.x(), momentum_Z.y(), 0.);
+        CLHEP::Hep3Vector momentumT_l_pl(momentum_l_pl.x(), momentum_l_pl.y(), 0.);
+        CLHEP::Hep3Vector momentumT_l_mi(momentum_l_mi.x(), momentum_l_mi.y(), 0.);
 
         h_m_Z->Fill(momentum_Z.m());
         h_m_XZ->Fill((momentum_Z + momentum_X).m());
@@ -174,6 +190,14 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
         h_angle_X_Z->Fill(momentum_X.angle(momentum_Z));
         h_angle_l_pl_l_mi->Fill(momentum_l_pl.angle(momentum_l_mi));
         h_angle_X_pr1_X_pr2->Fill(momentum_X_pr1.angle(momentum_X_pr2));
+        h_angle_Z_X_pr1->Fill(momentum_Z.angle(momentum_X_pr1));
+        h_angle_Z_X_pr2->Fill(momentum_Z.angle(momentum_X_pr2));
+
+        h_angleT_X_Z->Fill(momentumT_X.angle(momentumT_Z));
+        h_angleT_l_pl_l_mi->Fill(momentumT_l_pl.angle(momentumT_l_mi));
+        h_angleT_X_pr1_X_pr2->Fill(momentumT_X_pr1.angle(momentumT_X_pr2));
+        h_angleT_Z_X_pr1->Fill(momentumT_Z.angle(momentumT_X_pr1));
+        h_angleT_Z_X_pr2->Fill(momentumT_Z.angle(momentumT_X_pr2));
       }
 
       void write() const
@@ -229,6 +253,14 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
         h_angle_X_Z->Write("h_angle_X_Z");
         h_angle_l_pl_l_mi->Write("h_angle_l_pl_l_mi");
         h_angle_X_pr1_X_pr2->Write("h_angle_X_pr1_X_pr2");
+        h_angle_Z_X_pr1->Write("h_angle_Z_X_pr1");
+        h_angle_Z_X_pr2->Write("h_angle_Z_X_pr2");
+
+        h_angleT_X_Z->Write("h_angleT_X_Z");
+        h_angleT_l_pl_l_mi->Write("h_angleT_l_pl_l_mi");
+        h_angleT_X_pr1_X_pr2->Write("h_angleT_X_pr1_X_pr2");
+        h_angleT_Z_X_pr1->Write("h_angleT_Z_X_pr1");
+        h_angleT_Z_X_pr2->Write("h_angleT_Z_X_pr2");
       }
     };
 
