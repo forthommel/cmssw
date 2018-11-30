@@ -77,4 +77,14 @@ GShipout("xi2_vs_xi1", hSkip=2mm, vSkip=0mm);
 
 //----------------------------------------------------------------------------------------------------
 
+MakeOnePlot("h_angle_X_Z", "angle(X, Z)");
+
+MakeOnePlot("h_angle_X_pr1_X_pr2", "angle(X product 1, X product 2)");
+
+MakeOnePlot("h_angle_l_pl_l_mi", "angle($l^+$, $l^-$)");
+
+GShipout("angles", hSkip=2mm, vSkip=0mm);
+
+//----------------------------------------------------------------------------------------------------
+
 write("finished");
