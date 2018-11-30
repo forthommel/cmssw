@@ -414,6 +414,7 @@ void ProtonReconstructionAlgorithmOFDB::reconstructFromMultiRP(const vector<cons
   chiSquareCalculator_->m_rp_optics = &m_rp_optics_;
 
   fitter_->FitFCN();
+  fitter_->FitFCN();  // second minimisation in case the first one had troubles
 
   // extract proton parameters
   const ROOT::Fit::FitResult& result = fitter_->Result();
@@ -464,6 +465,38 @@ void ProtonReconstructionAlgorithmOFDB::reconstructFromMultiRP(const vector<cons
   pt.setValid(result.IsValid() && pt.fitChiSq < max_chi_sq);
 
   out.push_back(move(pt));
+
+  // fill validation plots
+  /*
+  if (valid)
+  {
+    for (const auto &track : tracks)
+    {
+      CTPPSDetId id(track->getRPId());
+      unsigned int rpDecId = id.arm()*100 + id.station()*10 + id.rp();
+
+      const double x_input = track->getX() * 1e-3, y_input = track->getY() * 1e-3;
+
+      const double xi = params[0], th_x = params[1], vtx_x = 0., th_y = params[2], vtx_y = params[3];
+
+      auto oit = m_rp_optics_.find(id);
+      double kin_in[5] = { vtx_x, th_x, vtx_y, th_y, xi };
+      double kin_out[5];
+      oit->second.optics->Transport(kin_in, kin_out);
+
+      const double x_reproduced = kin_out[0], y_reproduced = kin_out[2];
+
+      auto it = m_rp_de_xy.find(rpDecId);
+      if (it == m_rp_de_xy.end())
+      {
+        it = m_rp_de_xy.insert({rpDecId, { new TH1D("", ";De x   (m)", 2000, -10E-6, +10E-6), new TH1D("", ";De y   (m)", 2000, -10E-6, +10E-6) } }).first;
+      }
+
+      it->second.first->Fill(x_reproduced - x_input);
+      it->second.second->Fill(y_reproduced - y_input);
+    }
+  }
+  */
 }
 
 //----------------------------------------------------------------------------------------------------
