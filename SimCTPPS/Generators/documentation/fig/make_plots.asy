@@ -32,6 +32,8 @@ quantities.push("eta"); q_labels.push("$\et$");
 
 string particles[], p_labels[];
 particles.push("X"); p_labels.push("X");
+particles.push("X_pr1"); p_labels.push("X, product 1");
+particles.push("X_pr2"); p_labels.push("X, product 2");
 particles.push("Z"); p_labels.push("Z");
 particles.push("l_mi"); p_labels.push("$\rm l^-$");
 particles.push("l_pl"); p_labels.push("$\rm l^+$");
@@ -40,7 +42,7 @@ for (int qi : quantities.keys)
 {
 	for (int pti : particles.keys)
 	{
-		if (pti == 2)
+		if (pti == 3)
 			NewRow();
 
 		MakeOnePlot("h_" + quantities[qi] + "_" + particles[pti], q_labels[qi], p_labels[pti]);

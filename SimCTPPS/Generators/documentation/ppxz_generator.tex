@@ -20,12 +20,13 @@
 \ctitle{Simulation package}{contents/sequence}
 
 \> toy MC generator of $\rm p + p \rightarrow p + Z + X + p$
+\>> X can be decayed to two particles
 \>> Z can be decayed to a lepton pair
 
 \> fast forward-proton simulation in PPS Roman Pots
 \>> includes beam and vertex smearing at IP
 \>> includes proton transport IP $\rightarrow$ RPs
-\>> simple simulation of aperture limitations (high-x cutoff)
+\>> simulation of aperture limitations ($\xi$-$\th^*_x$ cut off deduced from LHC data)
 \>> simulation of RecHits: with sensor acceptance and resolution
 
 \> standard reconstruction RecHits $\rightarrow$ (lite) tracks
@@ -62,7 +63,10 @@ $$m_Z = RandBreitWigner(\hbox{mean, gamma})$$
 
 \>> if $m_{\rm XZ} < m_{\rm X} + m_{\rm Z}$, then generation repeated
 
-\>> Z can be decayed to a pair of electrons or muons
+\> X can be decayed to two particles
+\>>> isotropic decay in X's rest frame
+
+\> Z can be decayed to a pair of electrons or muons
 \>>> isotropic decay in Z's rest frame
 
 
@@ -70,6 +74,8 @@ $$m_Z = RandBreitWigner(\hbox{mean, gamma})$$
 \ctitle{MC generator}{Default parameters}
 
 \> mass of particle X: m\_X = $1200\un{GeV}$
+\> masses of X decay products: m\_X\_pr1 = $100\un{GeV}$, m\_X\_pr2 = $0\un{GeV}$
+
 \> mass of particle Z: m\_Z\_mean = $91.1876\un{GeV}$, m\_Z\_gamma = $2.4952\un{GeV}$
 \> mass of electron: m\_e = $0.5109e-3\un{GeV}$
 \> mass of electron: m\_mu = $105.658e-3\un{GeV}$
@@ -85,7 +91,6 @@ $$m_Z = RandBreitWigner(\hbox{mean, gamma})$$
 \newpage %-------------------------------------------------------------------------------------------
 \title{CMSSW implementation}
 
-
 \> available in CMSSW branch:\\ \link{https://github.com/CTPPS/cmssw/tree/ctpps_initial_proton_reconstruction_CMSSW_10_2_0}{\SmallerFonts https://github.com/CTPPS/cmssw/tree/ctpps\_initial\_proton\_reconstruction\_CMSSW\_10\_2\_0}
 
 \NormalFonts
@@ -98,7 +103,7 @@ $$m_Z = RandBreitWigner(\hbox{mean, gamma})$$
 \> example config: SimCTPPS/Generators/test/test\_gen\_smear\_simu\_OF\_cfg.py
 \>> 2017 layout of RPs (strips in 210-fr, pixels in 220-fr)
 \>> preliminary 2017 geometry (RP position): $x_{\rm min}$ from data
-\>> aperture limitations simulated with a simple $x_{\rm max}$ cutoff, preliminary tuning
+\>> aperture limitations extracted from LHC data, preliminary tuning
 \>> proton transport with 2017 optical functions (xangle = $140\un{\mu rad}$)
 \>> realistic values for beam and vertex smearing
 
@@ -109,6 +114,7 @@ $$m_Z = RandBreitWigner(\hbox{mean, gamma})$$
 \> list MC validation checks
 \>> total momentum of p + p + X + Z is zero and energy corresponds to $\sqrt s$
 \>> total momentum of p + p + X + l + l is zero and energy corresponds to $\sqrt s$
+\>> total momentum of p + p + Z + pr1 + pr2 (X decay products) is zero and energy corresponds to $\sqrt s$
 \>> $p_{\rm T}$ distributions of X and Z compatible -- the XZ system is only boosted along z
 \>> all distributions of positive and negative charge leptons from Z are compatible
 
@@ -143,31 +149,31 @@ $$m_Z = RandBreitWigner(\hbox{mean, gamma})$$
 \newpage %-------------------------------------------------------------------------------------------
 \ctitle{Distributions}{$p_{\rm T}$}
 
-\centerline{\fig[11cm]{fig/p_T.pdf}}
+\centerline{\fig[16cm]{fig/p_T.pdf}}
 
 
 \newpage %-------------------------------------------------------------------------------------------
 \ctitle{Distributions}{$p_{z}$}
 
-\centerline{\fig[11cm]{fig/p_z.pdf}}
+\centerline{\fig[16cm]{fig/p_z.pdf}}
 
 
 \newpage %-------------------------------------------------------------------------------------------
 \ctitle{Distributions}{$p$ (total)}
 
-\centerline{\fig[11cm]{fig/p_tot.pdf}}
+\centerline{\fig[16cm]{fig/p_tot.pdf}}
 
 
 \newpage %-------------------------------------------------------------------------------------------
 \ctitle{Distributions}{$\th$}
 
-\centerline{\fig[11cm]{fig/theta.pdf}}
+\centerline{\fig[16cm]{fig/theta.pdf}}
 
 
 \newpage %-------------------------------------------------------------------------------------------
 \ctitle{Distributions}{$\et$}
 
-\centerline{\fig[11cm]{fig/eta.pdf}}
+\centerline{\fig[16cm]{fig/eta.pdf}}
 
 \vfil
 \eject
