@@ -66,6 +66,8 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
       TH1D *h_p_T_l_pl, *h_p_z_l_pl, *h_p_tot_l_pl, *h_theta_l_pl, *h_eta_l_pl;
       TH1D *h_p_T_l_mi, *h_p_z_l_mi, *h_p_tot_l_mi, *h_theta_l_mi, *h_eta_l_mi;
 
+      TH1D *h_angle_X_Z, *h_angle_l_pl_l_mi, *h_angle_X_pr1_X_pr2;
+
       void init()
       {
         h_m_Z = new TH1D("", ";m_{Z}   (GeV)", 100, 80., 100.);
@@ -109,6 +111,10 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
         h_p_tot_l_mi = new TH1D("", "p(l_mi)   (GeV)", 100, 0., 300.);
         h_theta_l_mi = new TH1D("", "theta(l_mi)", 100, -0.1, 3.3);
         h_eta_l_mi = new TH1D("", "eta(l_mi)", 100, -5., 5.);
+
+        h_angle_X_Z = new TH1D("", "angle(X, Z)", 100, 0., M_PI);
+        h_angle_l_pl_l_mi = new TH1D("", "angle(l_pl, l_mi)", 100, 0., M_PI);
+        h_angle_X_pr1_X_pr2 = new TH1D("", "angle(X_pr1, X_pr2)", 100, 0., M_PI);
       }
 
       void fill(const CLHEP::HepLorentzVector &momentum_p1, const CLHEP::HepLorentzVector &momentum_p2,
@@ -164,6 +170,10 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
         h_p_tot_l_mi->Fill(momentum_l_mi.rho());
         h_theta_l_mi->Fill(momentum_l_mi.theta());
         h_eta_l_mi->Fill(momentum_l_mi.pseudoRapidity());
+
+        h_angle_X_Z->Fill(momentum_X.angle(momentum_Z));
+        h_angle_l_pl_l_mi->Fill(momentum_l_pl.angle(momentum_l_mi));
+        h_angle_X_pr1_X_pr2->Fill(momentum_X_pr1.angle(momentum_X_pr2));
       }
 
       void write() const
@@ -215,6 +225,10 @@ class PPXZGeneratorValidation : public edm::one::EDAnalyzer<>
         h_p_tot_l_mi->Write("h_p_tot_l_mi");
         h_theta_l_mi->Write("h_theta_l_mi");
         h_eta_l_mi->Write("h_eta_l_mi");
+
+        h_angle_X_Z->Write("h_angle_X_Z");
+        h_angle_l_pl_l_mi->Write("h_angle_l_pl_l_mi");
+        h_angle_X_pr1_X_pr2->Write("h_angle_X_pr1_X_pr2");
       }
     };
 
