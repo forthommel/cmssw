@@ -52,6 +52,7 @@ process.XMLIdealGeometryESSource_CTPPS.geomXMLFiles.append("Validation/CTPPS/tes
 
 # fast simulation
 process.load('SimCTPPS.OpticsParameterisation.year_2017_OF.ctppsFastProtonSimulation_cfi')
+process.ctppsFastProtonSimulation.xangle = 120
 process.ctppsFastProtonSimulation.produceScoringPlaneHits = False
 process.ctppsFastProtonSimulation.produceRecHits = True
 process.ctppsFastProtonSimulation.checkApertures = False
@@ -81,7 +82,7 @@ process.ctppsAcceptancePlotter = cms.EDAnalyzer("CTPPSAcceptancePlotter",
   rpId_56_N = cms.uint32(103),
   rpId_56_F = cms.uint32(123),
 
-  outputFile = cms.string("acceptance.root")
+  outputFile = cms.string("acceptance_xangle_120.root")
 )
 
 # processing path
