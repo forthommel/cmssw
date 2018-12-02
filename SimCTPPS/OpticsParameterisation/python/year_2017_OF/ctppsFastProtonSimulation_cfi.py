@@ -9,11 +9,15 @@ ctppsFastProtonSimulation = cms.EDProducer('CTPPSFastProtonSimulationOF',
     hepMCTag = cms.InputTag('generator', 'unsmeared'),
 
     beamConditions = lhcBeamConditions,
-
-    opticsFileBeam1 = cms.FileInPath('CondFormats/CTPPSOpticsObjects/data/2017/optical_functions_2017_140urad.root'),
-    opticsFileBeam2 = cms.FileInPath('CondFormats/CTPPSOpticsObjects/data/2017/optical_functions_2017_140urad.root'),
-
     detectorPackages = detectorPackages,
+
+    xangle = cms.double(0), # in urad
+
+    xangle1 = cms.double(140),
+    opticsFile1 = cms.FileInPath("CondFormats/CTPPSOpticsObjects/data/2017/optical_functions_2017_140urad.root"),
+
+    xangle2 = cms.double(120),
+    opticsFile2 = cms.FileInPath("CondFormats/CTPPSOpticsObjects/data/2017/optical_functions_2017_120urad.root"),
 
     produceScoringPlaneHits = cms.bool(True),
     produceRecHits = cms.bool(True),

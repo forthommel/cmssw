@@ -103,8 +103,10 @@ class CTPPSFastProtonSimulationOF : public edm::stream::EDProducer<>
     double halfCrossingAngleSector45_, halfCrossingAngleSector56_;
     double yOffsetSector45_, yOffsetSector56_;
 
-    /// optics input
-    edm::FileInPath opticsFileBeam1_, opticsFileBeam2_;
+    double xangle_;
+
+    double xangle1_, xangle2_;
+    edm::FileInPath opticsFile1_, opticsFile2_;
 
     /// detector information
     std::vector<edm::ParameterSet> detectorPackages_;
@@ -161,8 +163,13 @@ CTPPSFastProtonSimulationOF::CTPPSFastProtonSimulationOF( const edm::ParameterSe
   yOffsetSector45_            ( beamConditions_.getParameter<double>( "yOffsetSector45" ) ),
   yOffsetSector56_            ( beamConditions_.getParameter<double>( "yOffsetSector56" ) ),
 
-  opticsFileBeam1_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam1" ) ),
-  opticsFileBeam2_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam2" ) ),
+  xangle_                     ( iConfig.getParameter<double>("xangle") ),
+  xangle1_                    ( iConfig.getParameter<double>("xangle1") ),
+  xangle2_                    ( iConfig.getParameter<double>("xangle2") ),
+
+  opticsFile1_                ( iConfig.getParameter<edm::FileInPath>( "opticsFile1" ) ),
+  opticsFile2_                ( iConfig.getParameter<edm::FileInPath>( "opticsFile2" ) ),
+
   detectorPackages_           ( iConfig.getParameter< std::vector<edm::ParameterSet> >( "detectorPackages" ) ),
 
   produceScoringPlaneHits_    ( iConfig.getParameter<bool>( "produceScoringPlaneHits" ) ),
@@ -211,11 +218,10 @@ CTPPSFastProtonSimulationOF::CTPPSFastProtonSimulationOF( const edm::ParameterSe
 
     CTPPSDetId detid( raw_detid );
 
-    if ( detid.arm()==0 ) // sector 45 -- beam 2
-      pots_.emplace_back( detid, z_position, new LHCOpticsApproximatorOF(opticsFileBeam2_.fullPath(), interp_name.c_str()), x_max );
+    LHCOpticsApproximatorOF oa1(opticsFile1_.fullPath(), interp_name.c_str());
+    LHCOpticsApproximatorOF oa2(opticsFile2_.fullPath(), interp_name.c_str());
 
-    if ( detid.arm()==1 ) // sector 56 -- beam 1
-      pots_.emplace_back( detid, z_position, new LHCOpticsApproximatorOF(opticsFileBeam1_.fullPath(), interp_name.c_str()), x_max );
+    pots_.emplace_back( detid, z_position, LHCOpticsApproximatorOF::Interpolate(xangle1_, oa1, xangle2_, oa2, xangle_), x_max );
   }
 }
 
