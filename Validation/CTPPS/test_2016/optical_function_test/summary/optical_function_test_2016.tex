@@ -1,0 +1,99 @@
+\input slides.tex
+\input utf8-t1
+
+\newpage %-------------------------------------------------------------------------------------------
+
+\def\author{J.~Kašpar}
+\def\caption{}
+\def\date{3 Dec 2018}
+
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{Definitions}
+
+\> optics parametrisation
+\>> track position (at RPs) as function of proton IP kinematics
+
+\cThird
+$$x(x^*, \th^*_x, y^*, \th^*_y, \xi)$$
+
+\> optical functions
+\>> derived from optics parametrisation
+
+
+\cThird
+$$L_x(\xi) = {\d x\over\d\th^*_x}(x^*_0, \al, y^*_0, 0, \xi)$$
+$$v_x(\xi) = {\d x\over\d x^*}(x^*_0, \al, y^*_0, 0, \xi)$$
+
+\>>> where $\al$ is the half crossing angle and $x^*_0$ and $y^*_0$ refer to the vertex offset
+
+\>> proton transport approximation
+
+\cThird
+$$x_{\rm of} = x(x^*_0, \al, y^*_0, 0, \xi) + L_x(\xi) \th^*_x + v_x(\xi) x^*$$
+
+
+\> difference between optics parametrisation and optical functions
+
+\cThird
+$$\De x = x_{\rm of} - x$$
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{Simulation}
+
+\> simulated $10^4$ events
+\>> $\xi$ flat between $0$ and $0.2$
+\>> $\th^*_{x, y}$ gaussian with zero mean and sigma $50\un{\mu rad}$
+\>> $x^*, y^*$ gaussian with zero mean and sigma $10\un{\mu m}$
+
+\> for each event extracted $\De x$ and $\De y$
+\>> plots (next slides) show their mean and RMS
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{$\De x$ and $\De y$ dependence on kinematics}
+
+\centerline{\fig[14cm]{../plots/diff_opt_par_fcn_RP_3.pdf}}
+
+\> small $x-y$ coupling obvious
+\>> RMS of the effect: about $50\un{\mu m}$ (at the RPs)
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{Extra optical functions}
+
+\vskip-3mm
+\> possible to define extra optical functions
+
+\vskip-3mm
+\cThird
+$$E_{14}(\xi) = {\d x\over\d\th^*_y}(x^*_0, \al, y^*_0, 0, \xi)$$
+$$E_{32}(\xi) = {\d y\over\d\th^*_x}(x^*_0, \al, y^*_0, 0, \xi)$$
+
+\>> small $\xi$ dependence, values about $1\un{m}$:
+
+\centerline{\fig[16cm]{../plots/optical_function_comparison.pdf}}
+
+\vskip-3mm
+\> possible to extend the proton transport approximation
+
+\vskip-3mm
+\cThird
+$$x_{\rm of} = x(x^*_0, \al, y^*_0, 0, \xi) + L_x(\xi) \th^*_x + v_x(\xi) x^* + E_{14}(\xi) \th^*_y$$
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{$\De x$ and $\De y$ dependence on kinematics}
+
+\> with extended optical functions and transport:
+
+\centerline{\fig[14cm]{../plots/diff_opt_par_fcn_RP_3_extra.pdf}}
+
+\>> RMS of difference: fraction of micron
+\>>> comparable with accuracy goal of the optics parametrisation itself
+
+
+
+\vfil
+\bye
