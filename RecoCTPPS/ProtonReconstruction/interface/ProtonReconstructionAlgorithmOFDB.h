@@ -20,6 +20,7 @@
 #include "TFile.h"
 #include "TSpline.h"
 #include "Fit/Fitter.h"
+#include "TH1D.h"
 
 #include <map>
 #include <string>
@@ -30,7 +31,7 @@ class ProtonReconstructionAlgorithmOFDB
 {
   public:
     ProtonReconstructionAlgorithmOFDB(double _xangle1, const std::string &optics_file_1, double _xangle2, const std::string &optics_file_2,
-      const edm::ParameterSet &beam_conditions, const std::vector<edm::ParameterSet> &detector_packages, unsigned int _verbosity);
+      const edm::ParameterSet &beam_conditions, const std::vector<edm::ParameterSet> &detector_packages, bool _fit_vtx_y, unsigned int _verbosity);
 
     ~ProtonReconstructionAlgorithmOFDB();
 
@@ -54,6 +55,8 @@ class ProtonReconstructionAlgorithmOFDB
 
     double xangle1, xangle2;
     std::string opticsFile1, opticsFile2;
+
+    bool fitVtxY_;
   
     std::map<unsigned int, std::string> idNameMap;
 
@@ -99,6 +102,9 @@ class ProtonReconstructionAlgorithmOFDB
 
     /// object to calculate chi^2
     std::unique_ptr<ChiSquareCalculator> chiSquareCalculator_;
+
+    /// validation plots
+    //std::map<unsigned int, std::pair<TH1D*, TH1D*>> m_rp_de_xy;
 };
 
 #endif

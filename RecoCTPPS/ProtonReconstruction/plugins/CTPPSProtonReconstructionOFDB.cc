@@ -51,6 +51,8 @@ class CTPPSProtonReconstructionOFDB : public edm::stream::EDProducer<>
     double xangle1_, xangle2_;
     edm::FileInPath opticsFile1_, opticsFile2_;
 
+    bool fitVtxY_;
+
     bool applyExperimentalAlignment;
     std::vector<std::string> alignmentFiles_;
 
@@ -86,6 +88,8 @@ CTPPSProtonReconstructionOFDB::CTPPSProtonReconstructionOFDB( const edm::Paramet
   opticsFile1_            ( iConfig.getParameter<edm::FileInPath>( "opticsFile1" ) ),
   opticsFile2_            ( iConfig.getParameter<edm::FileInPath>( "opticsFile2" ) ),
 
+  fitVtxY_                    ( iConfig.getParameter<bool>( "fitVtxY" ) ),
+
   applyExperimentalAlignment  ( iConfig.getParameter<bool>( "applyExperimentalAlignment" ) ),
   alignmentFiles_              ( iConfig.getParameter<std::vector<std::string>>( "alignmentFiles" ) ),
 
@@ -95,7 +99,7 @@ CTPPSProtonReconstructionOFDB::CTPPSProtonReconstructionOFDB( const edm::Paramet
   de_y_N(iConfig.getParameter<double>("de_y_N")),
   de_y_F(iConfig.getParameter<double>("de_y_F")),
 
-  algorithm_(xangle1_, opticsFile1_.fullPath(), xangle2_, opticsFile2_.fullPath(), beamConditions_, detectorPackages_, verbosity),
+  algorithm_(xangle1_, opticsFile1_.fullPath(), xangle2_, opticsFile2_.fullPath(), beamConditions_, detectorPackages_, fitVtxY_, verbosity),
 
   currentCrossingAngle(-1.)
 {
