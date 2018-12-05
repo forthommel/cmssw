@@ -50,9 +50,14 @@ class OpticalFunctionsPlotter : public edm::one::EDAnalyzer<edm::one::SharedReso
     double minXi_, maxXi_, xiStep_;
 
     // book graphs
-    std::map<std::string,TGraph*> g_x0_vs_xi, g_y0_vs_xi, g_y0_vs_x0, g_y0_vs_x0so, g_y0so_vs_x0so;
-    std::map<std::string,TGraph*> g_D_x_vs_xi, g_v_x_vs_xi, g_L_x_vs_xi, g_E_14_vs_xi;
-    std::map<std::string,TGraph*> g_D_y_vs_xi, g_v_y_vs_xi, g_L_y_vs_xi, g_E_32_vs_xi;
+    std::map<std::string,TGraph*> g_y0_vs_x0, g_y0_vs_x0so, g_y0so_vs_x0so;
+
+    std::map<std::string,TGraph*> g_x0_vs_xi, g_D_x_vs_xi, g_v_x_vs_xi, g_L_x_vs_xi, g_E_14_vs_xi;
+    std::map<std::string,TGraph*> g_xp0_vs_xi, g_Dp_x_vs_xi, g_vp_x_vs_xi, g_Lp_x_vs_xi, g_E_24_vs_xi;
+
+    std::map<std::string,TGraph*> g_y0_vs_xi, g_D_y_vs_xi, g_v_y_vs_xi, g_L_y_vs_xi, g_E_32_vs_xi;
+    std::map<std::string,TGraph*> g_yp0_vs_xi, g_Dp_y_vs_xi, g_vp_y_vs_xi, g_Lp_y_vs_xi, g_E_42_vs_xi;
+
     std::map<std::string,TGraph*> g_xi_vs_x, g_xi_vs_xso;
      
 };
@@ -79,15 +84,10 @@ OpticalFunctionsPlotter::OpticalFunctionsPlotter( const edm::ParameterSet& iConf
   edm::Service<TFileService> fs;
 
   // book graphs
-  for ( const auto& objName : opticsObjects_ ) {
+  for ( const auto& objName : opticsObjects_ )
+  {
     // make output directory
     TFileDirectory dir = fs->mkdir( objName.c_str() );
-    g_x0_vs_xi[objName] = dir.make<TGraph>();
-    g_x0_vs_xi[objName]->SetName( "g_x0_vs_xi" );
-    g_x0_vs_xi[objName]->SetTitle( ";#xi;x_{0}" );
-    g_y0_vs_xi[objName] = dir.make<TGraph>();
-    g_y0_vs_xi[objName]->SetName( "g_y0_vs_xi" );
-    g_y0_vs_xi[objName]->SetTitle( ";#xi;y_{0}" );
     g_y0_vs_x0[objName] = dir.make<TGraph>();
     g_y0_vs_x0[objName]->SetName( "g_y0_vs_x0" );
     g_y0_vs_x0[objName]->SetTitle( ";x_{0};y_{0}" );
@@ -98,9 +98,20 @@ OpticalFunctionsPlotter::OpticalFunctionsPlotter( const edm::ParameterSet& iConf
     g_y0so_vs_x0so[objName]->SetName( "g_y0so_vs_x0so" );
     g_y0so_vs_x0so[objName]->SetTitle( ";#hat{x}_{0};#hat{y}_{0}" );
 
+    //--------------------
+
+    g_x0_vs_xi[objName] = dir.make<TGraph>();
+    g_x0_vs_xi[objName]->SetName( "g_x0_vs_xi" );
+    g_x0_vs_xi[objName]->SetTitle( ";#xi;x_{0}" );
+
+    g_D_x_vs_xi[objName] = dir.make<TGraph>();
+    g_D_x_vs_xi[objName]->SetName( "g_D_x_vs_xi" );
+    g_D_x_vs_xi[objName]->SetTitle( ";#xi;D_{x}" );
+
     g_v_x_vs_xi[objName] = dir.make<TGraph>();
     g_v_x_vs_xi[objName]->SetName( "g_v_x_vs_xi" );
     g_v_x_vs_xi[objName]->SetTitle( ";#xi;v_{x}" );
+
     g_L_x_vs_xi[objName] = dir.make<TGraph>();
     g_L_x_vs_xi[objName]->SetName( "g_L_x_vs_xi" );
     g_L_x_vs_xi[objName]->SetTitle( ";#xi;L_{x}" );
@@ -109,6 +120,34 @@ OpticalFunctionsPlotter::OpticalFunctionsPlotter( const edm::ParameterSet& iConf
     g_E_14_vs_xi[objName]->SetName( "g_E_14_vs_xi" );
     g_E_14_vs_xi[objName]->SetTitle( ";#xi;E_{14}" );
 
+    //--------------------
+
+    g_xp0_vs_xi[objName] = dir.make<TGraph>();
+    g_xp0_vs_xi[objName]->SetName( "g_xp0_vs_xi" );
+    g_xp0_vs_xi[objName]->SetTitle( ";#xi;x'_{0}" );
+
+    g_Dp_x_vs_xi[objName] = dir.make<TGraph>();
+    g_Dp_x_vs_xi[objName]->SetName( "g_Dp_x_vs_xi" );
+    g_Dp_x_vs_xi[objName]->SetTitle( ";#xi;D'_{x}" );
+
+    g_vp_x_vs_xi[objName] = dir.make<TGraph>();
+    g_vp_x_vs_xi[objName]->SetName( "g_vp_x_vs_xi" );
+    g_vp_x_vs_xi[objName]->SetTitle( ";#xi;v'_{x}" );
+
+    g_Lp_x_vs_xi[objName] = dir.make<TGraph>();
+    g_Lp_x_vs_xi[objName]->SetName( "g_Lp_x_vs_xi" );
+    g_Lp_x_vs_xi[objName]->SetTitle( ";#xi;L'_{x}" );
+
+    g_E_24_vs_xi[objName] = dir.make<TGraph>();
+    g_E_24_vs_xi[objName]->SetName( "g_E_24_vs_xi" );
+    g_E_24_vs_xi[objName]->SetTitle( ";#xi;E_{24}" );
+
+    //--------------------
+
+    g_y0_vs_xi[objName] = dir.make<TGraph>();
+    g_y0_vs_xi[objName]->SetName( "g_y0_vs_xi" );
+    g_y0_vs_xi[objName]->SetTitle( ";#xi;y_{0}" );
+
     g_D_y_vs_xi[objName] = dir.make<TGraph>();
     g_D_y_vs_xi[objName]->SetName( "g_D_y_vs_xi" );
     g_D_y_vs_xi[objName]->SetTitle( ";#xi;D_{y}" );
@@ -116,6 +155,7 @@ OpticalFunctionsPlotter::OpticalFunctionsPlotter( const edm::ParameterSet& iConf
     g_v_y_vs_xi[objName] = dir.make<TGraph>();
     g_v_y_vs_xi[objName]->SetName( "g_v_y_vs_xi" );
     g_v_y_vs_xi[objName]->SetTitle( ";#xi;v_{y}" );
+
     g_L_y_vs_xi[objName] = dir.make<TGraph>();
     g_L_y_vs_xi[objName]->SetName( "g_L_y_vs_xi" );
     g_L_y_vs_xi[objName]->SetTitle( ";#xi;L_{y}" );
@@ -123,6 +163,30 @@ OpticalFunctionsPlotter::OpticalFunctionsPlotter( const edm::ParameterSet& iConf
     g_E_32_vs_xi[objName] = dir.make<TGraph>();
     g_E_32_vs_xi[objName]->SetName( "g_E_32_vs_xi" );
     g_E_32_vs_xi[objName]->SetTitle( ";#xi;E_{32}" );
+
+    //--------------------
+
+    g_yp0_vs_xi[objName] = dir.make<TGraph>();
+    g_yp0_vs_xi[objName]->SetName( "g_yp0_vs_xi" );
+    g_yp0_vs_xi[objName]->SetTitle( ";#xi;y'_{0}" );
+
+    g_Dp_y_vs_xi[objName] = dir.make<TGraph>();
+    g_Dp_y_vs_xi[objName]->SetName( "g_Dp_y_vs_xi" );
+    g_Dp_y_vs_xi[objName]->SetTitle( ";#xi;D'_{y}" );
+
+    g_vp_y_vs_xi[objName] = dir.make<TGraph>();
+    g_vp_y_vs_xi[objName]->SetName( "g_vp_y_vs_xi" );
+    g_vp_y_vs_xi[objName]->SetTitle( ";#xi;v'_{y}" );
+
+    g_Lp_y_vs_xi[objName] = dir.make<TGraph>();
+    g_Lp_y_vs_xi[objName]->SetName( "g_Lp_y_vs_xi" );
+    g_Lp_y_vs_xi[objName]->SetTitle( ";#xi;L'_{y}" );
+
+    g_E_42_vs_xi[objName] = dir.make<TGraph>();
+    g_E_42_vs_xi[objName]->SetName( "g_E_42_vs_xi" );
+    g_E_42_vs_xi[objName]->SetTitle( ";#xi;E_{42}" );
+
+    //--------------------
 
     g_xi_vs_x[objName] = dir.make<TGraph>();
     g_xi_vs_x[objName]->SetName( "g_xi_vs_x" );
@@ -204,21 +268,33 @@ OpticalFunctionsPlotter::beginJob()
   
       // fill graphs
       int idx = g_xi_vs_x[objName]->GetN();
-      g_x0_vs_xi[objName]->SetPoint( idx, xi, kin_out_xi[0] );
-      g_y0_vs_xi[objName]->SetPoint( idx, xi, kin_out_xi[2] );
       g_y0_vs_x0[objName]->SetPoint( idx, kin_out_xi[0], kin_out_xi[2] );
       g_y0_vs_x0so[objName]->SetPoint( idx, kin_out_xi[0]-kin_out_zero[0], kin_out_xi[2] );
       g_y0so_vs_x0so[objName]->SetPoint( idx, kin_out_xi[0]-kin_out_zero[0], kin_out_xi[2]-kin_out_zero[2] );
 
+      g_x0_vs_xi[objName]->SetPoint( idx, xi, kin_out_xi[0] );
       g_D_x_vs_xi[objName]->SetPoint( idx, xi, ( kin_out_xi_ep[0]-kin_out_xi[0] )/ep );
       g_v_x_vs_xi[objName]->SetPoint( idx, xi, ( kin_out_xi_vtx_x[0]-kin_out_xi[0] )/vertex_size_ );
       g_L_x_vs_xi[objName]->SetPoint( idx, xi, ( kin_out_xi_th_x[0]-kin_out_xi[0] )/beam_divergence_ );
       g_E_14_vs_xi[objName]->SetPoint( idx, xi, ( kin_out_xi_th_y[0]-kin_out_xi[0] )/beam_divergence_ );
 
+      g_xp0_vs_xi[objName]->SetPoint( idx, xi, kin_out_xi[1] );
+      g_Dp_x_vs_xi[objName]->SetPoint( idx, xi, ( kin_out_xi_ep[1]-kin_out_xi[1] )/ep );
+      g_vp_x_vs_xi[objName]->SetPoint( idx, xi, ( kin_out_xi_vtx_x[1]-kin_out_xi[1] )/vertex_size_ );
+      g_Lp_x_vs_xi[objName]->SetPoint( idx, xi, ( kin_out_xi_th_x[1]-kin_out_xi[1] )/beam_divergence_ );
+      g_E_24_vs_xi[objName]->SetPoint( idx, xi, ( kin_out_xi_th_y[1]-kin_out_xi[1] )/beam_divergence_ );
+
+      g_y0_vs_xi[objName]->SetPoint( idx, xi, kin_out_xi[2] );
       g_D_y_vs_xi[objName]->SetPoint( idx, xi, ( kin_out_xi_ep[2]-kin_out_xi[2] )/ep );
       g_v_y_vs_xi[objName]->SetPoint( idx, xi, ( kin_out_xi_vtx_y[2]-kin_out_xi[2] )/vertex_size_ );
       g_L_y_vs_xi[objName]->SetPoint( idx, xi, ( kin_out_xi_th_y[2]-kin_out_xi[2] )/beam_divergence_ );
       g_E_32_vs_xi[objName]->SetPoint( idx, xi, ( kin_out_xi_th_x[2]-kin_out_xi[2] )/beam_divergence_ );
+
+      g_yp0_vs_xi[objName]->SetPoint( idx, xi, kin_out_xi[3] );
+      g_Dp_y_vs_xi[objName]->SetPoint( idx, xi, ( kin_out_xi_ep[3]-kin_out_xi[3] )/ep );
+      g_vp_y_vs_xi[objName]->SetPoint( idx, xi, ( kin_out_xi_vtx_y[3]-kin_out_xi[3] )/vertex_size_ );
+      g_Lp_y_vs_xi[objName]->SetPoint( idx, xi, ( kin_out_xi_th_y[3]-kin_out_xi[3] )/beam_divergence_ );
+      g_E_42_vs_xi[objName]->SetPoint( idx, xi, ( kin_out_xi_th_x[3]-kin_out_xi[3] )/beam_divergence_ );
 
       g_xi_vs_x[objName]->SetPoint( idx, kin_out_xi[0], xi );
       g_xi_vs_xso[objName]->SetPoint( idx, kin_out_xi[0]-kin_out_zero[0], xi );
