@@ -46,7 +46,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 # geometry
-process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi")
+process.load("Geometry.VeryForwardGeometry.geometryRP_cfi")
 del(process.XMLIdealGeometryESSource_CTPPS.geomXMLFiles[-1])
 process.XMLIdealGeometryESSource_CTPPS.geomXMLFiles.append("Validation/CTPPS/test_2017/RP_Dist_Beam_Cent.xml")
 
