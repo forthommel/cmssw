@@ -19,6 +19,8 @@ ctppsProtonReconstructionOF = cms.EDProducer('CTPPSProtonReconstructionOF',
     xangle2 = cms.double(120),
     opticsFile2 = cms.FileInPath("CondFormats/CTPPSOpticsObjects/data/2017/optical_functions_2017_120urad.root"),
 
+    fitVtxY = cms.bool(True),
+
     applyExperimentalAlignment = cms.bool(True),
     alignmentFiles = cms.vstring(
       "RecoCTPPS/ProtonReconstruction/data/alignment/2017_preTS2/collect_alignments_2018_10_26.4.out",
