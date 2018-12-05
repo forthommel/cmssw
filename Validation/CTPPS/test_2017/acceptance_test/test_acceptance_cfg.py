@@ -52,7 +52,7 @@ process.XMLIdealGeometryESSource_CTPPS.geomXMLFiles.append("Validation/CTPPS/tes
 
 # fast simulation
 process.load('SimCTPPS.OpticsParameterisation.year_2017_OF.ctppsFastProtonSimulation_cfi')
-process.ctppsFastProtonSimulation.xangle = 120
+process.ctppsFastProtonSimulation.xangle = 140
 process.ctppsFastProtonSimulation.produceScoringPlaneHits = False
 process.ctppsFastProtonSimulation.produceRecHits = True
 process.ctppsFastProtonSimulation.checkApertures = False
@@ -82,7 +82,7 @@ process.ctppsAcceptancePlotter = cms.EDAnalyzer("CTPPSAcceptancePlotter",
   rpId_56_N = cms.uint32(103),
   rpId_56_F = cms.uint32(123),
 
-  outputFile = cms.string("acceptance_xangle_120.root")
+  outputFile = cms.string("acceptance_xangle_140.root")
 )
 
 # processing path
@@ -98,3 +98,23 @@ process.p = cms.Path(
 
     * process.ctppsAcceptancePlotter
 )
+
+def UseCrossingAngle150():
+  process.ctppsFastProtonSimulation.xangle = 150
+  process.ctppsFastProtonSimulation.empiricalAperture45_xi0 = 0.158
+  process.ctppsFastProtonSimulation.empiricalAperture56_xi0 = 0.20
+  process.ctppsAcceptancePlotter.outputFile = "acceptance_xangle_150.root"
+
+def UseCrossingAngle140():
+  process.ctppsFastProtonSimulation.xangle = 140
+  process.ctppsFastProtonSimulation.empiricalAperture45_xi0 = 0.153
+  process.ctppsFastProtonSimulation.empiricalAperture56_xi0 = 0.19
+  process.ctppsAcceptancePlotter.outputFile = "acceptance_xangle_140.root"
+
+def UseCrossingAngle130():
+  process.ctppsFastProtonSimulation.xangle = 130
+  process.ctppsFastProtonSimulation.empiricalAperture45_xi0 = 0.148
+  process.ctppsFastProtonSimulation.empiricalAperture56_xi0 = 0.18
+  process.ctppsAcceptancePlotter.outputFile = "acceptance_xangle_130.root"
+
+UseCrossingAngle130()

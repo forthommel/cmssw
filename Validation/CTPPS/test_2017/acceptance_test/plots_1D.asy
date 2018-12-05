@@ -1,7 +1,7 @@
 import root;
 import pad_layout;
 
-string f = "acceptance.root";
+string f = "acceptance_xangle_140.root";
 
 xSizeDef = 10cm;
 ySizeDef = 8cm;
