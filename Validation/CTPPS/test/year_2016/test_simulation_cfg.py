@@ -100,7 +100,7 @@ process.ctppsLocalTrackLiteProducer.includePixels = False
 # distribution plotter
 process.ctppsTrackDistributionPlotter = cms.EDAnalyzer("CTPPSTrackDistributionPlotter",
   tracksTag = cms.InputTag("ctppsLocalTrackLiteProducer"),
-  outputFile = cms.string("output.root")
+  outputFile = cms.string("output_simulation.root")
 )
 
 # processing path
