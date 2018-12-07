@@ -46,6 +46,8 @@ namespace reco
       /// List of RP tracks that contributed to this global track
       const RPList& contributingRPs() const { return contributing_rp_ids_; }
 
+      // TODO: replace contributing RPs with contributing local lite tracks ??
+
     private:
       bool valid_fit_;
       ReconstructionMethod method_;
