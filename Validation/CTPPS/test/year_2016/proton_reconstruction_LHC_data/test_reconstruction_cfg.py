@@ -45,31 +45,38 @@ process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi") # 2017 is
 # load alignment corrections
 process.ctppsIncludeAlignmentsFromXML.RealFiles += cms.vstring("Validation/CTPPS/test/year_2016/alignment_export_2018_12_07.1.xml")
 
+# reconstruction validator
+process.ctppsProtonReconstructionValidator = cms.EDAnalyzer("CTPPSProtonReconstructionValidator",
+    tagTracks = cms.InputTag("ctppsLocalTrackLiteProducer"),
+    tagRecoProtons = cms.InputTag("ctppsProtonReconstruction", "multiRP"),
+
+    chiSqCut = cms.double(2.),
+
+    outputFile = cms.string("test_recontruction_validation.root")
+)
+
 # reconstruction plotter
-# TODO
-### process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstructionPlotter",
-###     tagTracks = cms.InputTag("ctppsLocalTrackLiteProducer"),
-###     tagRecoProtons = cms.InputTag("ctppsProtonReconstruction"),
-### 
-###     rpId_45_F = cms.uint32(3),
-###     rpId_45_N = cms.uint32(2),
-###     rpId_56_N = cms.uint32(102),
-###     rpId_56_F = cms.uint32(103),
-### 
-###     outputFile = cms.string("reco_plots.root")
-### )
-process.totemRPLocalTrackFitter.verbosity = 100
+process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstructionPlotter",
+    tagTracks = cms.InputTag("ctppsLocalTrackLiteProducer"),
+    tagRecoProtonsSingleRP = cms.InputTag("ctppsProtonReconstruction", "singleRP"),
+    tagRecoProtonsMultiRP = cms.InputTag("ctppsProtonReconstruction", "multiRP"),
+
+    rpId_45_F = cms.uint32(3),
+    rpId_45_N = cms.uint32(2),
+    rpId_56_N = cms.uint32(102),
+    rpId_56_F = cms.uint32(103),
+
+    outputFile = cms.string("test_reconstruction_plots.root")
+)
 
 # processing sequence
 process.p = cms.Path(
     process.totemRPUVPatternFinder
     * process.totemRPLocalTrackFitter
 
-    #* process.ctppsPixelLocalTracks
-
     * process.ctppsLocalTrackLiteProducer
     * process.ctppsProtonReconstruction
 
-    #* process.ctppsTrackDistributionPlotter
-    #* process.ctppsProtonReconstructionPlotter
+    * process.ctppsProtonReconstructionValidator
+    * process.ctppsProtonReconstructionPlotter
 )
