@@ -21,7 +21,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(1000)
 )
 
 # load LHCInfo
@@ -35,7 +35,7 @@ process.load("RecoCTPPS.Configuration.recoCTPPS_sequences_cff")
 
 process.ctppsLocalTrackLiteProducer.includeStrips = True
 process.ctppsLocalTrackLiteProducer.includeDiamonds = False
-process.ctppsLocalTrackLiteProducer.includePixels = False 
+process.ctppsLocalTrackLiteProducer.includePixels = False
 
 process.ctppsProtonReconstruction.verbosity = 0
 
@@ -50,15 +50,24 @@ process.ctppsIncludeAlignmentsFromXML.RealFiles += cms.vstring("Validation/CTPPS
 ### process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstructionPlotter",
 ###     tagTracks = cms.InputTag("ctppsLocalTrackLiteProducer"),
 ###     tagRecoProtons = cms.InputTag("ctppsProtonReconstruction"),
-### 
+###
 ###     rpId_45_F = cms.uint32(3),
 ###     rpId_45_N = cms.uint32(2),
 ###     rpId_56_N = cms.uint32(102),
 ###     rpId_56_F = cms.uint32(103),
-### 
+###
 ###     outputFile = cms.string("reco_plots.root")
 ### )
 process.totemRPLocalTrackFitter.verbosity = 100
+
+process.out = cms.OutputModule('PoolOutputModule',
+    fileName = cms.untracked.string('output.root'),
+    outputCommands = cms.untracked.vstring(
+        'drop *',
+        'keep *_ctpps*_*_*'
+        #'keep *',
+    )
+)
 
 # processing sequence
 process.p = cms.Path(
@@ -73,3 +82,5 @@ process.p = cms.Path(
     #* process.ctppsTrackDistributionPlotter
     #* process.ctppsProtonReconstructionPlotter
 )
+
+process.e = cms.EndPath(process.out)

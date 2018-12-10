@@ -27,7 +27,5 @@ namespace DataFormats_ProtonReco
     edm::RefProd<std::vector<reco::ProtonTrackExtra> > rp_vec_pte;
     edm::Ref<std::vector<reco::ProtonTrackExtra>,reco::ProtonTrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::ProtonTrackExtra>,reco::ProtonTrackExtra> > ref_vec_pte;
     edm::RefVector<std::vector<reco::ProtonTrackExtra>,reco::ProtonTrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::ProtonTrackExtra>,reco::ProtonTrackExtra> > rv_vec_pte;
-
-    std::set<unsigned int> set_uint;
   };
 }

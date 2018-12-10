@@ -10,7 +10,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLiteFwd.h"
-#include "DataFormats/ProtonReco/interface/ProtonTrack.h"
+#include "DataFormats/ProtonReco/interface/ProtonTrackFwd.h"
+#include "DataFormats/ProtonReco/interface/ProtonTrackExtraFwd.h"
 
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/LHCOpticalFunctionsSet.h"
@@ -31,10 +32,14 @@ class ProtonReconstructionAlgorithm
     typedef std::vector<CTPPSLocalTrackLiteRef> TracksCollection;
 
     /// runs proton reconstruction using single-RP strategy
-    void reconstructFromSingleRP(const TracksCollection& input, std::vector<reco::ProtonTrack> &output, const LHCInfo &lhcInfo) const;
+    void reconstructFromSingleRP(const TracksCollection& input,
+      reco::ProtonTrackCollection& output, reco::ProtonTrackExtraCollection& extra, reco::ProtonTrackExtraRefProd& r_extra,
+      const LHCInfo &lhcInfo) const;
 
     /// runs proton reconstruction using multiple-RP strategy
-    void reconstructFromMultiRP(const TracksCollection& input, std::vector<reco::ProtonTrack> &output, const LHCInfo &lhcInfo) const;
+    void reconstructFromMultiRP(const TracksCollection& input,
+      reco::ProtonTrackCollection& output, reco::ProtonTrackExtraCollection& extra, reco::ProtonTrackExtraRefProd& r_extra,
+      const LHCInfo &lhcInfo) const;
 
     void init(const std::unordered_map<unsigned int, LHCOpticalFunctionsSet> &opticalFunctions);
 

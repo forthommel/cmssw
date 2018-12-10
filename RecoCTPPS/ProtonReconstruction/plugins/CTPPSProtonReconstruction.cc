@@ -15,6 +15,7 @@
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 #include "DataFormats/ProtonReco/interface/ProtonTrack.h"
+#include "DataFormats/ProtonReco/interface/ProtonTrackExtra.h"
 
 #include "RecoCTPPS/ProtonReconstruction/interface/ProtonReconstructionAlgorithm.h"
 
@@ -71,11 +72,15 @@ CTPPSProtonReconstruction::CTPPSProtonReconstruction(const edm::ParameterSet& iC
   algorithm_(iConfig.getParameter<bool>("fitVtxY"), verbosity_),
   currentCrossingAngle_(-1.)
 {
-  if (doSingleRPReconstruction_)
-    produces<vector<reco::ProtonTrack>>(singleRPLabel);
+  if (doSingleRPReconstruction_) {
+    produces<reco::ProtonTrackCollection>(singleRPLabel);
+    produces<reco::ProtonTrackExtraCollection>(singleRPLabel);
+  }
 
-  if (doMultiRPReconstruction_)
-    produces<vector<reco::ProtonTrack>>(multiRPLabel);
+  if (doMultiRPReconstruction_) {
+    produces<reco::ProtonTrackCollection>(multiRPLabel);
+    produces<reco::ProtonTrackExtraCollection>(multiRPLabel);
+  }
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -173,25 +178,35 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup &eventSet
   // single-RP reconstruction
   if (doSingleRPReconstruction_)
   {
-    unique_ptr<vector<reco::ProtonTrack>> output(new vector<reco::ProtonTrack>);
+    unique_ptr<reco::ProtonTrackCollection> output(new reco::ProtonTrackCollection);
+    unique_ptr<reco::ProtonTrackExtraCollection> extras(new reco::ProtonTrackExtraCollection);
 
-    algorithm_.reconstructFromSingleRP(tracks_45, *output, *hLHCInfo);
-    algorithm_.reconstructFromSingleRP(tracks_56, *output, *hLHCInfo);
+    // prepare the reference to extra proton tracks attributes
+    reco::ProtonTrackExtraRefProd rExtras = event.getRefBeforePut<reco::ProtonTrackExtraCollection>(singleRPLabel);
+
+    algorithm_.reconstructFromSingleRP(tracks_45, *output, *extras, rExtras, *hLHCInfo);
+    algorithm_.reconstructFromSingleRP(tracks_56, *output, *extras, rExtras, *hLHCInfo);
 
     event.put(move(output), singleRPLabel);
+    event.put(move(extras), singleRPLabel);
   }
 
   // multi-RP reconstruction
   if (doMultiRPReconstruction_)
   {
-    unique_ptr<vector<reco::ProtonTrack>> output(new vector<reco::ProtonTrack>);
+    unique_ptr<reco::ProtonTrackCollection> output(new reco::ProtonTrackCollection);
+    unique_ptr<reco::ProtonTrackExtraCollection> extras(new reco::ProtonTrackExtraCollection);
+
+    // prepare the reference to extra proton tracks attributes
+    reco::ProtonTrackExtraRefProd rExtras = event.getRefBeforePut<reco::ProtonTrackExtraCollection>(multiRPLabel);
 
     if (singleTrack_45)
-      algorithm_.reconstructFromMultiRP(tracks_45, *output, *hLHCInfo);
+      algorithm_.reconstructFromMultiRP(tracks_45, *output, *extras, rExtras, *hLHCInfo);
     if (singleTrack_56)
-      algorithm_.reconstructFromMultiRP(tracks_56, *output, *hLHCInfo);
+      algorithm_.reconstructFromMultiRP(tracks_56, *output, *extras, rExtras, *hLHCInfo);
 
     event.put(move(output), multiRPLabel);
+    event.put(move(extras), multiRPLabel);
   }
 }
 

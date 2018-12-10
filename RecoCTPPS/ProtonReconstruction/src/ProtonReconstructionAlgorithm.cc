@@ -13,6 +13,7 @@
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
+#include "DataFormats/ProtonReco/interface/ProtonTrack.h"
 #include "DataFormats/ProtonReco/interface/ProtonTrackExtra.h"
 
 #include "TF1.h"
@@ -147,10 +148,14 @@ double ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() (const dou
 
 //----------------------------------------------------------------------------------------------------
 
-void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const TracksCollection& tracks, vector<reco::ProtonTrack> &out, const LHCInfo &lhcInfo) const
+void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const TracksCollection& tracks,
+  reco::ProtonTrackCollection& out, reco::ProtonTrackExtraCollection& extras, reco::ProtonTrackExtraRefProd& r_extra,
+  const LHCInfo &lhcInfo) const
 {
   if (!initialized_)
     return;
+
+  edm::Ref<reco::ProtonTrackExtraCollection>::key_type idx_pte = 0;
 
   // need at least two tracks
   if (tracks.size() < 2)
@@ -272,56 +277,51 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const TracksCollectio
   if (verbosity_)
     printf("    fit: xi = %f, th_x = %E, th_y = %E, vtx_y = %E, chiSq = %.0f\n", params[0], params[1], params[2], params[3], result.Chi2());
 
+  using ex = reco::ProtonTrackExtra;
+
+  auto lhcSector = (CTPPSDetId((*tracks.begin())->getRPId()).arm() == 0) ? ex::LHCSector::sector45 : ex::LHCSector::sector56; //FIXME ensure all tracks are from same arm! even though it should be clear from the feeding plugin...
+  const double sign_z_lhc = (lhcSector == ex::LHCSector::sector45) ? -1. : +1.; // sign reflects change LHC --> CMS convention
+  const reco::Track::Point vtx(0., params[3]*1.e3, 0.); // vertex in mm (FIXME CMS convention: cm)
+
+  const double xi = params[0];
+  const double th_x = params[1], th_y = params[2];
+  const double cos_th = sqrt(1.-th_x*th_x-th_y*th_y);
+  const reco::Track::Vector direction(-th_x, th_y, -sign_z_lhc*cos_th);
+
+  const double p = lhcInfo.energy() * (1.-xi);
+
   // save reco candidate
-  reco::ProtonTrack pt;
+  reco::ProtonTrack pt(0., 0., vtx, p*direction, xi); // TODO: covariance matrix
+  reco::ProtonTrackExtraRef teref = reco::ProtonTrackExtraRef(r_extra, idx_pte++);
+  pt.setProtonTrackExtra(teref);
+  extras.emplace_back(
+    result.IsValid() && result.Chi2() < 2., // valid
+    ex::ReconstructionMethod::multiRP, // method
+    lhcSector, // sector
+    tracks // reference to "mother" tracks
+  );
   // TODO
   /*
-  pt.method = reco::ProtonTrack::rmMultiRP;
-  pt.halfCrossingAngleSector45 = halfCrossingAngleSector45_;
-  pt.halfCrossingAngleSector56 = halfCrossingAngleSector56_;
-
   pt.fitChiSq = result.Chi2();
   pt.fitNDF = 2.*tracks.size() - ((fitVtxY_) ? 4. : 3.);
-  pt.lhcSector = (CTPPSDetId(tracks[0]->getRPId()).arm() == 0) ? reco::ProtonTrack::sector45 : reco::ProtonTrack::sector56;
-
-  pt.setVertex(Local3DPoint(0., params[3]*1E3, 0.));  // vertext in mm
-
-  const double p_nom = 6500.;  // GeV
-  const double p = p_nom *  (1. - params[0]);
-  const double th_x = params[1];
-  const double th_y = params[2];
-  const double cos_th = sqrt(1. - th_x*th_x - th_y*th_y);
-  const double sign_z_lhc = (pt.lhcSector == reco::ProtonTrack::sector45) ? -1. : +1.;
-
-  pt.setXi(params[0]);
-
-  pt.setDirection(Local3DVector(
-    - p * th_x,   // the signs reflect change LHC --> CMS convention
-    + p * th_y,
-    - sign_z_lhc * p * cos_th
-  ));
-
-  for (const auto &track : tracks)
-    pt.contributingRPIds.insert(track->getRPId());
-
-  const double max_chi_sq = 2.;
-
-  const bool valid = result.IsValid() && pt.fitChiSq < max_chi_sq;
-  pt.setValid(valid);
 
   if (verbosity && !valid)
     printf("WARNING: invalid proton-reconstruction fit (result.IsValid = %u, fitChiSq = %.2E).\n", result.IsValid(), pt.fitChiSq);
   */
 
-  out.push_back(move(pt));
+  out.emplace_back(move(pt));
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void ProtonReconstructionAlgorithm::reconstructFromSingleRP(const TracksCollection& tracks, vector<reco::ProtonTrack> &out, const LHCInfo &lhcInfo) const
+void ProtonReconstructionAlgorithm::reconstructFromSingleRP(const TracksCollection& tracks,
+  reco::ProtonTrackCollection& out, reco::ProtonTrackExtraCollection& extras, reco::ProtonTrackExtraRefProd& r_extra,
+  const LHCInfo &lhcInfo) const
 {
   if (!initialized_)
     return;
+
+  edm::Ref<reco::ProtonTrackExtraCollection>::key_type idx_pte = 0;
 
   // make sure optics is available for all tracks
   //FIXME wouldn't it be more efficient to move it to the main loop below?
@@ -352,19 +352,17 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(const TracksCollecti
 
     // save proton candidate
     auto lhcSector = (CTPPSDetId(track->getRPId()).arm() == 0) ? ex::LHCSector::sector45 : ex::LHCSector::sector56;
-    ex::LocalTracksList tracksList;
-    tracksList.insert(track);
-    reco::ProtonTrackExtra ptExtra(true, ex::ReconstructionMethod::singleRP, lhcSector, tracksList);
 
     const double sign_z_lhc = (lhcSector == ex::LHCSector::sector45) ? -1. : +1.;
     const reco::Track::Point vtx(0., 0., 0.);
     const reco::Track::Vector direction(0., th_y, - sign_z_lhc);
     const double p = lhcInfo.energy() * (1. - xi);
-    reco::ProtonTrack pt(0., 0, vtx, p * direction, xi);  // TODO: covariance matrix
 
-    // TODO: fix this
-    //pt.setProtonTrackExtra(ptExtra);
+    reco::ProtonTrack pt(0., 0., vtx, p*direction, xi); // TODO: covariance matrix
+    reco::ProtonTrackExtraRef teref = reco::ProtonTrackExtraRef(r_extra, idx_pte++);
+    pt.setProtonTrackExtra(teref);
 
-    out.push_back(move(pt));
+    extras.emplace_back(true, ex::ReconstructionMethod::singleRP, lhcSector, CTPPSLocalTrackLiteRefVector{track});
+    out.emplace_back(move(pt));
   }
 }

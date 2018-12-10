@@ -141,4 +141,5 @@
   <class name="std::vector<CTPPSLocalTrackLite>"/>
   <class name="edm::Wrapper<CTPPSLocalTrackLite>"/>
   <class name="edm::Wrapper<std::vector<CTPPSLocalTrackLite>>"/>
+  <class name="std::vector<CTPPSLocalTrackLiteRef>"/>
 </lcgdict>
