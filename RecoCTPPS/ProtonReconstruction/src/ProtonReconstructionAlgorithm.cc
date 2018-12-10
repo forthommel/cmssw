@@ -12,6 +12,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 #include "DataFormats/ProtonReco/interface/ProtonTrackExtra.h"
 
 #include "TF1.h"
@@ -111,7 +112,7 @@ double ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() (const dou
   // calculate chi^2 by looping over hits
   double S2 = 0.;
 
-  for (const auto &track : *tracks_)
+  for (const auto& track : *tracks_)
   {
     const CTPPSDetId rpId(track->getRPId());
 
@@ -146,8 +147,7 @@ double ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() (const dou
 
 //----------------------------------------------------------------------------------------------------
 
-void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CTPPSLocalTrackLite*> &tracks,
-  vector<reco::ProtonTrack> &out, const LHCInfo &lhcInfo) const
+void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const TracksCollection& tracks, vector<reco::ProtonTrack> &out, const LHCInfo &lhcInfo) const
 {
   if (!initialized_)
     return;
@@ -157,12 +157,14 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CT
     return;
 
   // make sure optics is available for all tracks
-  for (const auto &it : tracks)
-  {
-    auto oit = m_rp_optics_.find(it->getRPId());
+  //FIXME wouldn't it be more efficient to move it to the main loop below?
+  // possibly throwing an exception whenever it does not find the associated
+  // optics object?
+  for (const auto& track : tracks) {
+    auto oit = m_rp_optics_.find(track->getRPId());
     if (oit == m_rp_optics_.end())
       throw cms::Exception("ProtonReconstructionAlgorithm") << "Optics data not available for RP " <<
-        it->getRPId() << ", i.e. " << CTPPSDetId(it->getRPId()) << ".";
+        track->getRPId() << ", i.e. " << CTPPSDetId(track->getRPId()) << ".";
   }
 
   // initial estimate of xi and th_x
@@ -174,8 +176,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CT
     double x_N = 0., x_F = 0.;
     const RPOpticsData *i_N = NULL, *i_F = NULL;
     unsigned int idx = 0;
-    for (const auto &track : tracks)
-    {
+    for (const auto& track : tracks) {
       auto oit = m_rp_optics_.find(track->getRPId());
 
       if (idx == 0) { x_N = track->getX() * 1E-3; i_N = &oit->second; }
@@ -194,8 +195,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CT
     th_x_init = (x_N - i_N->ch0 - i_N->ch1 * xi_init) / (i_N->la0 + i_N->la1 * xi_init);
   } else {
     double S_xi0 = 0., S_1 = 0.;
-    for (const auto &track : tracks)
-    {
+    for (const auto& track : tracks) {
       auto oit = m_rp_optics_.find(track->getRPId());
       double xi = oit->second.s_xi_vs_x_d->Eval(track->getX() * 1E-3 + oit->second.x0);  // conversion: mm --> m
 
@@ -209,8 +209,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CT
   // initial estimate of th_y and vtx_y
   double y[2], v_y[2], L_y[2];
   unsigned int y_idx = 0;
-  for (const auto &track : tracks)
-  {
+  for (const auto& track : tracks) {
     if (y_idx >= 2)
       continue;
 
@@ -319,24 +318,22 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CT
 
 //----------------------------------------------------------------------------------------------------
 
-void ProtonReconstructionAlgorithm::reconstructFromSingleRP(const vector<const CTPPSLocalTrackLite*> &tracks,
-  vector<reco::ProtonTrack> &out, const LHCInfo &lhcInfo) const
+void ProtonReconstructionAlgorithm::reconstructFromSingleRP(const TracksCollection& tracks, vector<reco::ProtonTrack> &out, const LHCInfo &lhcInfo) const
 {
   if (!initialized_)
     return;
 
   // make sure optics is available for all tracks
-  for (const auto &it : tracks)
-  {
-    auto oit = m_rp_optics_.find(it->getRPId());
+  //FIXME wouldn't it be more efficient to move it to the main loop below?
+  for (const auto& track : tracks) {
+    auto oit = m_rp_optics_.find(track->getRPId());
     if (oit == m_rp_optics_.end())
-      throw cms::Exception("ProtonReconstructionAlgorithm") << "Optics data not available for RP " << it->getRPId()
-        << ", i.e. " << CTPPSDetId(it->getRPId()) << ".";
+      throw cms::Exception("ProtonReconstructionAlgorithm") << "Optics data not available for RP " << track->getRPId()
+        << ", i.e. " << CTPPSDetId(track->getRPId()) << ".";
   }
 
   // rough estimate of xi and th_y from each track
-  for (const auto &track : tracks)
-  {
+  for (const auto& track : tracks) {
     CTPPSDetId rpId(track->getRPId());
     unsigned int decRPId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
 
@@ -355,9 +352,9 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(const vector<const C
 
     // save proton candidate
     auto lhcSector = (CTPPSDetId(track->getRPId()).arm() == 0) ? ex::LHCSector::sector45 : ex::LHCSector::sector56;
-    ex::RPList rpList;
-    rpList.insert(track->getRPId());
-    reco::ProtonTrackExtra ptExtra(true, ex::ReconstructionMethod::singleRP, lhcSector, rpList);
+    ex::LocalTracksList tracksList;
+    tracksList.insert(track);
+    reco::ProtonTrackExtra ptExtra(true, ex::ReconstructionMethod::singleRP, lhcSector, tracksList);
 
     const double sign_z_lhc = (lhcSector == ex::LHCSector::sector45) ? -1. : +1.;
     const reco::Track::Point vtx(0., 0., 0.);

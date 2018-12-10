@@ -37,7 +37,7 @@ class CTPPSProtonReconstruction : public edm::stream::EDProducer<>
   private:
     virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
-    edm::EDGetTokenT< std::vector<CTPPSLocalTrackLite> > tracksToken_;
+    edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> tracksToken_;
 
     unsigned int verbosity_;
 
@@ -64,7 +64,7 @@ using namespace edm;
 //----------------------------------------------------------------------------------------------------
 
 CTPPSProtonReconstruction::CTPPSProtonReconstruction(const edm::ParameterSet& iConfig) :
-  tracksToken_(consumes< std::vector<CTPPSLocalTrackLite> >(iConfig.getParameter<edm::InputTag>("tagLocalTrackLite"))),
+  tracksToken_(consumes<CTPPSLocalTrackLiteCollection>(iConfig.getParameter<edm::InputTag>("tagLocalTrackLite"))),
   verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)),
   doSingleRPReconstruction_(iConfig.getParameter<bool>("doSingleRPReconstruction")),
   doMultiRPReconstruction_(iConfig.getParameter<bool>("doMultiRPReconstruction")),
@@ -130,28 +130,28 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup &eventSet
   }
 
   // get input
-  Handle<vector<CTPPSLocalTrackLite>> hTracks;
+  Handle<CTPPSLocalTrackLiteCollection> hTracks;
   event.getByToken(tracksToken_, hTracks);
 
   // keep only tracks from tracker RPs, split them by LHC sector
-  vector<const CTPPSLocalTrackLite*> tracks_45, tracks_56;
+  ProtonReconstructionAlgorithm::TracksCollection tracks_45, tracks_56;
   map<unsigned int, unsigned int> nTracksPerRP;
-  for (const auto &tr : *hTracks)
-  {
+  for (size_t i = 0; i < hTracks->size(); ++i) {
+    const auto& tr = hTracks->at(i);
     CTPPSDetId rpId(tr.getRPId());
-    if (rpId.subdetId() != CTPPSDetId::sdTrackingStrip && rpId.subdetId() != CTPPSDetId::sdTrackingPixel)
+    if (rpId.subdetId() != CTPPSDetId::sdTrackingStrip
+     && rpId.subdetId() != CTPPSDetId::sdTrackingPixel)
       continue;
 
-    if (verbosity_)
-    {
+    if (verbosity_) {
       unsigned int decRPId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
       printf("%u (%u): x=%.3f, y=%.3f mm\n", tr.getRPId(), decRPId, tr.getX(), tr.getY());
     }
 
     if (rpId.arm() == 0)
-      tracks_45.push_back(&tr);
+      tracks_45.emplace_back(CTPPSLocalTrackLiteRef(hTracks, i));
     if (rpId.arm() == 1)
-      tracks_56.push_back(&tr);
+      tracks_56.emplace_back(CTPPSLocalTrackLiteRef(hTracks, i));
 
     nTracksPerRP[tr.getRPId()]++;
   }

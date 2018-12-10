@@ -10,15 +10,15 @@
 #ifndef DataFormats_ProtonReco_ProtonTrackExtra_h
 #define DataFormats_ProtonReco_ProtonTrackExtra_h
 
+#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLiteFwd.h"
 #include <set>
-#include "DataFormats/Common/interface/Ref.h"
 
 namespace reco
 {
   class ProtonTrackExtra
   {
     public:
-      typedef std::set<unsigned int> RPList;
+      typedef std::set<CTPPSLocalTrackLiteRef> LocalTracksList;
       /// Type of reconstruction for this track
       enum class ReconstructionMethod { invalid = -1, singleRP, multiRP };
       /// LHC sector for this track
@@ -27,7 +27,7 @@ namespace reco
       /// Empty (invalid track extra info) constructor
       ProtonTrackExtra();
       /// Default constructor
-      ProtonTrackExtra( bool valid, const ReconstructionMethod& method, const LHCSector& sector, const RPList& rp_list );
+      ProtonTrackExtra( bool valid, const ReconstructionMethod& method, const LHCSector& sector, const LocalTracksList& tracks_list );
 
       /// Set the flag for the fit validity
       void setValidFit( bool valid = true ) { valid_fit_ = valid; }
@@ -42,17 +42,15 @@ namespace reco
       /// LHC sector for this track (0=sector45, 1=sector56)
       LHCSector sector() const { return sector_; }
       /// Store the list of RP tracks that contributed to this global track
-      void setContributingRPs( const RPList& list ) { contributing_rp_ids_ = list; }
+      void setContributingTracks( const LocalTracksList& tracks ) { contributing_tracks_ = tracks; }
       /// List of RP tracks that contributed to this global track
-      const RPList& contributingRPs() const { return contributing_rp_ids_; }
-
-      // TODO: replace contributing RPs with contributing local lite tracks ??
+      const LocalTracksList& contributingTracks() const { return contributing_tracks_; }
 
     private:
       bool valid_fit_;
       ReconstructionMethod method_;
       LHCSector sector_;
-      RPList contributing_rp_ids_;
+      LocalTracksList contributing_tracks_;
   };
 }
 

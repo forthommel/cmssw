@@ -9,8 +9,8 @@
   <class name="edm::RefVector<std::vector<reco::ProtonTrack>,reco::ProtonTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::ProtonTrack>,reco::ProtonTrack> >"/>
 
   <class name="reco::ProtonTrackExtra" ClassVersion="3">
-    <version ClassVersion="3" checksum="1360045830"/>
-    <field name="contributing_rp_ids_" iotype="std::set<unsigned int>"/>
+    <version ClassVersion="3" checksum="3108943478"/>
+    <field name="contributing_tracks_" iotype="std::set<CTPPSLocalTrackLiteRef>"/>
   </class>
   <class name="std::vector<reco::ProtonTrackExtra>"/>
   <class name="edm::Wrapper<std::vector<reco::ProtonTrackExtra> >"/>
