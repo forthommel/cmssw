@@ -53,7 +53,7 @@ CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer( const edm::ParameterSe
 
   siStripTrackToken_ = consumes< edm::DetSetVector<TotemRPLocalTrack> >     ( iConfig.getParameter<edm::InputTag>("tagSiStripTrack") );
   diamondTrackToken_ = consumes< edm::DetSetVector<CTPPSDiamondLocalTrack> >( iConfig.getParameter<edm::InputTag>("tagDiamondTrack") );
-  auto tagPixelTrack = iConfig.getParameter<edm::InputTag>("tagPixelTrack"); 
+  auto tagPixelTrack = iConfig.getParameter<edm::InputTag>("tagPixelTrack");
   if (not tagPixelTrack.label().empty()){
     pixelTrackToken_   = consumes< edm::DetSetVector<CTPPSPixelLocalTrack> >  (tagPixelTrack);
   }
@@ -63,7 +63,7 @@ CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer( const edm::ParameterSe
 }
 
 //----------------------------------------------------------------------------------------------------
- 
+
 void
 CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup& )
 {
@@ -72,7 +72,7 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
 
 // prepare output
   std::unique_ptr< std::vector<CTPPSLocalTrackLite> > pOut( new std::vector<CTPPSLocalTrackLite>() );
-  
+
 //----- TOTEM strips
 
 // get input from Si strips
@@ -131,14 +131,24 @@ CTPPSLocalTrackLiteProducer::fillDescriptions( edm::ConfigurationDescriptions& d
 {
   edm::ParameterSetDescription desc;
 
+  // By default: module enabled (doNothing=false), but all includeXYZ flags set to false.
+  // The includeXYZ are switched on when the "ctpps_2016" era is declared in python config, see:
+  // RecoCTPPS/TotemRPLocal/python/ctppsLocalTrackLiteProducer_cff.py
+
+  desc.add<bool>("includeStrips", false)->setComment("whether tracks from Si strips should be included");
   desc.add<edm::InputTag>( "tagSiStripTrack", edm::InputTag( "totemRPLocalTrackFitter" ) )
     ->setComment( "input TOTEM strips' local tracks collection to retrieve" );
+
+  desc.add<bool>("includeDiamonds", false)->setComment("whether tracks from diamonds strips should be included");
   desc.add<edm::InputTag>( "tagDiamondTrack", edm::InputTag( "ctppsDiamondLocalTracks" ) )
     ->setComment( "input diamond detectors' local tracks collection to retrieve" );
-  desc.add<edm::InputTag>( "tagPixelTrack"  , edm::InputTag( "ctppsPixelLocalTracks"   ) )
+
+  desc.add<bool>("includePixels", false)->setComment("whether tracks from pixels should be included");
+  desc.add<edm::InputTag>( "tagPixelTrack", edm::InputTag( "ctppsPixelLocalTracks"   ) )
     ->setComment( "input pixel detectors' local tracks collection to retrieve" );
-  desc.add<bool>( "doNothing", true ) // disable the module by default
-    ->setComment( "disable the module" );
+
+  desc.add<bool>("doNothing", false)
+    ->setComment("disable the module");
 
   descr.add( "ctppsLocalTrackLiteDefaultProducer", desc );
 }
