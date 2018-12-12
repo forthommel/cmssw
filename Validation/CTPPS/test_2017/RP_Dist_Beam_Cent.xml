@@ -5,7 +5,7 @@
 		<Constant name="RP_147_Left_Det_Dist_0" value="40*mm"/>
 		<Constant name="RP_147_Left_Det_Dist_1" value="40*mm"/>
 		<Constant name="RP_147_Left_Det_Dist_2" value="40*mm"/>
-		<Constant name="RP_147_Left_Det_Dist_3" value="2.4*mm"/>  <!-- 3 -->
+		<Constant name="RP_147_Left_Det_Dist_3" value="3.0*mm"/>  <!-- 3 -->
 		<Constant name="RP_147_Left_Det_Dist_4" value="40*mm"/>
 		<Constant name="RP_147_Left_Det_Dist_5" value="40*mm"/>
 
@@ -13,7 +13,7 @@
 		<Constant name="RP_220_Left_Det_Dist_0" value="40*mm"/>
 		<Constant name="RP_220_Left_Det_Dist_1" value="40*mm"/>
 		<Constant name="RP_220_Left_Det_Dist_2" value="40*mm"/>
-		<Constant name="RP_220_Left_Det_Dist_3" value="1.8*mm"/>  <!-- 23 -->
+		<Constant name="RP_220_Left_Det_Dist_3" value="1.1*mm"/>  <!-- 23 -->
 		<Constant name="RP_220_Left_Det_Dist_4" value="40*mm"/>
 		<Constant name="RP_220_Left_Det_Dist_5" value="40*mm"/>
 
@@ -21,7 +21,7 @@
 		<Constant name="RP_147_Right_Det_Dist_0" value="40*mm"/>
 		<Constant name="RP_147_Right_Det_Dist_1" value="40*mm"/>
 		<Constant name="RP_147_Right_Det_Dist_2" value="40*mm"/>
-		<Constant name="RP_147_Right_Det_Dist_3" value="3.4*mm"/>  <!-- 103 -->
+		<Constant name="RP_147_Right_Det_Dist_3" value="3.2*mm"/>  <!-- 103 -->
 		<Constant name="RP_147_Right_Det_Dist_4" value="40*mm"/>
 		<Constant name="RP_147_Right_Det_Dist_5" value="40*mm"/>
 
@@ -29,7 +29,7 @@
 		<Constant name="RP_220_Right_Det_Dist_0" value="40*mm"/>
 		<Constant name="RP_220_Right_Det_Dist_1" value="40*mm"/>
 		<Constant name="RP_220_Right_Det_Dist_2" value="40*mm"/>
-		<Constant name="RP_220_Right_Det_Dist_3" value="2.3*mm"/>  <!-- 123 -->
+		<Constant name="RP_220_Right_Det_Dist_3" value="1.3*mm"/>  <!-- 123 -->
 		<Constant name="RP_220_Right_Det_Dist_4" value="40*mm"/>
 		<Constant name="RP_220_Right_Det_Dist_5" value="40*mm"/>
 
