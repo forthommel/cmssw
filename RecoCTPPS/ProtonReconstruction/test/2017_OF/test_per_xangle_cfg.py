@@ -32,7 +32,7 @@ process.maxEvents = cms.untracked.PSet(
 # track distribution plotter
 process.ctppsTrackDistributionPlotter = cms.EDAnalyzer("CTPPSTrackDistributionPlotter",
   tracksTag = cms.InputTag("ctppsLocalTrackLiteProducer"),
-  outputFile = cms.string("track_plots.root")
+  outputFile = cms.string("track_plots_xangle.root")
 )
 
 # proton reconstruction
@@ -50,7 +50,7 @@ process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstruc
     rpId_56_N = cms.uint32(103),
     rpId_56_F = cms.uint32(123),
 
-    outputFile = cms.string("reco_plots.root")
+    outputFile = cms.string("reco_plots_xangle.root")
 )
 
 # processing sequence
@@ -59,3 +59,7 @@ process.p = cms.Path(
   * process.ctppsTrackDistributionPlotter
   * process.ctppsProtonReconstructionPlotter
 )
+
+# select only data corresponding to certain crossing-angle
+from RecoCTPPS.ProtonReconstruction.year_2017_OF.ctppsProtonReconstructionOF_cfi import SelectCrossingAngle
+SelectCrossingAngle(130, process.source)
