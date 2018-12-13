@@ -27,7 +27,7 @@ class BeamDivergenceVtxGenerator : public edm::stream::EDProducer<>
 {
   public:
     explicit BeamDivergenceVtxGenerator(const edm::ParameterSet&);
-    ~BeamDivergenceVtxGenerator() = default;
+    ~BeamDivergenceVtxGenerator() override = default;
 
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
