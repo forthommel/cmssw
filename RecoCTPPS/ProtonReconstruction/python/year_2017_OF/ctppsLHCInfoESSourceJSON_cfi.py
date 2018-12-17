@@ -19,7 +19,7 @@ base = cms.PSet(
   ranges = cms.VLuminosityBlockRange()
 )
 
-ctppsLHCInfoESSourceJSON = cms.ESSource("CTPPSLHCInfoESSourceJSON",
+ctppsLHCInfoESSource = cms.ESSource("CTPPSLHCInfoESSourceJSON",
   configuration = cms.VPSet(
     base.clone( xangle = 120, ranges = GetRange("RecoCTPPS/ProtonReconstruction/data/json/2017_preTS2/xangle_120.json") ),
     base.clone( xangle = 130, ranges = GetRange("RecoCTPPS/ProtonReconstruction/data/json/2017_preTS2/xangle_130.json") ),
