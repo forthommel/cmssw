@@ -46,15 +46,15 @@ class CTPPSProtonReconstruction : public edm::stream::EDProducer<>
     bool doSingleRPReconstruction_;
     bool doMultiRPReconstruction_;
 
+    std::string singleRPReconstructionLabel_;
+    std::string multiRPReconstructionLabel_;
+
     ProtonReconstructionAlgorithm algorithm_;
 
     edm::ESWatcher<LHCInfoRcd> lhcInfoWatcher_;
     float currentCrossingAngle_;
 
     std::unordered_map<unsigned int, LHCOpticalFunctionsSet> opticalFunctions_;
-
-    const std::string singleRPLabel_ = "singleRP";
-    const std::string multiRPLabel_ = "multiRP";
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -70,17 +70,19 @@ CTPPSProtonReconstruction::CTPPSProtonReconstruction(const edm::ParameterSet& iC
   verbosity_               (iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)),
   doSingleRPReconstruction_(iConfig.getParameter<bool>("doSingleRPReconstruction")),
   doMultiRPReconstruction_ (iConfig.getParameter<bool>("doMultiRPReconstruction")),
+  singleRPReconstructionLabel_(iConfig.getParameter<std::string>("singleRPReconstructionLabel")),
+  multiRPReconstructionLabel_(iConfig.getParameter<std::string>("multiRPReconstructionLabel")),
   algorithm_               (iConfig.getParameter<bool>("fitVtxY"), iConfig.getParameter<bool>("useImprovedInitialEstimate"), verbosity_),
   currentCrossingAngle_(-1.)
 {
   if (doSingleRPReconstruction_) {
-    produces<reco::ProtonTrackCollection>(singleRPLabel_);
-    produces<reco::ProtonTrackExtraCollection>(singleRPLabel_);
+    produces<reco::ProtonTrackCollection>(singleRPReconstructionLabel_);
+    produces<reco::ProtonTrackExtraCollection>(singleRPReconstructionLabel_);
   }
 
   if (doMultiRPReconstruction_) {
-    produces<reco::ProtonTrackCollection>(multiRPLabel_);
-    produces<reco::ProtonTrackExtraCollection>(multiRPLabel_);
+    produces<reco::ProtonTrackCollection>(multiRPReconstructionLabel_);
+    produces<reco::ProtonTrackExtraCollection>(multiRPReconstructionLabel_);
   }
 }
 
@@ -92,10 +94,17 @@ void CTPPSProtonReconstruction::fillDescriptions(ConfigurationDescriptions& desc
   desc.addUntracked<unsigned int>("verbosity", 0)->setComment("verbosity level");
   desc.add<edm::InputTag>("tagLocalTrackLite", edm::InputTag("ctppsLocalTrackLiteProducer"))
     ->setComment("specification of the input lite-track collection");
+
   desc.add<bool>("doSingleRPReconstruction", true)
     ->setComment("flag whether to apply single-RP reconstruction strategy");
+  desc.add<bool>("singleRPReconstructionLabel", "singleRP")
+    ->setComment("output label for single-RP reconstruction products");
+
   desc.add<bool>("doMultiRPReconstruction", true)
     ->setComment("flag whether to apply multi-RP reconstruction strategy");
+  desc.add<bool>("multiRPReconstructionLabel", "multiRP")
+    ->setComment("output label for multi-RP reconstruction products");
+
   desc.add<bool>("fitVtxY", true)
     ->setComment("for multi-RP reconstruction, flag whether y* should be free fit parameter");
   desc.add<bool>("useImprovedInitialEstimate", true)
@@ -154,7 +163,7 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup &eventSet
 
   // keep only tracks from tracker RPs, split them by LHC sector
   reco::ProtonTrackExtra::CTPPSLocalTrackLiteRefVector tracks_45, tracks_56;
-  map<unsigned int, unsigned int> nTracksPerRP;
+  map<CTPPSDetId, unsigned int> nTracksPerRP;
   for (unsigned int idx = 0; idx < hTracks->size(); ++idx) {
     const CTPPSLocalTrackLite &tr = (*hTracks)[idx];
     CTPPSDetId rpId(tr.getRPId());
@@ -172,14 +181,14 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup &eventSet
     if (rpId.arm() == 1)
       tracks_56.emplace_back(hTracks, idx);
 
-    nTracksPerRP[tr.getRPId()]++;
+    nTracksPerRP[rpId]++;
   }
 
   // for the moment: check whether there is no more than 1 track in each arm
   bool singleTrack_45 = true, singleTrack_56 = true;
   for (const auto& detid_num : nTracksPerRP) {
     if (detid_num.second > 1) {
-      CTPPSDetId rpId(detid_num.first);
+      const CTPPSDetId &rpId = detid_num.first;
       if (rpId.arm() == 0)
         singleTrack_45 = false;
       if (rpId.arm() == 1)
@@ -195,12 +204,12 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup &eventSet
     algorithm_.reconstructFromSingleRP(tracks_45, *output, *outputExtra, *hLHCInfo, ssLog);
     algorithm_.reconstructFromSingleRP(tracks_56, *output, *outputExtra, *hLHCInfo, ssLog);
 
-    auto ohExtra = event.put(move(outputExtra), singleRPLabel_);
+    auto ohExtra = event.put(move(outputExtra), singleRPReconstructionLabel_);
 
     for (unsigned int i = 0; i < output->size(); ++i)
       (*output)[i].setProtonTrackExtra(reco::ProtonTrackExtraRef(ohExtra, i));
 
-    event.put(move(output), singleRPLabel_);
+    event.put(move(output), singleRPReconstructionLabel_);
   }
 
   // multi-RP reconstruction
@@ -213,12 +222,12 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup &eventSet
     if (singleTrack_56)
       algorithm_.reconstructFromMultiRP(tracks_56, *output, *outputExtra, *hLHCInfo, ssLog);
 
-    auto ohExtra = event.put(move(outputExtra), multiRPLabel_);
+    auto ohExtra = event.put(move(outputExtra), multiRPReconstructionLabel_);
 
     for (unsigned int i = 0; i < output->size(); ++i)
       (*output)[i].setProtonTrackExtra(reco::ProtonTrackExtraRef(ohExtra, i));
 
-    event.put(move(output), multiRPLabel_);
+    event.put(move(output), multiRPReconstructionLabel_);
   }
 
   if (verbosity_)
