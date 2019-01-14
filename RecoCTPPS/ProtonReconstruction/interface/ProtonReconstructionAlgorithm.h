@@ -25,7 +25,7 @@
 class ProtonReconstructionAlgorithm
 {
   public:
-    ProtonReconstructionAlgorithm(bool fit_vtx_y, unsigned int verbosity);
+    ProtonReconstructionAlgorithm(bool fit_vtx_y, bool improved_estimate, unsigned int verbosity);
     ~ProtonReconstructionAlgorithm() = default;
 
     void init(const std::unordered_map<unsigned int, LHCOpticalFunctionsSet> &opticalFunctions);
@@ -44,6 +44,7 @@ class ProtonReconstructionAlgorithm
   private:
     unsigned int verbosity_;
     bool fitVtxY_;
+    bool useImprovedInitialEstimate_;
     bool initialized_;
 
     /// optics data associated with 1 RP
@@ -51,8 +52,8 @@ class ProtonReconstructionAlgorithm
     {
       const LHCOpticalFunctionsSet *optics;
       std::shared_ptr<const TSpline3> s_xi_vs_x_d, s_y_d_vs_xi, s_v_y_vs_xi, s_L_y_vs_xi;
-      double x0; ///< beam horizontal position, m
-      double y0; ///< beam vertical position, m
+      double x0; ///< beam horizontal position, cm
+      double y0; ///< beam vertical position, cm
       double ch0; ///< intercept for linear approximation of \f$x(\xi)\f$
       double ch1; ///< slope for linear approximation of \f$x(\xi)\f$
       double la0; ///< intercept for linear approximation of \f$L_x(\xi)\f$
@@ -79,6 +80,8 @@ class ProtonReconstructionAlgorithm
 
     /// object to calculate chi^2
     std::unique_ptr<ChiSquareCalculator> chiSquareCalculator_;
+
+    static void doLinearFit(const std::vector<double> &vx, const std::vector<double> &vy, double &b, double &a);
 };
 
 #endif

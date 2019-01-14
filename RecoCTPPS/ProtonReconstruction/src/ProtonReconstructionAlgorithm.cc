@@ -11,7 +11,6 @@
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/ProtonReco/interface/ProtonTrack.h"
 
-#include "TF1.h"
 #include "TMinuitMinimizer.h"
 
 using namespace std;
@@ -19,9 +18,10 @@ using namespace edm;
 
 //----------------------------------------------------------------------------------------------------
 
-ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm(bool fit_vtx_y, unsigned int verbosity) :
+ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm(bool fit_vtx_y, bool improved_estimate, unsigned int verbosity) :
   verbosity_(verbosity),
   fitVtxY_(fit_vtx_y),
+  useImprovedInitialEstimate_(improved_estimate),
   initialized_(false),
   fitter_(new ROOT::Fit::Fitter), chiSquareCalculator_(new ChiSquareCalculator)
 {
@@ -40,9 +40,6 @@ void ProtonReconstructionAlgorithm::init(const std::unordered_map<unsigned int, 
   // reset cache
   release();
 
-  // prepare helper objects (special flag needed for thread safety)
-  unique_ptr<TF1> ff(new TF1("ff", "[0] + [1]*x", 0., 1., TF1::EAddToList::kNo));
-
   // build optics data for each object
   for (const auto &p : opticalFunctions)
   {
@@ -51,12 +48,13 @@ void ProtonReconstructionAlgorithm::init(const std::unordered_map<unsigned int, 
     // make record
     RPOpticsData rpod;
     rpod.optics = &p.second;
-    rpod.s_xi_vs_x_d = make_shared<TSpline3>("",
-      (double *) ofs.getFcnValues()[LHCOpticalFunctionsSet::exd].data(),  // const cast away necessary due to the ROOT interface
-      (double *) ofs.getXiValues().data(), ofs.getXiValues().size());
     rpod.s_y_d_vs_xi = ofs.getSplines()[LHCOpticalFunctionsSet::eyd];
     rpod.s_v_y_vs_xi = ofs.getSplines()[LHCOpticalFunctionsSet::evy];
     rpod.s_L_y_vs_xi = ofs.getSplines()[LHCOpticalFunctionsSet::eLy];
+
+    vector<double> xiValues = ofs.getXiValues();  // local copy made since the TSpline constructor needs non-const parameters
+    vector<double> xDValues = ofs.getFcnValues()[LHCOpticalFunctionsSet::exd];
+    rpod.s_xi_vs_x_d = make_shared<TSpline3>("", xDValues.data(), xiValues.data(), xiValues.size());
 
     // calculate auxiliary data
     LHCOpticalFunctionsSet::Kinematics k_in = { 0., 0., 0., 0., 0. };
@@ -65,22 +63,10 @@ void ProtonReconstructionAlgorithm::init(const std::unordered_map<unsigned int, 
     rpod.x0 = k_out.x;
     rpod.y0 = k_out.y;
 
-    // TODO: the fits below could be replaced with simple algebra in order to avoid
-    // the relatively heavy creation of TGraph and fit with TF1
+    doLinearFit(ofs.getXiValues(), ofs.getFcnValues()[LHCOpticalFunctionsSet::exd], rpod.ch0, rpod.ch1);
+    rpod.ch0 -= rpod.x0;
 
-    unique_ptr<TGraph> g_x_d_vs_xi = make_unique<TGraph>(ofs.getXiValues().size(), ofs.getXiValues().data(),
-      ofs.getFcnValues()[LHCOpticalFunctionsSet::exd].data());
-    ff->SetParameters(0., 0.);
-    g_x_d_vs_xi->Fit(ff.get(), "Q");
-    rpod.ch0 = ff->GetParameter(0) - rpod.x0;
-    rpod.ch1 = ff->GetParameter(1);
-
-    unique_ptr<TGraph> g_L_x_vs_xi = make_unique<TGraph>(ofs.getXiValues().size(), ofs.getXiValues().data(),
-      ofs.getFcnValues()[LHCOpticalFunctionsSet::eLx].data());
-    ff->SetParameters(0., 0.);
-    g_L_x_vs_xi->Fit(ff.get(), "Q");
-    rpod.la0 = ff->GetParameter(0);
-    rpod.la1 = ff->GetParameter(1);
+    doLinearFit(ofs.getXiValues(), ofs.getFcnValues()[LHCOpticalFunctionsSet::eLx], rpod.la0, rpod.la1);
 
     // insert record
     const CTPPSDetId rpId(p.first);
@@ -89,6 +75,25 @@ void ProtonReconstructionAlgorithm::init(const std::unordered_map<unsigned int, 
 
   // update settings
   initialized_ = true;
+}
+
+//----------------------------------------------------------------------------------------------------
+
+void ProtonReconstructionAlgorithm::doLinearFit(const std::vector<double> &vx, const std::vector<double> &vy, double &b, double &a)
+{
+  double s_1=0., s_x=0., s_xx=0., s_y=0., s_xy=0.;
+  for (unsigned int i = 0; i < vx.size(); ++i)
+  {
+    s_1 += 1.;
+    s_x += vx[i];
+    s_xx += vx[i] * vx[i];
+    s_y += vy[i];
+    s_xy += vx[i] * vy[i];
+  }
+
+  const double d = s_xx * s_1 - s_x * s_x;
+  a = ( s_1 * s_xy -  s_x * s_y) / d;
+  b = (-s_x * s_xy + s_xx * s_y) / d;
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -108,7 +113,7 @@ double ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() (const dou
   const LHCOpticalFunctionsSet::Kinematics k_in = { 0., parameters[1], parameters[3], parameters[2], parameters[0] };
 
   // calculate chi^2 by looping over hits
-  double S2 = 0.;
+  double s2 = 0.;
 
   for (const auto &track : *tracks) {
     const CTPPSDetId rpId(track->getRPId());
@@ -119,27 +124,18 @@ double ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() (const dou
     oit->second.optics->transport(k_in, k_out);
 
     // proton position wrt. beam
-    const double& x = k_out.x - oit->second.x0;
-    const double& y = k_out.y - oit->second.y0;
+    const double x = k_out.x - oit->second.x0;
+    const double y = k_out.y - oit->second.y0;
 
-    // make sure that uncertainties are reasonable
-    double x_unc = track->getXUnc();
-    if (x_unc < 1E-3)
-      x_unc = 40E-3;
-
-    double y_unc = track->getYUnc();
-    if (y_unc < 1E-3)
-      y_unc = 40E-3;
-
-    // calculate chi^2 contributions, convert track data mm --> m
-    const double x_diff_norm = (x - track->getX()*1E-3) / (x_unc*1E-3);
-    const double y_diff_norm = (y - track->getY()*1E-3) / (y_unc*1E-3);
+    // calculate chi^2 contributions, convert track data mm --> cm
+    const double x_diff_norm = (x - track->getX()*1E-1) / (track->getXUnc()*1E-1);
+    const double y_diff_norm = (y - track->getY()*1E-1) / (track->getYUnc()*1E-1);
 
     // increase chi^2
-    S2 += x_diff_norm*x_diff_norm + y_diff_norm*y_diff_norm;
+    s2 += x_diff_norm*x_diff_norm + y_diff_norm*y_diff_norm;
   }
 
-  return S2;
+  return s2;
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -168,42 +164,33 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
   // initial estimate of xi and th_x
   double xi_init = 0., th_x_init = 0.;
 
-  const bool use_improved_estimate = true;
-  if (use_improved_estimate)
+  if (useImprovedInitialEstimate_)
   {
-    double x_N = 0., x_F = 0.;
-    const RPOpticsData *i_N = nullptr, *i_F = nullptr;
-    unsigned int idx = 0;
-    for (const auto &track : tracks)
-    {
-      auto oit = m_rp_optics_.find(track->getRPId());
+    double x_N = tracks[0]->getX()*1E-1,  // conversion: mm --> cm
+      x_F = tracks[1]->getX()*1E-1;
 
-      if (idx == 0) { x_N = track->getX() * 1E-3; i_N = &oit->second; }
-      if (idx == 1) { x_F = track->getX() * 1E-3; i_F = &oit->second; }
-      if (idx == 2) break;
+    const RPOpticsData &i_N = m_rp_optics_.find(tracks[0]->getRPId())->second,
+      &i_F = m_rp_optics_.find(tracks[1]->getRPId())->second;
 
-      idx++;
-    }
-
-    const double a = i_F->ch1*i_N->la1 - i_N->ch1*i_F->la1;
-    const double b = i_F->ch0*i_N->la1 - i_N->ch0*i_F->la1 + i_F->ch1*i_N->la0 - i_N->ch1*i_F->la0 + x_N*i_F->la1 - x_F*i_N->la1;
-    const double c = x_N*i_F->la0 - x_F*i_N->la0 + i_F->ch0*i_N->la0 - i_N->ch0*i_F->la0;
+    const double a = i_F.ch1*i_N.la1 - i_N.ch1*i_F.la1;
+    const double b = i_F.ch0*i_N.la1 - i_N.ch0*i_F.la1 + i_F.ch1*i_N.la0 - i_N.ch1*i_F.la0 + x_N*i_F.la1 - x_F*i_N.la1;
+    const double c = x_N*i_F.la0 - x_F*i_N.la0 + i_F.ch0*i_N.la0 - i_N.ch0*i_F.la0;
     const double D = b*b - 4.*a*c;
 
     xi_init = (-b + sqrt(D)) / 2. / a;
-    th_x_init = (x_N - i_N->ch0 - i_N->ch1 * xi_init) / (i_N->la0 + i_N->la1 * xi_init);
+    th_x_init = (x_N - i_N.ch0 - i_N.ch1 * xi_init) / (i_N.la0 + i_N.la1 * xi_init);
   } else {
-    double S_xi0 = 0., S_1 = 0.;
+    double s_xi0 = 0., s_1 = 0.;
     for (const auto &track : tracks)
     {
       auto oit = m_rp_optics_.find(track->getRPId());
-      double xi = oit->second.s_xi_vs_x_d->Eval(track->getX() * 1E-3 + oit->second.x0);  // conversion: mm --> m
+      double xi = oit->second.s_xi_vs_x_d->Eval(track->getX()*1E-1 + oit->second.x0);  // conversion: mm --> cm
 
-      S_1 += 1.;
-      S_xi0 += xi;
+      s_1 += 1.;
+      s_xi0 += xi;
     }
 
-    xi_init = S_xi0 / S_1;
+    xi_init = s_xi0 / s_1;
   }
 
   // initial estimate of th_y and vtx_y
@@ -216,7 +203,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
 
     auto oit = m_rp_optics_.find(track->getRPId());
 
-    y[y_idx] = track->getY()*1E-3 - oit->second.s_y_d_vs_xi->Eval(xi_init); // track y: mm --> m
+    y[y_idx] = track->getY()*1E-1 - oit->second.s_y_d_vs_xi->Eval(xi_init); // track y: mm --> cm
     v_y[y_idx] = oit->second.s_v_y_vs_xi->Eval(xi_init);
     L_y[y_idx] = oit->second.s_L_y_vs_xi->Eval(xi_init);
 
@@ -275,7 +262,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
   using PT = reco::ProtonTrack;
 
   const double sign_z = (armId == 0) ? +1. : -1.;  // CMS convention
-  const reco::ProtonTrack::Point vertex(0., params[3]*1E2, 0.);  // vertex in cm
+  const reco::ProtonTrack::Point vertex(0., params[3], 0.);
   const double xi = params[0];
   const double th_x = params[1];
   const double th_y = params[2];
@@ -340,20 +327,22 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
   for (const auto &track : tracks)
   {
     CTPPSDetId rpId(track->getRPId());
-    unsigned int decRPId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
 
     if (verbosity_)
+    {
+      unsigned int decRPId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
       os << "\nreconstructFromSingleRP(" << decRPId << ")";
+    }
 
     auto oit = m_rp_optics_.find(track->getRPId());
-    const double x_full = track->getX() * 1E-3 + oit->second.x0; // conversions mm --> m
+    const double x_full = track->getX()*1E-1 + oit->second.x0; // conversion mm --> cm
     const double xi = oit->second.s_xi_vs_x_d->Eval(x_full);
     const double L_y = oit->second.s_L_y_vs_xi->Eval(xi);
-    const double th_y = track->getY() * 1E-3 / L_y;
+    const double th_y = track->getY()*1E-1 / L_y; // conversion mm --> cm
 
     const double ep_x = 1E-6;
     const double dxi_dx = (oit->second.s_xi_vs_x_d->Eval(x_full + ep_x) - xi) / ep_x;
-    const double xi_unc = abs(dxi_dx) * track->getXUnc() * 1E-3;
+    const double xi_unc = abs(dxi_dx) * track->getXUnc() * 1E-1; // conversion mm --> cm
 
     const double ep_xi = 1E-4;
     const double dL_y_dxi = ( oit->second.s_L_y_vs_xi->Eval(xi + ep_xi) - L_y ) / ep_xi;

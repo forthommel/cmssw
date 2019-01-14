@@ -13,7 +13,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 # number of events
-process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource",
+    firstRun = cms.untracked.uint32(280000)
+)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
@@ -64,16 +66,16 @@ process.ctppsLocalTrackLiteProducer.includeDiamonds = False
 process.ctppsLocalTrackLiteProducer.includePixels = False
 
 # proton reconstruction
-process.load("RecoCTPPS.ProtonReconstruction.ctppsProtonReconstruction_cfi")
-process.ctppsProtonReconstruction.tagLocalTrackLite = cms.InputTag('ctppsLocalTrackLiteProducer')
-#process.ctppsProtonReconstruction.fitVtxY = False
+process.load("RecoCTPPS.ProtonReconstruction.ctppsProtons_cfi")
+process.ctppsProtons.tagLocalTrackLite = cms.InputTag('ctppsLocalTrackLiteProducer')
+#process.ctppsProtons.fitVtxY = False
 
 # reconstruction validation
 process.ctppsProtonReconstructionSimulationValidator = cms.EDAnalyzer("CTPPSProtonReconstructionSimulationValidator",
   tagHepMCBeforeSmearing = cms.InputTag("generator", "unsmeared"),
   tagHepMCAfterSmearing = cms.InputTag("beamDivergenceVtxGenerator"),
-  tagRecoProtonsSingleRP = cms.InputTag("ctppsProtonReconstruction", "singleRP"),
-  tagRecoProtonsMultiRP = cms.InputTag("ctppsProtonReconstruction", "multiRP"),
+  tagRecoProtonsSingleRP = cms.InputTag("ctppsProtons", "singleRP"),
+  tagRecoProtonsMultiRP = cms.InputTag("ctppsProtons", "multiRP"),
 
   outputFile = cms.string("")
 )
@@ -88,7 +90,7 @@ process.p = cms.Path(
     * process.totemRPLocalTrackFitter
     * process.ctppsLocalTrackLiteProducer
 
-    * process.ctppsProtonReconstruction
+    * process.ctppsProtons
 
     * process.ctppsProtonReconstructionSimulationValidator
 )

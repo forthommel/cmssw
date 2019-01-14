@@ -34,7 +34,7 @@ RecoCTPPSAOD = cms.PSet(
 
     # CTPPS common
     'keep CTPPSLocalTrackLites_ctppsLocalTrackLiteProducer_*_*',
-    'keep recoProtonTracks_ctppsProtonReconstruction_*_*',
+    'keep recoProtonTracks_ctppsProtons_*_*',
   )
 )
 
