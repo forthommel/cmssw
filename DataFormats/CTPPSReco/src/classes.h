@@ -1,5 +1,7 @@
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/PtrVector.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -31,7 +33,7 @@ namespace DataFormats_CTPPSReco {
     edm::Wrapper<edm::DetSetVector<TotemRPRecHit> > w_dsv_rp_reco_hit;
     std::vector<TotemRPRecHit> sv_rp_reco_hit;
     std::vector<const TotemRPRecHit*> sv_cp_rp_reco_hit;
-    
+
     TotemRPCluster dc;
     edm::DetSet<TotemRPCluster> dsdc;
     std::vector<TotemRPCluster> svdc;
@@ -60,8 +62,8 @@ namespace DataFormats_CTPPSReco {
     std::vector< edm::DetSet<CTPPSDiamondRecHit> > vec_ds_ctd_rh;
     edm::DetSet<CTPPSDiamondRecHit> ds_ctd_rh;
     edm::DetSetVector<CTPPSDiamondRecHit> dsv_ctd_rh;
-    edm::Wrapper< edm::DetSetVector<CTPPSDiamondRecHit> > wrp_dsv_ctd_rh;
-    edm::Wrapper< std::vector<CTPPSDiamondRecHit> > wrp_vec_ctd_rh;
+    edm::Wrapper<edm::DetSetVector<CTPPSDiamondRecHit> > wrp_dsv_ctd_rh;
+    edm::Wrapper<std::vector<CTPPSDiamondRecHit> > wrp_vec_ctd_rh;
 
     CTPPSDiamondLocalTrack ctd_lt;
     edm::Ptr<CTPPSDiamondLocalTrack> ptr_ctd_lt;
@@ -107,5 +109,8 @@ namespace DataFormats_CTPPSReco {
     std::vector<CTPPSLocalTrackLite> v_cltl;
     edm::Wrapper<CTPPSLocalTrackLite> w_cltl;
     edm::Wrapper<std::vector<CTPPSLocalTrackLite>> w_v_cltl;
+    edm::RefProd<std::vector<CTPPSLocalTrackLite> > rp_v_cltl;
+    edm::Ref<std::vector<CTPPSLocalTrackLite>,CTPPSLocalTrackLite,edm::refhelper::FindUsingAdvance<std::vector<CTPPSLocalTrackLite>,CTPPSLocalTrackLite> > r_v_cltl;
+    edm::RefVector<vector<CTPPSLocalTrackLite>,CTPPSLocalTrackLite,edm::refhelper::FindUsingAdvance<vector<CTPPSLocalTrackLite>,CTPPSLocalTrackLite> > rv_v_cltl;
   };
 }
