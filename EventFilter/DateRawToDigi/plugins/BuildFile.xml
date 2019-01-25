@@ -1,0 +1,7 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<!-- DateSource -->
+<use name="EventFilter/DateRawToDigi"/>
+<use name="FWCore/Sources"/>
+<flags EDM_PLUGIN="1"/>
