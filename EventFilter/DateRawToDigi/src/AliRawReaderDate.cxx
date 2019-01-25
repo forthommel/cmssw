@@ -27,6 +27,7 @@
 #include "EventFilter/DateRawToDigi/interface/AliRawReaderDate.h"
 #include "EventFilter/DateRawToDigi/interface/event.h"
 #include <string>
+#include <iostream>
 
 AliRawReaderDate::AliRawReaderDate(void* event, Bool_t owner) :
   fFile(NULL),
@@ -248,6 +249,8 @@ printf("hahaha:%u|%u\n", fEvent->eventSize, fEvent->eventHeadSize);
 	  (fPosition >= ((UChar_t*)fSubEvent) + fSubEvent->eventSize)) {
 
 	// check for end of event data
+std::cout << "hohoho" << fPosition << std::endl;
+//printf("hohohoh%d\n", fPosition);
 	if (fPosition >= ((UChar_t*)fEvent)+fEvent->eventSize) return kFALSE;
         if (!TEST_SYSTEM_ATTRIBUTE(fEvent->eventTypeAttribute,
                                    ATTR_SUPER_EVENT)) {
@@ -352,7 +355,7 @@ printf("hahaha:%u|%u\n", fEvent->eventSize, fEvent->eventHeadSize);
 	}
       default:
 	// We have got a version we don't know
-  		if (fEquipment->equipmentId != 4352)
+/*  		if (fEquipment->equipmentId != 4352)
 		{
 	Error("ReadHeader",
 	      "version is neither 2 nor 3, we can't handle it (version found : %d). Jump to the end of the equipment",version);
@@ -361,7 +364,7 @@ printf("hahaha:%u|%u\n", fEvent->eventSize, fEvent->eventHeadSize);
 		fSubEvent->eventRunNb,
 		fSubEvent->eventId[0], fSubEvent->eventId[1],
 		fSubEvent->eventLdcId, fSubEvent->eventGdcId);
-		}
+		}*/
 	fHeader = 0x0;
 	fHeaderV3 = 0x0;
 	fPosition = fEnd;

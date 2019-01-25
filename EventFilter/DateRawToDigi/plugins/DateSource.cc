@@ -18,7 +18,7 @@ class DateSource : public edm::ProducerSourceFromFiles
 {
   public:
     explicit DateSource( const edm::ParameterSet&, const edm::InputSourceDescription& );
-    ~DateSource() override;
+    ~DateSource() override = default;
 
     bool setRunAndEventInfo( edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType& ) override;
     void produce( edm::Event& ) override;
@@ -33,23 +33,16 @@ class DateSource : public edm::ProducerSourceFromFiles
 
     std::unique_ptr<AliRawReaderDate> reader_;
     std::array<unsigned char,1000> data_;
-    //unsigned char* data_;
     size_t fileId_;
 };
 
 DateSource::DateSource( const edm::ParameterSet& params, const edm::InputSourceDescription& desc ) :
   ProducerSourceFromFiles( params, desc, false ),
   reader_( new AliRawReaderDate( fileNames().begin()->c_str() ) ),
-  //data_( new unsigned char[50000] ),
   fileId_( 0 )
 {
   //produces<ThingCollection>();
   //reader_->ReadHeader();
-}
-
-DateSource::~DateSource()
-{
-  //delete [] data_;
 }
 
 bool
@@ -70,16 +63,18 @@ DateSource::produce( edm::Event& iEvent )
     //reader_->NextEvent();
   }
   //eventHeaderStruct header;
-  //if ( reader_->CheckData() == 1 ) { //FIXME
-  //  reader_->DumpData();
-  //}
+  if ( reader_->GetType() != 1 ) { //FIXME
+    reader_->DumpData();
+  }
   const unsigned int* event_id = reader_->GetEventId();
   edm::LogError("DateSource")
     << reader_->CheckData() << "::"
+    << reader_->GetType() << "|"
     << reader_->GetRunNumber() << "|"
     << EVENT_ID_GET_BUNCH_CROSSING( event_id ) << "|"
     << EVENT_ID_GET_BURST_NB( event_id ) << "|"
     << EVENT_ID_GET_NB_IN_BURST( event_id ) << "|"
+    << event_id[0] << "|"
     << reader_->GetTimestamp() << "|"
     << reader_->GetEquipmentSize() << "|"
     << reader_->GetEquipmentType() << "|"
