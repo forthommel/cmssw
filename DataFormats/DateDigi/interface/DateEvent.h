@@ -1,6 +1,8 @@
 #ifndef DataFormats_DateDigi_DateEvent_h
 #define DataFormats_DateDigi_DateEvent_h
 
+#include <iostream>
+
 namespace date
 {
   class Event
@@ -31,6 +33,7 @@ namespace date
       explicit Event() {}
   };
 }
+std::ostream& operator<<( std::ostream&, const date::Event::Header& );
 
 #endif
 

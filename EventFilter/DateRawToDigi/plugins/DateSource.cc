@@ -17,7 +17,7 @@ class DateSource : public edm::ProducerSourceFromFiles
 {
   public:
     explicit DateSource( const edm::ParameterSet&, const edm::InputSourceDescription& );
-    ~DateSource() override = default;
+    ~DateSource() override;
 
     bool setRunAndEventInfo( edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType& ) override;
     void produce( edm::Event& ) override;
@@ -31,20 +31,28 @@ class DateSource : public edm::ProducerSourceFromFiles
     //std::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
 
     std::ifstream file_;
-    date::Event::Header header_;
-
-    std::array<unsigned char,1000> data_;
     size_t fileId_;
+
+    date::Event::Header header_;
 };
 
 DateSource::DateSource( const edm::ParameterSet& params, const edm::InputSourceDescription& desc ) :
   ProducerSourceFromFiles( params, desc, false ),
-  //reader_( new AliRawReaderDate( fileNames().begin()->c_str() ) ),
+  file_( fileNames()[0], std::ios::in | std::ios::binary ),
   fileId_( 0 )
 {
   //produces<ThingCollection>();
-  file_ = std::ifstream( fileNames()[0] );
-  //reader_->ReadHeader();
+  std::cout << "---> " << fileNames()[0] << std::endl;
+  // first read the header
+  file_.read( reinterpret_cast<char*>( &header_ ), sizeof( header_ ) );
+  //edm::LogError("DateSource") << header_;
+  std::cout << sizeof( header_ ) << "--> " << header_.eventSize << std::endl;
+  std::cout << header_;
+}
+
+DateSource::~DateSource()
+{
+  file_.close();
 }
 
 bool
@@ -58,21 +66,8 @@ DateSource::produce( edm::Event& iEvent )
 {
   //auto result = std::make_unique<ThingCollection>();
 
-  /*if ( !reader_->NextEvent() && fileId_ < fileNames().size()-1 ) {
-  //if ( !reader_->ReadNextData( data_ ) && fileId_ < fileNames().size()-1 ) {
-    reader_.reset( new AliRawReaderDate( fileNames()[++fileId_].c_str() ) );
-    //reader_->ReadHeader();
-    //reader_->NextEvent();
-  }
-  //eventHeaderStruct header;
-  if ( reader_->GetType() != 1 ) { //FIXME
-    reader_->DumpData();
-  }
-  const unsigned int* event_id = reader_->GetEventId();
+  /*
   edm::LogError("DateSource")
-    << reader_->CheckData() << "::"
-    << reader_->GetType() << "|"
-    << reader_->GetRunNumber() << "|"
     << EVENT_ID_GET_BUNCH_CROSSING( event_id ) << "|"
     << EVENT_ID_GET_BURST_NB( event_id ) << "|"
     << EVENT_ID_GET_NB_IN_BURST( event_id ) << "|"
