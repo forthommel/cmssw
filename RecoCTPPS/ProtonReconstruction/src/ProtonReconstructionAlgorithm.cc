@@ -192,7 +192,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const CTPPSLocalTrack
   }
 
   // initial estimate of th_y and vtx_y
-  double y[2], v_y[2], L_y[2];
+  array<double,2> y, v_y, L_y;
   unsigned int y_idx = 0;
   for (const auto &track : tracks) {
     if (y_idx >= 2)
