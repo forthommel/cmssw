@@ -245,24 +245,25 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const CTPPSLocalTrack
 
   // extract proton parameters
   const ROOT::Fit::FitResult& result = fitter_->Result();
-  const double *params = result.GetParams();
+  array<double,4> params;
+  copy_n(result.GetParams(), 4, params.begin());
 
   if (verbosity_)
     os << "\n"
-      << "xi=" << params[0] << " +- " << result.Error(0)
-      << ", th_x=" << params[1] << " +-" << result.Error(1)
-      << ", th_y=" << params[2] << " +-" << result.Error(2)
-      << ", vtx_y=" << params[3] << " +-" << result.Error(3)
+      << "xi=" << params.at(0) << " +- " << result.Error(0)
+      << ", th_x=" << params.at(1) << " +-" << result.Error(1)
+      << ", th_y=" << params.at(2) << " +-" << result.Error(2)
+      << ", vtx_y=" << params.at(3) << " +-" << result.Error(3)
       << ", chiSq = " << result.Chi2();
 
   // save reco candidate
   using FP = reco::ForwardProton;
 
   const double sign_z = (armId == 0) ? +1. : -1.;  // CMS convention
-  const FP::Point vertex(0., params[3], 0.);
-  const double xi = params[0];
-  const double th_x = params[1];
-  const double th_y = params[2];
+  const FP::Point vertex(0., params.at(3), 0.);
+  const double xi = params.at(0);
+  const double th_x = params.at(1);
+  const double th_y = params.at(2);
   const double cos_th = sqrt(1. - th_x*th_x - th_y*th_y);
   const double p = lhcInfo.energy() * (1. - xi);
   const FP::Vector momentum(
