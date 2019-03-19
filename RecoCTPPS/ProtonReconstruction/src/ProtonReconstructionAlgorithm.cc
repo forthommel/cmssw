@@ -195,29 +195,27 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const CTPPSLocalTrack
   array<double,2> y, v_y, L_y;
   unsigned int y_idx = 0;
   for (const auto &track : tracks) {
-    if (y_idx >= 2)
-      continue;
-
     auto oit = m_rp_optics_.find(track->getRPId());
 
     y[y_idx] = track->getY()*1E-1 - oit->second.s_y_d_vs_xi->Eval(xi_init); // track y: mm --> cm
     v_y[y_idx] = oit->second.s_v_y_vs_xi->Eval(xi_init);
     L_y[y_idx] = oit->second.s_L_y_vs_xi->Eval(xi_init);
 
-    y_idx++;
+    if (y_idx++ >= 2)
+      break;
   }
 
   double vtx_y_init = 0.;
   double th_y_init = 0.;
 
   if (fitVtxY_) {
-    const double det_y = v_y[0] * L_y[1] - L_y[0] * v_y[1];
-    vtx_y_init = (L_y[1] * y[0] - L_y[0] * y[1]) / det_y;
-    th_y_init = (v_y[0] * y[1] - v_y[1] * y[0]) / det_y;
+    const double det_y = v_y.at(0) * L_y.at(1) - L_y.at(0) * v_y.at(1);
+    vtx_y_init = (L_y.at(1) * y.at(0) - L_y.at(0) * y.at(1)) / det_y;
+    th_y_init = (v_y.at(0) * y.at(1) - v_y.at(1) * y.at(0)) / det_y;
   }
   else {
     vtx_y_init = 0.;
-    th_y_init = (y[1]/L_y[1] + y[0]/L_y[0]) / 2.;
+    th_y_init = (y.at(1)/L_y.at(1) + y.at(0)/L_y.at(0)) / 2.;
   }
 
   unsigned int armId = CTPPSDetId((*tracks.begin())->getRPId()).arm();
