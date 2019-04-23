@@ -18,7 +18,7 @@ process.ppsTimingCalibrationESSource.subDetector = PPSTimingDetEnum.PPS_DIAMOND
 
 # output service for database
 process.load('CondCore.CondDB.CondDB_cfi')
-process.CondDB.connect = 'sqlite_file:ppsDiamondTiming_calibration.sqlite' # SQLite output
+process.CondDB.connect = 'sqlite_file:ppsTiming_calibration.sqlite' # SQLite output
 
 process.PoolDBOutputService = cms.Service('PoolDBOutputService',
     process.CondDB,
