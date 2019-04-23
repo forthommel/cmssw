@@ -71,8 +71,12 @@ operator<<( std::ostream& os, const PPSTimingCalibration& data )
     os << kv.first <<" [";
     for ( size_t i = 0; i < kv.second.size(); ++i )
       os << ( i > 0 ? ", " : "" ) << kv.second.at( i );
-    const auto& time = data.timeInfo_.at( kv.first );
-    os << "] " << time.first << " " <<  time.second << "\n";
+    os << "]";
+    if ( data.timeInfo_.count( kv.first ) > 0 ) {
+      const auto& time = data.timeInfo_.at( kv.first );
+      os << " " << time.first << " " <<  time.second;
+    }
+    os << "\n";
   }
   return os;
 }
