@@ -57,13 +57,15 @@ class PPSTimingCalibrationESSource : public edm::ESProducer, public edm::EventSe
 
     const std::string filename_;
     DetectorType subdetector_;
+    unsigned int fromRunIOV_;
 };
 
 //------------------------------------------------------------------------------
 
 PPSTimingCalibrationESSource::PPSTimingCalibrationESSource( const edm::ParameterSet& iConfig ) :
   filename_   ( iConfig.getParameter<edm::FileInPath>( "calibrationFile" ).fullPath() ),
-  subdetector_( (DetectorType)iConfig.getParameter<unsigned int>( "subDetector" ) )
+  subdetector_( (DetectorType)iConfig.getParameter<unsigned int>( "subDetector" ) ),
+  fromRunIOV_ ( iConfig.getParameter<unsigned int>( "fromRunIOV" ) )
 {
   setWhatProduced( this );
   findingRecord<PPSTimingCalibrationRcd>();
@@ -86,13 +88,16 @@ PPSTimingCalibrationESSource::produce( const PPSTimingCalibrationRcd& )
 }
 
 //------------------------------------------------------------------------------
-
+#include <iostream>
 void
 PPSTimingCalibrationESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
                                               const edm::IOVSyncValue&,
                                               edm::ValidityInterval& oValidity )
 {
-  oValidity = edm::ValidityInterval( edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime() );
+  if ( fromRunIOV_ == 0 )
+    oValidity = edm::ValidityInterval( edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime() );
+  else
+    oValidity = edm::ValidityInterval( edm::IOVSyncValue( edm::EventID( fromRunIOV_, 1, 0 ) ), edm::IOVSyncValue::endOfTime() );
 }
 
 //------------------------------------------------------------------------------
@@ -179,6 +184,8 @@ PPSTimingCalibrationESSource::fillDescriptions( edm::ConfigurationDescriptions& 
     ->setComment( "file with SAMPIC calibrations, ADC and INL; if empty or corrupted, no calibration will be applied" );
   desc.add<unsigned int>( "subDetector", (unsigned int)PPSTimingCalibrationESSource::DetectorType::INVALID )
     ->setComment( "type of sub-detector for which the calibrations are provided" );
+  desc.add<unsigned int>( "fromRunIOV", 0 )
+    ->setComment( "start of validity period (run number)" );
 
   descriptions.add( "ppsTimingCalibrationESSource", desc );
 }

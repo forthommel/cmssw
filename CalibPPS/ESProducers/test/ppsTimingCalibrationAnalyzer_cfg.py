@@ -23,6 +23,13 @@ process.source = cms.Source('EmptyIOVSource',
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+process.GlobalTag.toGet = cms.VPSet(
+    cms.PSet(
+        record = cms.string('PPSTimingCalibrationRcd'),
+        #tag = cms.string('PPSDiamondTimingCalibration')
+        tag = cms.string('TotemTimingCalibration')
+    )
+)
 # load calibrations from SQLite file
 #process.load('CondCore.CondDB.CondDB_cfi')
 #process.CondDB.connect = 'sqlite_file:ppsTiming_calibration.sqlite' # SQLite input
