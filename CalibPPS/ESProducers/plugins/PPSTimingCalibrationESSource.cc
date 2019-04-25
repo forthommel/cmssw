@@ -86,7 +86,7 @@ PPSTimingCalibrationESSource::produce( const PPSTimingCalibrationRcd& )
 }
 
 //------------------------------------------------------------------------------
-#include <iostream>
+
 void
 PPSTimingCalibrationESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
                                               const edm::IOVSyncValue&,
