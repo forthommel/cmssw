@@ -12,7 +12,8 @@
 //----------------------------------------------------------------------------------------------------
 
 CTPPSDiamondRecHitProducerAlgorithm::CTPPSDiamondRecHitProducerAlgorithm( const edm::ParameterSet& iConfig ) :
-  ts_to_ns_( iConfig.getParameter<double>( "timeSliceNs" ) )
+  ts_to_ns_( iConfig.getParameter<double>( "timeSliceNs" ) ),
+  apply_calib_( iConfig.getParameter<bool>( "applyCalibration" ) )
 {}
 
 void
@@ -47,10 +48,10 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry& geom,
 
     // retrieve the timing calibration part for this channel
     const int sector = detid.arm(), station = detid.station(), plane = detid.plane(), channel = detid.channel();
-    const auto& ch_params = calib_.parameters( sector, station, plane, channel );
-    // offset + time precision set to 0 if not found
-    const double ch_t_offset = calib_.timeOffset( sector, station, plane, channel );
-    const double ch_t_precis = calib_.timePrecision( sector, station, plane, channel );
+    const auto& ch_params = ( apply_calib_ ) ? calib_.parameters( sector, station, plane, channel ) : std::vector<double>{};
+    // default values for offset + time precision if calibration object not found
+    const double ch_t_offset = ( apply_calib_ ) ? calib_.timeOffset( sector, station, plane, channel ) : 0.;
+    const double ch_t_precis = ( apply_calib_ ) ? calib_.timePrecision( sector, station, plane, channel ) : 0.;
 
     edm::DetSet<CTPPSDiamondRecHit>& rec_hits = output.find_or_insert( detid );
 
@@ -63,7 +64,7 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry& geom,
       double tot = -1., ch_t_twc = 0.;
       if ( t_lead != 0 && t_trail != 0 ) {
         tot = ( t_trail-t_lead )*ts_to_ns_; // in ns
-        if ( calib_fct_ ) {
+        if ( calib_fct_ && apply_calib_ ) {
           // compute the time-walk correction
           ch_t_twc = calib_fct_->evaluate( std::vector<double>{ tot }, ch_params );
           if ( edm::isNotFinite( ch_t_twc ) )

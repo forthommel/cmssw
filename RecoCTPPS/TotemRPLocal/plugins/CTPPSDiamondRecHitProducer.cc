@@ -48,12 +48,14 @@ class CTPPSDiamondRecHitProducer : public edm::stream::EDProducer<>
     /// A watcher to detect timing calibration changes.
     edm::ESWatcher<PPSTimingCalibrationRcd> calibWatcher_;
 
+    bool applyCalib_;
     CTPPSDiamondRecHitProducerAlgorithm algo_;
 };
 
 CTPPSDiamondRecHitProducer::CTPPSDiamondRecHitProducer( const edm::ParameterSet& iConfig ) :
   digiToken_( consumes<edm::DetSetVector<CTPPSDiamondDigi> >( iConfig.getParameter<edm::InputTag>( "digiTag" ) ) ),
   timingCalibrationTag_( iConfig.getParameter<std::string>( "timingCalibrationTag" ) ),
+  applyCalib_( iConfig.getParameter<bool>( "applyCalibration" ) ),
   algo_( iConfig )
 {
   produces<edm::DetSetVector<CTPPSDiamondRecHit> >();
@@ -69,7 +71,7 @@ CTPPSDiamondRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByToken( digiToken_, digis );
 
   if ( !digis->empty() ) {
-    if ( calibWatcher_.check( iSetup ) ) {
+    if ( applyCalib_ && calibWatcher_.check( iSetup ) ) {
       edm::ESHandle<PPSTimingCalibration> hTimingCalib;
       iSetup.get<PPSTimingCalibrationRcd>().get( timingCalibrationTag_, hTimingCalib );
       algo_.setCalibration( *hTimingCalib );
@@ -96,8 +98,8 @@ CTPPSDiamondRecHitProducer::fillDescriptions( edm::ConfigurationDescriptions& de
     ->setComment( "input tag for timing calibrations retrieval" );
   desc.add<double>( "timeSliceNs", 25.0/1024.0 )
     ->setComment( "conversion constant between HPTDC timing bin size and nanoseconds" );
-  desc.add<int>( "timeShift", 0 ) // to be determined at calibration level, will be replaced by a map channel id -> time shift
-    ->setComment( "overall time offset to apply on all hits in all channels" );
+  desc.add<bool>( "applyCalibration", true )
+    ->setComment( "switch on/off the timing calibration" );
 
   descr.add( "ctppsDiamondRecHits", desc );
 }

@@ -35,6 +35,8 @@ class CTPPSDiamondRecHitProducerAlgorithm
     static constexpr unsigned short MAX_CHANNEL = 20;
     /// Conversion constant between HPTDC time slice and absolute time (in ns)
     double ts_to_ns_;
+    /// Switch on/off the timing calibration
+    bool apply_calib_;
     PPSTimingCalibration calib_;
     std::unique_ptr<reco::FormulaEvaluator> calib_fct_;
 };
