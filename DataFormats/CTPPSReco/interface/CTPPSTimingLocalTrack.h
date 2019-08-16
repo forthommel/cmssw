@@ -20,6 +20,7 @@ class CTPPSTimingLocalTrack {
 public:
   CTPPSTimingLocalTrack();
   CTPPSTimingLocalTrack(const math::XYZPoint& pos0, const math::XYZPoint& pos0_sigma, float t, float t_sigma);
+  virtual ~CTPPSTimingLocalTrack() = default;
 
   enum class CheckDimension { x, y, all };
   bool containsHit(const CTPPSTimingRecHit& recHit,
@@ -50,8 +51,10 @@ public:
 
   //--- validity related members
 
-  inline bool isValid() const { return valid_; }
-  inline void setValid(bool valid) { valid_ = valid; }
+  inline bool isPositionValid() const { return valid_; }
+  inline void setPositionValid(bool valid) { valid_ = valid; }
+  inline virtual bool isValid() const { return isPositionValid(); }
+  inline virtual void setValid(bool valid) { setPositionValid(valid); }
 
   //--- temporal get'ters
 

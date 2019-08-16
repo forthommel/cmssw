@@ -33,6 +33,8 @@ public:
   inline void setMultipleHits(int i) { mh_ = i; }
   inline int getMultipleHits() const { return mh_; }
 
+  static constexpr float T_INVALID = -999.;
+
 private:
   /// Time slice index
   int ts_index_;
