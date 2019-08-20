@@ -15,7 +15,8 @@
 
 //--- constructors
 
-CTPPSTimingLocalTrack::CTPPSTimingLocalTrack() : num_hits_(0), num_planes_(0), valid_(true), t_(T_INVALID), t_sigma_(T_INVALID) {}
+CTPPSTimingLocalTrack::CTPPSTimingLocalTrack()
+    : num_hits_(0), num_planes_(0), valid_(true), t_(T_INVALID), t_sigma_(T_INVALID) {}
 
 CTPPSTimingLocalTrack::CTPPSTimingLocalTrack(const math::XYZPoint& pos0,
                                              const math::XYZPoint& pos0_sigma,
