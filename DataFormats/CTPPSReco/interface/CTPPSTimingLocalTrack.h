@@ -67,6 +67,8 @@ public:
   inline void setTSigma(float t_sigma) { t_sigma_ = t_sigma; }
 
 private:
+  static constexpr float T_INVALID = -999.;
+
   //--- spatial information
 
   /// initial track position
