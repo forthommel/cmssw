@@ -33,11 +33,6 @@ public:
   inline void setMultipleHits(int i) { mh_ = i; }
   inline int getMultipleHits() const { return mh_; }
 
-  //--- temporal and general validity flags
-
-  inline bool isTimingValid() const { return getT() != T_INVALID; }
-  inline bool isValid() const override { return isPositionValid() && isTimingValid(); }
-
 private:
   /// Time slice index
   int ts_index_;

@@ -49,12 +49,20 @@ public:
   inline void setNumOfHits(int num_hits) { num_hits_ = num_hits; }
   inline void setNumOfPlanes(int num_planes) { num_planes_ = num_planes; }
 
-  //--- validity related members
+  //--- temporal and general validity flags
 
-  inline bool isPositionValid() const { return valid_; }
+  inline virtual void setTimingValid(bool valid) {}
+  inline virtual bool isTimingValid() const { return getT() != T_INVALID; }
+
   inline void setPositionValid(bool valid) { valid_ = valid; }
-  inline virtual bool isValid() const { return isPositionValid(); }
+  inline bool isPositionValid() const { return valid_; }
+
   inline virtual void setValid(bool valid) { setPositionValid(valid); }
+  inline void setValid(bool pos_valid, bool time_valid) {
+    setPositionValid(pos_valid);
+    setTimingValid(time_valid);
+  }
+  inline virtual bool isValid() const { return isPositionValid() && isTimingValid(); }
 
   //--- temporal get'ters
 
