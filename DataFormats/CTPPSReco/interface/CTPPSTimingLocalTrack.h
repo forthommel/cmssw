@@ -56,7 +56,7 @@ public:
   inline virtual void setTimingValid(bool valid) {}
   /// Validity flag for timing information
   /// \note Virtual method for possible extensions
-  inline virtual bool isTimingValid() const { return getT() != T_INVALID; }
+  inline virtual bool isTimingValid() const { return t_ != T_INVALID; }
 
   /// Specify the validity flag for spatial information
   inline void setPositionValid(bool valid) { valid_ = valid; }
