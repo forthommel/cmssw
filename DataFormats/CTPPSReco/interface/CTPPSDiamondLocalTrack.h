@@ -23,6 +23,8 @@ public:
   CTPPSDiamondLocalTrack(
       const math::XYZPoint& pos0, const math::XYZPoint& pos0_sigma, float t, float t_sigma, int oot_idx, int mult_hits);
 
+  static constexpr float T_INVALID = -999.;
+
   bool containsHit(const CTPPSDiamondRecHit& recHit, float tolerance = 0.1) const;
 
   //--- temporal set'ters
@@ -33,7 +35,10 @@ public:
   inline void setMultipleHits(int i) { mh_ = i; }
   inline int getMultipleHits() const { return mh_; }
 
-  static constexpr float T_INVALID = -999.;
+  //--- temporal and general validity flags
+
+  inline bool isTimingValid() const { return getT() != T_INVALID; }
+  inline bool isValid() const override { return isPositionValid() && isTimingValid(); }
 
 private:
   /// Time slice index
