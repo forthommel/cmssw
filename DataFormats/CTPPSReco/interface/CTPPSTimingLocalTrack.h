@@ -66,9 +66,10 @@ public:
   inline void setT(float t) { t_ = t; }
   inline void setTSigma(float t_sigma) { t_sigma_ = t_sigma; }
 
-private:
+protected:
   static constexpr float T_INVALID = -999.;
 
+private:
   //--- spatial information
 
   /// initial track position
