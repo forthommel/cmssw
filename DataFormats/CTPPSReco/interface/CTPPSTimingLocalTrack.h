@@ -51,17 +51,27 @@ public:
 
   //--- temporal and general validity flags
 
+  /// Specify the validity flag for timing information
+  /// \note Virtual trivial method unused for now
   inline virtual void setTimingValid(bool valid) {}
+  /// Validity flag for timing information
+  /// \note Virtual method for possible extensions
   inline virtual bool isTimingValid() const { return getT() != T_INVALID; }
 
+  /// Specify the validity flag for spatial information
   inline void setPositionValid(bool valid) { valid_ = valid; }
+  /// Validity flag for spatial information
   inline bool isPositionValid() const { return valid_; }
 
+  /// Specify the validity flag for the track object
+  /// \note Virtual method, may be overridden to include additional timing information
   inline virtual void setValid(bool valid) { setPositionValid(valid); }
+  /// Specify the validity flags (spatial and timing) for the track object
   inline void setValid(bool pos_valid, bool time_valid) {
     setPositionValid(pos_valid);
     setTimingValid(time_valid);
   }
+  /// Combined spatial/timing track validity flag
   inline virtual bool isValid() const { return isPositionValid() && isTimingValid(); }
 
   //--- temporal get'ters
