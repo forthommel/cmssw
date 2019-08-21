@@ -108,7 +108,7 @@ protected:
      * - track's time sigma = uncertainty of the weighted mean
      * - hit is ignored if the time precision is equal to 0
      */
-  bool timeEval(const HitVector& hits, float& meanTime, float& timeSigma) const;
+  void timeEval(const HitVector& hits, float& meanTime, float& timeSigma) const;
 };
 
 /****************************************************************************
@@ -226,22 +226,19 @@ CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::getHitSpatialRange(const HitV
 }
 
 template <class TRACK_TYPE, class HIT_TYPE>
-inline bool CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::timeEval(const HitVector& hits,
+inline void CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::timeEval(const HitVector& hits,
                                                                         float& mean_time,
                                                                         float& time_sigma) const {
   float mean_num = 0.f, mean_denom = 0.f;
-  bool valid_hits = false;
   for (const auto& hit : hits) {
     if (hit.getTPrecision() <= 0.)
       continue;
     const float weight = std::pow(hit.getTPrecision(), -2);
     mean_num += weight * hit.getT();
     mean_denom += weight;
-    valid_hits = true;  // at least one valid hit to account for
   }
-  mean_time = valid_hits ? (mean_num / mean_denom) : 0.f;
-  time_sigma = valid_hits ? std::sqrt(1.f / mean_denom) : 0.f;
-  return valid_hits;
+  mean_time = hits.empty() ? 0.f : (mean_num / mean_denom);
+  time_sigma = hits.empty() ? 0.f : std::sqrt(1.f / mean_denom);
 }
 
 #endif
