@@ -82,7 +82,7 @@ int CTPPSDiamondTrackRecognition::produceTracks(edm::DetSet<CTPPSDiamondLocalTra
       // compute timing information
       float mean_time = 0.f, time_sigma = 0.f;
       bool valid_hits = timeEval(componentHits, mean_time, time_sigma);
-      newTrack.setValid(valid_hits);
+      newTrack.setPositionValid(valid_hits); //FIXME need to be more clever here!
       newTrack.setT(mean_time);
       newTrack.setTSigma(time_sigma);
 
