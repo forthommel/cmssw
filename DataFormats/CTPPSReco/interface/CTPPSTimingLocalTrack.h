@@ -22,6 +22,8 @@ public:
   CTPPSTimingLocalTrack(const math::XYZPoint& pos0, const math::XYZPoint& pos0_sigma, float t, float t_sigma);
   virtual ~CTPPSTimingLocalTrack() = default;
 
+  static constexpr float T_INVALID = -999.;
+
   enum class CheckDimension { x, y, all };
   bool containsHit(const CTPPSTimingRecHit& recHit,
                    float tolerance = 0.1f,
@@ -75,9 +77,6 @@ public:
 
   inline void setT(float t) { t_ = t; }
   inline void setTSigma(float t_sigma) { t_sigma_ = t_sigma; }
-
-protected:
-  static constexpr float T_INVALID = -999.;
 
 private:
   //--- spatial information
