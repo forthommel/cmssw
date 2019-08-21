@@ -229,11 +229,9 @@ template <class TRACK_TYPE, class HIT_TYPE>
 inline void CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::timeEval(const HitVector& hits,
                                                                         float& mean_time,
                                                                         float& time_sigma) const {
-  if (hits.empty()) {
-    // do not compute timing information if no associated hits
-    mean_time = time_sigma = CTPPSTimingLocalTrack::T_INVALID;
-    return;
-  }
+  mean_time = time_sigma = CTPPSTimingLocalTrack::T_INVALID;
+  if (hits.empty())
+    return; // do not compute timing information if no associated hits
   float mean_num = 0.f, mean_denom = 0.f;
   for (const auto& hit : hits) {
     if (hit.getTPrecision() <= 0.)
@@ -242,10 +240,8 @@ inline void CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::timeEval(const Hi
     mean_num += weight * hit.getT();
     mean_denom += weight;
   }
-  if (mean_denom == 0.f) {
-    mean_time = time_sigma = CTPPSTimingLocalTrack::T_INVALID;
+  if (mean_denom == 0.f)
     return;
-  }
   mean_time = mean_num / mean_denom;
   time_sigma = std::sqrt(1.f / mean_denom);
 }
