@@ -237,8 +237,8 @@ inline void CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::timeEval(const Hi
     mean_num += weight * hit.getT();
     mean_denom += weight;
   }
-  mean_time = hits.empty() ? 0.f : (mean_num / mean_denom);
-  time_sigma = hits.empty() ? 0.f : std::sqrt(1.f / mean_denom);
+  mean_time = hits.empty() ? CTPPSTimingLocalTrack::T_INVALID : (mean_num / mean_denom);
+  time_sigma = hits.empty() ? CTPPSTimingLocalTrack::T_INVALID : std::sqrt(1.f / mean_denom);
 }
 
 #endif
