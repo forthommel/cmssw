@@ -15,6 +15,9 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLiteFwd.h"
 
+#include "DataFormats/ProtonReco/interface/ForwardProton.h"
+#include "DataFormats/ProtonReco/interface/ForwardProtonFwd.h"
+
 class AnalyticalProtonProducer : public edm::stream::EDProducer<> {
 public:
   explicit AnalyticalProtonProducer(const edm::ParameterSet&);
@@ -30,9 +33,18 @@ private:
 
 AnalyticalProtonProducer::AnalyticalProtonProducer(const edm::ParameterSet& iConfig)
   : tracksToken_(consumes<CTPPSLocalTrackLiteCollection>(iConfig.getParameter<edm::InputTag>("tracksTag"))) {
+  produces<reco::ForwardProtonCollection>();
 }
 
 void AnalyticalProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  //--- retrieve the input collection
+  edm::Handle<CTPPSLocalTrackLiteCollection> tracksHandle;
+  iEvent.getByToken(tracksToken_, tracksHandle);
+
+  //--- book the output
+  auto pOut = std::make_unique<reco::ForwardProtonCollection>();
+
+  iEvent.put(std::move(pOut));
 }
 
 void AnalyticalProtonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
