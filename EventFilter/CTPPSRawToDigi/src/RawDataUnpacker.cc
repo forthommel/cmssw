@@ -30,7 +30,7 @@ int RawDataUnpacker::run(int fedId,
     return 1;
   }
 
-  fedInfoColl.push_back(TotemFEDInfo(fedId));
+  fedInfoColl.emplace_back(fedId);
 
   return processOptoRxFrame((const word *)data.data(), size_in_words, fedInfoColl.back(), &coll);
 }
@@ -77,6 +77,10 @@ int RawDataUnpacker::processOptoRxFrame(const word *buf,
       optoRxId <= FEDNumbering::MAXTotemRPTimingVerticalFEDID) {
     processOptoRxFrameSampic(buf, frameSize, fedInfo, fc);
     return 0;
+  }
+  else if (optoRxId >= FEDNumbering::MINTotemT2FEDID &&
+           optoRxId <= FEDNumbering::MAXTotemT2FEDID) {
+    throw cms::Exception("Totem") << "FIXME: NOT YET IMPLEMENTED!";
   }
 
   // parallel or serial transmission?
