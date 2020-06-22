@@ -92,14 +92,13 @@ void TotemRPLocalTrackFitter::produce(edm::Event &e, const edm::EventSetup &setu
   DetSetVector<TotemRPLocalTrack> output;
 
   for (const auto &rpv : *input) {
-    CTPPSDetId rpId(rpv.detId());
+    const CTPPSDetId rpId(rpv.detId());
 
     // is U-V association unique?
     unsigned int n_U = 0, n_V = 0;
     unsigned int idx_U = 0, idx_V = 0;
-    for (unsigned int pi = 0; pi < rpv.size(); pi++) {
-      const TotemRPUVPattern &pattern = rpv[pi];
-
+    size_t idx = 0;
+    for (const auto& pattern : rpv) {
       // here it would make sense to skip non-fittable patterns, but to keep the logic
       // equivalent to version 7_0_4, nothing is skipped
       /*
@@ -110,17 +109,18 @@ void TotemRPLocalTrackFitter::produce(edm::Event &e, const edm::EventSetup &setu
       switch (pattern.projection()) {
         case TotemRPUVPattern::projU:
           n_U++;
-          idx_U = pi;
+          idx_U = idx;
           break;
 
         case TotemRPUVPattern::projV:
           n_V++;
-          idx_V = pi;
+          idx_V = idx;
           break;
 
         default:
           break;
       }
+      ++idx;
     }
 
     if (n_U != 1 || n_V != 1) {

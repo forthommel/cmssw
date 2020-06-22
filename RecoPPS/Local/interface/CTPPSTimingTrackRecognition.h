@@ -137,7 +137,7 @@ inline void CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::producePartialTra
   // Creates hit profile
   for (auto const& hit : hits) {
     const float center = getHitCenter(hit), rangeWidth = getHitRangeWidth(hit);
-    std::vector<double> params{center, rangeWidth, sigma_};
+    const std::vector<double> params{center, rangeWidth, sigma_};
     for (unsigned int i = 0; i < hitProfile.size(); ++i)
       hitProfile[i] +=
           pixelEfficiencyFunction_.evaluate(std::vector<double>{profileRangeBegin + i * resolution_}, params);
@@ -146,24 +146,25 @@ inline void CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::producePartialTra
   bool underThreshold = true;
   float rangeMaximum = -1.0f;
   bool trackRangeFound = false;
-  int trackRangeBegin = 0, trackRangeEnd = 0;
+  size_t trackRangeBegin = 0, trackRangeEnd = 0;
 
   // Searches for tracks in the hit profile
-  for (unsigned int i = 0; i < hitProfile.size(); i++) {
-    if (hitProfile[i] > rangeMaximum)
-      rangeMaximum = hitProfile[i];
+  size_t idx = 0;
+  for (auto& profile : hitProfile) {
+    if (profile > rangeMaximum)
+      rangeMaximum = profile;
 
     // Going above the threshold
-    if (underThreshold && hitProfile[i] > threshold_) {
+    if (underThreshold && profile > threshold_) {
       underThreshold = false;
-      trackRangeBegin = i;
-      rangeMaximum = hitProfile[i];
+      trackRangeBegin = idx;
+      rangeMaximum = profile;
     }
 
     // Going under the threshold
-    else if (!underThreshold && hitProfile[i] <= threshold_) {
+    else if (!underThreshold && profile <= threshold_) {
       underThreshold = true;
-      trackRangeEnd = i;
+      trackRangeEnd = idx;
       trackRangeFound = true;
     }
 
@@ -173,7 +174,7 @@ inline void CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::producePartialTra
       int trackBegin;
       bool underTrackThreshold = true;
 
-      for (int j = trackRangeBegin; j <= trackRangeEnd; j++) {
+      for (size_t j = trackRangeBegin; j <= trackRangeEnd; j++) {
         if (underTrackThreshold && hitProfile[j] > trackThreshold) {
           underTrackThreshold = false;
           trackBegin = j;
@@ -190,6 +191,7 @@ inline void CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::producePartialTra
       }
       trackRangeFound = false;
     }
+    ++idx;
   }
 }
 
