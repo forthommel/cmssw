@@ -137,22 +137,22 @@ void TotemRPUVPatternFinder::recognizeAndSelect(TotemRPUVPattern::ProjectionType
   lrcgn->getPatterns(hits, z0, threshold_loc, newPatterns);
 
   // set pattern properties and copy to the global pattern collection
-  for (auto &p : newPatterns) {
-    p.setProjection(proj);
+  for (auto &pattern : newPatterns) {
+    pattern.setProjection(proj);
 
-    p.setFittable(true);
+    pattern.setFittable(true);
 
     set<unsigned int> planes;
-    for (const auto &ds : p.hits())
+    for (const auto &ds : pattern.hits())
       planes.insert(TotemRPDetId(ds.detId()).plane());
 
     if (planes.size() < planes_required)
-      p.setFittable(false);
+      pattern.setFittable(false);
 
-    if (fabs(p.a()) > max_a_toFit)
-      p.setFittable(false);
+    if (fabs(pattern.a()) > max_a_toFit)
+      pattern.setFittable(false);
 
-    patterns.push_back(p);
+    patterns.push_back(pattern);
   }
 }
 
@@ -184,22 +184,22 @@ void TotemRPUVPatternFinder::produce(edm::Event &event, const edm::EventSetup &e
   map<unsigned int, RPData> rpData;
 
   for (auto &ids : *input) {
-    TotemRPDetId detId(ids.detId());
-    unsigned int plane = detId.plane();
-    bool uDir = detId.isStripsCoordinateUDirection();
+    const TotemRPDetId detId(ids.detId());
+    const unsigned int plane = detId.plane();
+    const bool uDir = detId.isStripsCoordinateUDirection();
 
     CTPPSDetId rpId = detId.rpId();
 
     RPData &data = rpData[rpId];
 
-    for (auto &h : ids) {
+    for (auto &pattern : ids) {
       if (uDir) {
         auto &ods = data.hits_U.find_or_insert(ids.detId());
-        ods.push_back(h);
+        ods.push_back(pattern);
         data.planeOccupancy_U[plane]++;
       } else {
         auto &ods = data.hits_V.find_or_insert(ids.detId());
-        ods.push_back(h);
+        ods.push_back(pattern);
         data.planeOccupancy_V[plane]++;
       }
     }

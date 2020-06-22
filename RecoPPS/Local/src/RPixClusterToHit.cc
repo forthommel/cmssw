@@ -79,10 +79,10 @@ void RPixClusterToHit::make_hit(CTPPSPixelCluster aCluster, std::vector<CTPPSPix
     double maxPxlX = 0;
     double maxPxlY = 0;
     topology.pixelRange(aCluster.pixelRow(i), aCluster.pixelCol(i), minPxlX, maxPxlX, minPxlY, maxPxlY);
-    double halfSizeX = (maxPxlX - minPxlX) / 2.;
-    double halfSizeY = (maxPxlY - minPxlY) / 2.;
-    double avgPxlX = minPxlX + halfSizeX;
-    double avgPxlY = minPxlY + halfSizeY;
+    const double halfSizeX = (maxPxlX - minPxlX) / 2.;
+    const double halfSizeY = (maxPxlY - minPxlY) / 2.;
+    const double avgPxlX = minPxlX + halfSizeX;
+    const double avgPxlY = minPxlY + halfSizeY;
     //error propagation
     weightedVarianceX += aCluster.pixelADC(i) * aCluster.pixelADC(i) * halfSizeX * halfSizeX / 3.;
     weightedVarianceY += aCluster.pixelADC(i) * aCluster.pixelADC(i) * halfSizeY * halfSizeY / 3.;
@@ -100,29 +100,18 @@ void RPixClusterToHit::make_hit(CTPPSPixelCluster aCluster, std::vector<CTPPSPix
     return;
   }
 
-  double invWeights = 1. / weights;
-  double avgLocalX = avgWLocalX * invWeights;
-  double avgLocalY = avgWLocalY * invWeights;
+  const double invWeights = 1. / weights;
+  const double avgLocalX = avgWLocalX * invWeights;
+  const double avgLocalY = avgWLocalY * invWeights;
 
-  double varianceX = weightedVarianceX * invWeights * invWeights;
-  double varianceY = weightedVarianceY * invWeights * invWeights;
+  const double varianceX = weightedVarianceX * invWeights * invWeights;
+  const double varianceY = weightedVarianceY * invWeights * invWeights;
 
-  LocalPoint lp(avgLocalX, avgLocalY, 0);
-  LocalError le(varianceX, 0, varianceY);
-  CTPPSPixelRecHit rh(lp,
-                      le,
-                      anEdgePixel,
-                      aBadPixel,
-                      twoRocs,
-                      thisClusterMinRow,
-                      thisClusterMinCol,
-                      thisClusterSize,
-                      thisClusterRowSize,
-                      thisClusterColSize);
+  const LocalPoint lp(avgLocalX, avgLocalY, 0);
+  const LocalError le(varianceX, 0, varianceY);
   if (verbosity_)
     edm::LogInfo("RPixClusterToHit") << lp << " with error " << le;
 
-  hits.push_back(rh);
-
-  return;
+  hits.emplace_back(lp, le, anEdgePixel, aBadPixel, twoRocs,
+    thisClusterMinRow, thisClusterMinCol, thisClusterSize, thisClusterRowSize, thisClusterColSize);
 }
