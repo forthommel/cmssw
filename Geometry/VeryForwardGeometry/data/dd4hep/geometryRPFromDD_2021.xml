@@ -28,7 +28,7 @@
     <Include ref="Geometry/VeryForwardData/data/RP_Box/RP_Box_005.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Box/RP_Box_020.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Box/RP_Box_021.xml"/>
-    <Include ref="Geometry/VeryForwardData/data/RP_Box/RP_Box_022.xml"/>
+    <!--<Include ref="Geometry/VeryForwardData/data/RP_Box/RP_Box_022.xml"/>-->
     <Include ref="Geometry/VeryForwardData/data/RP_Box/RP_Box_023.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Box/RP_Box_024.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Box/RP_Box_025.xml"/>
@@ -40,7 +40,7 @@
     <Include ref="Geometry/VeryForwardData/data/RP_Box/RP_Box_105.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Box/RP_Box_120.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Box/RP_Box_121.xml"/>
-    <Include ref="Geometry/VeryForwardData/data/RP_Box/RP_Box_122.xml"/>
+    <!--<Include ref="Geometry/VeryForwardData/data/RP_Box/RP_Box_122.xml"/>-->
     <Include ref="Geometry/VeryForwardData/data/RP_Box/RP_Box_123.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Box/RP_Box_124.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Box/RP_Box_125.xml"/>
@@ -53,7 +53,7 @@
     <Include ref="Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_002.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_004.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_005.xml"/>
-    <Include ref="Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_022.xml"/>
+    <!--<Include ref="Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_022.xml"/>-->
     <Include ref="Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_024.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_025.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_100.xml"/>
@@ -61,14 +61,14 @@
     <Include ref="Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_102.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_104.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_105.xml"/>
-    <Include ref="Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_122.xml"/>
+    <!--<Include ref="Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_122.xml"/>-->
     <Include ref="Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_124.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_125.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Device.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Vertical_Device.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Horizontal_Device.xml"/>
-    <Include ref="Geometry/VeryForwardData/data/RP_220_Right_Station.xml"/>
-    <Include ref="Geometry/VeryForwardData/data/RP_220_Left_Station.xml"/>
+    <Include ref="Geometry/VeryForwardData/data/2021/v1/RP_220_Right_Station.xml"/>
+    <Include ref="Geometry/VeryForwardData/data/2021/v1/RP_220_Left_Station.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Pixel_2018/RP_147_Right_Station.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Pixel_2018/RP_147_Left_Station.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Stations_Assembly.xml"/>
@@ -85,7 +85,7 @@
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Timing_Horizontal_Pot.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Timing_Positive_Station.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Timing_Negative_Station.xml"/>
-    <Include ref="Geometry/VeryForwardData/data/Timing_Stations_Assembly.xml"/>
+    <Include ref="Geometry/VeryForwardData/data/2021/v1/Timing_Stations_Assembly.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern1_Segment1.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern2_Segment1.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern2_Segment2.xml"/>
@@ -127,9 +127,9 @@
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Pixel_2018/CTPPS_Pixel_Assembly_Box_Real_003.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Pixel_2018/CTPPS_Pixel_Assembly_Box_Real_103.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Pixel_Sens.xml"/>
-
-    # RP distance
-    <Include ref="Geometry/VeryForwardData/data/2016_ctpps_15sigma_margin0/RP_Dist_Beam_Cent.xml"/>    
+    
+    # position of RPs
+    <Include ref="Geometry/VeryForwardData/data/2016_ctpps_15sigma_margin0/RP_Dist_Beam_Cent.xml"/>
             
   </IncludeSection>
-</DDDefinition>
+</DDDefinition> 
