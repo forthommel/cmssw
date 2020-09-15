@@ -276,8 +276,8 @@ void CTPPSGeometryESModule::buildDetGeomDesc(DDFilteredView* fv, DetGeomDesc* gd
         station = 1;
         rp = 6;
       } else {
-        arm = (decRPId / 100) / 10;
-        station = (decRPId / 10) % 10;
+        arm = (decRPId % 1000) / 100;
+        station = (decRPId % 100) / 10;
         rp = decRPId % 10;
       }
       const unsigned int id = copy_num[copy_num.size() - 1];
@@ -303,8 +303,8 @@ void CTPPSGeometryESModule::buildDetGeomDesc(DDFilteredView* fv, DetGeomDesc* gd
         station = 1;
         rp = 6;
       } else {
-        arm = (decRPId / 100) % 10;
-        station = (decRPId / 10) % 10;
+        arm = (decRPId % 1000) / 100;
+        station = (decRPId % 100) / 10;
         rp = decRPId % 10;
       }
 
