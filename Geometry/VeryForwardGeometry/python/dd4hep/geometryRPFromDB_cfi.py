@@ -1,22 +1,19 @@
 import FWCore.ParameterSet.Config as cms
+from Geometry.VeryForwardGeometryBuilder.ctppsGeometryESModule_cfi import ctppsGeometryESModule as _ctppsGeometryESModule
 
 DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/VeryForwardGeometry/data/dd4hep/empty.xml'),
-                                            label = cms.string('CTPPS'),
-                                            fromDB = cms.bool(True),
-                                            appendToDataLabel = cms.string('XMLIdealGeometryESSource_CTPPS')
+    confGeomXMLFiles = cms.FileInPath('Geometry/VeryForwardGeometry/data/dd4hep/empty.xml'),
+    label = cms.string('CTPPS'),
+    fromDB = cms.bool(True),
+    appendToDataLabel = cms.string('XMLIdealGeometryESSource_CTPPS')
 )
-
 
 DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
-                                            appendToDataLabel = cms.string('XMLIdealGeometryESSource_CTPPS')
+    appendToDataLabel = cms.string('XMLIdealGeometryESSource_CTPPS')
 )
 
-
-ctppsGeometryESModule = cms.ESProducer("CTPPSGeometryESModule",
+ctppsGeometryESModule = _ctppsGeometryESModule.clone(
     fromDD4hep = cms.untracked.bool(True),
-    isRun2 = cms.bool(False),
-    verbosity = cms.untracked.uint32(1),
     compactViewTag = cms.string('XMLIdealGeometryESSource_CTPPS')
 )
 

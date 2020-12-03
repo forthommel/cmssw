@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Geometry.VeryForwardGeometryBuilder.ctppsGeometryESModule_cfi import ctppsGeometryESModule as _ctppsGeometryESModule
 
 XMLIdealGeometryESSource_CTPPS = cms.ESProducer("XMLIdealGeometryESProducer",
     rootDDName = cms.string('cms:CMSE'),
@@ -6,9 +7,7 @@ XMLIdealGeometryESSource_CTPPS = cms.ESProducer("XMLIdealGeometryESProducer",
     appendToDataLabel = cms.string('XMLIdealGeometryESSource_CTPPS')
 )
 
-ctppsGeometryESModule = cms.ESProducer("CTPPSGeometryESModule",
-    verbosity = cms.untracked.uint32(1),
-    isRun2 = cms.bool(False),
+ctppsGeometryESModule = __ctppsGeometryESModule.clone(
     compactViewTag = cms.string('XMLIdealGeometryESSource_CTPPS')
 )
 
