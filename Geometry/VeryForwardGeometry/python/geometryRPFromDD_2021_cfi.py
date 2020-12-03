@@ -75,7 +75,7 @@ totemGeomXMLFiles = cms.vstring(
     'Geometry/VeryForwardData/data/RP_Sensitive_Dets.xml',
     'Geometry/VeryForwardData/data/RP_Cuts_Per_Region.xml',
     'Geometry/VeryForwardData/data/RP_Param_Beam_Region.xml'
-    )
+)
 
 # diamond files
 ctppsDiamondGeomXMLFiles = cms.vstring(
@@ -105,27 +105,25 @@ ctppsDiamondGeomXMLFiles = cms.vstring(
     'Geometry/VeryForwardData/data/CTPPS_Diamond_2018/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane3.xml',
     'Geometry/VeryForwardData/data/CTPPS_Diamond_2018/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane4.xml',
     'Geometry/VeryForwardData/data/CTPPS_Diamond_2018/CTPPS_Diamond_Detector_Assembly.xml'
-    )
+)
 
 # UFSD files
 ctppsUFSDGeomXMLFiles = cms.vstring(
-    # UFSDetectors
     'Geometry/VeryForwardData/data/CTPPS_UFSD_Segments/CTPPS_UFSD_Pattern1.xml',
     'Geometry/VeryForwardData/data/CTPPS_UFSD_Segments/CTPPS_UFSD_Pattern2_SegmentA.xml',
     'Geometry/VeryForwardData/data/CTPPS_UFSD_Segments/CTPPS_UFSD_Pattern2_SegmentB.xml',
     'Geometry/VeryForwardData/data/CTPPS_UFSD_Planes/CTPPS_UFSD_Plane4.xml',
     'Geometry/VeryForwardData/data/CTPPS_UFSD_Parameters.xml',
-    )
+)
 
 # Totem Timing files
 totemTimingGeomXMLFiles = cms.vstring(
-    # UFSDetectors
     'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Dist_Beam_Cent.xml',
     'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_DetectorAssembly.xml',
     'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Parameters.xml',
     'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Plane.xml',
     'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Station.xml',
-    )
+)
 
 # pixel files
 ctppsPixelGeomXMLFiles = cms.vstring(
@@ -137,12 +135,12 @@ ctppsPixelGeomXMLFiles = cms.vstring(
     'Geometry/VeryForwardData/data/CTPPS_Pixel_2018/CTPPS_Pixel_Assembly_Box_Real_003.xml',
     'Geometry/VeryForwardData/data/CTPPS_Pixel_2018/CTPPS_Pixel_Assembly_Box_Real_103.xml',
     'Geometry/VeryForwardData/data/CTPPS_Pixel_Sens.xml'
-    )
+)
 
 XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
-                                              geomXMLFiles = totemGeomXMLFiles + ctppsDiamondGeomXMLFiles + ctppsUFSDGeomXMLFiles + totemTimingGeomXMLFiles + ctppsPixelGeomXMLFiles,
-                                              rootNodeName = cms.string('cms:CMSE')
-                                              )
+    geomXMLFiles = totemGeomXMLFiles + ctppsDiamondGeomXMLFiles + ctppsUFSDGeomXMLFiles + totemTimingGeomXMLFiles + ctppsPixelGeomXMLFiles,
+    rootNodeName = cms.string('cms:CMSE')
+)
 
 # position of RPs
 XMLIdealGeometryESSource_CTPPS.geomXMLFiles.append("Geometry/VeryForwardData/data/2016_ctpps_15sigma_margin0/RP_Dist_Beam_Cent.xml")

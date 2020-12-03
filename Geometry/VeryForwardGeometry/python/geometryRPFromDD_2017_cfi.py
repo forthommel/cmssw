@@ -83,7 +83,6 @@ totemGeomXMLFiles = cms.vstring(
 
 # diamond files
 ctppsDiamondGeomXMLFiles = cms.vstring(
-    # diamond detectors
     'Geometry/VeryForwardData/data/CTPPS_Diamond_Materials.xml',
     'Geometry/VeryForwardData/data/CTPPS_Diamond_Transformations.xml',
     'Geometry/VeryForwardData/data/CTPPS_Diamond_X_Distance.xml',
@@ -113,7 +112,6 @@ ctppsDiamondGeomXMLFiles = cms.vstring(
 
 # UFSD files
 ctppsUFSDGeomXMLFiles = cms.vstring(
-    # UFSDetectors
     'Geometry/VeryForwardData/data/CTPPS_UFSD_Segments/CTPPS_UFSD_Pattern1.xml',
     'Geometry/VeryForwardData/data/CTPPS_UFSD_Segments/CTPPS_UFSD_Pattern2_SegmentA.xml',
     'Geometry/VeryForwardData/data/CTPPS_UFSD_Segments/CTPPS_UFSD_Pattern2_SegmentB.xml',
