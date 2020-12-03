@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Geometry.VeryForwardGeometryBuilder.ctppsGeometryESModule_cfi import ctppsGeometryESModule as _ctppsGeometryESModule
 
 # common and strip files
 totemGeomXMLFiles = cms.vstring(
@@ -137,15 +138,14 @@ ctppsPixelGeomXMLFiles = cms.vstring(
     )
 
 XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
-                                              geomXMLFiles = totemGeomXMLFiles + ctppsDiamondGeomXMLFiles + ctppsUFSDGeomXMLFiles + totemTimingGeomXMLFiles + ctppsPixelGeomXMLFiles,
-                                              rootNodeName = cms.string('cms:CMSE')
-                                              )
+    geomXMLFiles = totemGeomXMLFiles + ctppsDiamondGeomXMLFiles + ctppsUFSDGeomXMLFiles + totemTimingGeomXMLFiles + ctppsPixelGeomXMLFiles,
+    rootNodeName = cms.string('cms:CMSE')
+)
 
 # position of RPs
 XMLIdealGeometryESSource_CTPPS.geomXMLFiles.append("Geometry/VeryForwardData/data/2016_ctpps_15sigma_margin0/RP_Dist_Beam_Cent.xml")
 
-ctppsGeometryESModule = cms.ESProducer("CTPPSGeometryESModule",
-    verbosity = cms.untracked.uint32(1),
+ctppsGeometryESModule = _ctppsGeometryESModule.clone(
     isRun2 = cms.bool(True),
     compactViewTag = cms.string('XMLIdealGeometryESSource_CTPPS')
 )

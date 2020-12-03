@@ -7,7 +7,7 @@ XMLIdealGeometryESSource_CTPPS = cms.ESProducer("XMLIdealGeometryESProducer",
     appendToDataLabel = cms.string('XMLIdealGeometryESSource_CTPPS')
 )
 
-ctppsGeometryESModule = __ctppsGeometryESModule.clone(
+ctppsGeometryESModule = _ctppsGeometryESModule.clone(
     compactViewTag = cms.string('XMLIdealGeometryESSource_CTPPS')
 )
 

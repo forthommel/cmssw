@@ -1,6 +1,7 @@
 # TODO: for the moment this is just copy of the 2018 config !!! this needs updating !!!
 
 import FWCore.ParameterSet.Config as cms
+from Geometry.VeryForwardGeometryBuilder.ctppsGeometryESModule_cfi import ctppsGeometryESModule as _ctppsGeometryESModule
 
 # common and strip files
 totemGeomXMLFiles = cms.vstring(
@@ -146,8 +147,6 @@ XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
 # position of RPs
 XMLIdealGeometryESSource_CTPPS.geomXMLFiles.append("Geometry/VeryForwardData/data/2016_ctpps_15sigma_margin0/RP_Dist_Beam_Cent.xml")
 
-ctppsGeometryESModule = cms.ESProducer("CTPPSGeometryESModule",
-    verbosity = cms.untracked.uint32(1),
-    isRun2 = cms.bool(False),
+ctppsGeometryESModule = _ctppsGeometryESModule.clone(
     compactViewTag = cms.string('XMLIdealGeometryESSource_CTPPS')
 )
