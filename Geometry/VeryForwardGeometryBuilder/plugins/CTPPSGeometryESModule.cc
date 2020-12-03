@@ -118,7 +118,7 @@ void CTPPSGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<bool>("isRun2", false)->setComment("Switch to legacy (2017-18) definition of diamond geometry");
   desc.add<std::string>("compactViewTag", std::string());
   desc.addUntracked<bool>("fromDD4hep", false);
-  descriptions.add("CTPPSGeometryESModule", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //----------------------------------------------------------------------------------------------------
