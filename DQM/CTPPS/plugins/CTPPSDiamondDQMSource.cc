@@ -413,7 +413,11 @@ CTPPSDiamondDQMSource::PlanePlots::PlanePlots(DQMStore::IBooker& ibooker, unsign
 
   CTPPSDiamondDetId(id).planeName(title, CTPPSDiamondDetId::nFull);
 
-  digiProfileCumulativePerPlane = ibooker.book1D("digi profile", title + " digi profile; ch number", CTPPS_DIAMOND_NUM_OF_CHANNELS, -0.5, CTPPS_DIAMOND_NUM_OF_CHANNELS-0.5);
+  digiProfileCumulativePerPlane = ibooker.book1D("digi profile",
+                                                 title + " digi profile; ch number",
+                                                 CTPPS_DIAMOND_NUM_OF_CHANNELS,
+                                                 -0.5,
+                                                 CTPPS_DIAMOND_NUM_OF_CHANNELS - 0.5);
   hitProfile = ibooker.book1D(
       "hit profile", title + " hit profile;x (mm)", 19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -0.5, 18.5);
   hit_multiplicity = ibooker.book1D("channels per plane", title + " channels per plane; ch per plane", 13, -0.5, 12.5);
@@ -523,10 +527,10 @@ void CTPPSDiamondDQMSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
     if (CTPPSDiamondDetId::check(it->first)) {
       const CTPPSDiamondDetId diam_id(it->first);
       const auto diam = geom.sensor(it->first);
-      diamShifts_[diam_id].global = diam->translation().x()-diam->getDiamondDimensions().xHalfWidth;
-      if (iRun.run() > 300000) { // pixel installed
+      diamShifts_[diam_id].global = diam->translation().x() - diam->getDiamondDimensions().xHalfWidth;
+      if (iRun.run() > 300000) {  // pixel installed
         auto pix = geom.sensor(pixid);
-        diamShifts_[diam_id].withPixels = pix->translation().x()-diam->translation().x()-1.;
+        diamShifts_[diam_id].withPixels = pix->translation().x() - diam->translation().x() - 1.;
       }
     }
 
@@ -552,7 +556,7 @@ void CTPPSDiamondDQMSource::bookHistograms(DQMStore::IBooker& ibooker, const edm
 
   // book plots from the geometry
   const CTPPSGeometry& geom = iSetup.getData(ctppsGeometryRunToken_);
-  for (auto it = geom.beginSensor(); it != geom.endSensor(); ++it ) {
+  for (auto it = geom.beginSensor(); it != geom.endSensor(); ++it) {
     if (!CTPPSDiamondDetId::check(it->first))
       continue;
     // per-channel plots
@@ -882,7 +886,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
                 CTPPSDiamondDetId detId_hit(rechits.detId());
                 if (detId_hit == detId)
                   for (const auto& rechit : rechits)
-                    if (track.containsHit(rechit, 1)) // Channel fired
+                    if (track.containsHit(rechit, 1))  // Channel fired
                       ++(potPlots_[detId_pot].effTriplecountingChMap[map_index]);
               }
             }
@@ -979,7 +983,8 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
   // Using CTPPSDiamondRecHit
   for (const auto& rechits : *diamondRecHits) {
-    const CTPPSDiamondDetId detId(rechits.detId()), detId_plane(detId.arm(), detId.station(), detId.rp(), detId.plane());
+    const CTPPSDiamondDetId detId(rechits.detId()),
+        detId_plane(detId.arm(), detId.station(), detId.rp(), detId.plane());
     for (const auto& rechit : rechits) {
       if (excludeMultipleHits_ && rechit.multipleHits() > 0)
         continue;
