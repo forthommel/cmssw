@@ -513,7 +513,8 @@ void CTPPSDiamondDQMSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
         const CTPPSPixelDetId pixid(diam_id.arm(), CTPPS_PIXEL_STATION_ID, CTPPS_FAR_RP_ID);
         auto pix = geom.sensor(pixid);
         // Rough alignement of pixel detector for diamond tomography
-        diamShifts_[diam_id].withPixels = pix->translation().x() - diam->translation().x() - 1.;
+        diamShifts_[diam_id].withPixels =
+            pix->translation().x() - pix->getDiamondDimensions().xHalfWidth - diamShifts_[diam_id].global - 1.;
       }
     }
 }
@@ -838,7 +839,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
       }
 
       if (numOfHits > 0 && numOfHits <= 10 && planesInTrackSet.size() > 2) {
-        for (const auto& plt_vs_ch : channelPlots_) { // loop over all channels registered in geometry
+        for (const auto& plt_vs_ch : channelPlots_) {  // loop over all channels registered in geometry
           const CTPPSDiamondDetId detId(plt_vs_ch.first);
           if (detId.rpId() != detId_pot)
             continue;
