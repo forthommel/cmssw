@@ -107,8 +107,6 @@ private:
   edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> ctppsGeometryEventToken_;
 
   bool excludeMultipleHits_;
-  double horizontalShiftBwDiamondPixels_;
-  double horizontalShiftOfDiamond_;
   struct DiamondShifts {
     double global, withPixels;
   };
@@ -530,20 +528,10 @@ void CTPPSDiamondDQMSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
       diamShifts_[diam_id].global = diam->translation().x() - diam->getDiamondDimensions().xHalfWidth;
       if (iRun.run() > 300000) {  // pixel installed
         auto pix = geom.sensor(pixid);
+        // Rough alignement of pixel detector for diamond tomography
         diamShifts_[diam_id].withPixels = pix->translation().x() - diam->translation().x() - 1.;
       }
     }
-
-  const CTPPSDiamondDetId detid(0, CTPPS_DIAMOND_STATION_ID, CTPPS_DIAMOND_RP_ID, 0, 0);
-  const DetGeomDesc* det = geom.sensor(detid);
-  horizontalShiftOfDiamond_ = det->translation().x() - det->getDiamondDimensions().xHalfWidth;
-
-  // Rough alignement of pixel detector for diamond thomography
-  if (iRun.run() > 300000) {  //Pixel installed
-    det = geom.sensor(pixid);
-    horizontalShiftBwDiamondPixels_ =
-        det->translation().x() - det->getDiamondDimensions().xHalfWidth - horizontalShiftOfDiamond_ - 1;
-  }
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -564,11 +552,11 @@ void CTPPSDiamondDQMSource::bookHistograms(DQMStore::IBooker& ibooker, const edm
     if (channelPlots_.count(chId) == 0)
       channelPlots_[chId] = ChannelPlots(ibooker, chId);
     // per-plane plots
-    const CTPPSDiamondDetId plId(chId.arm(), chId.station(), chId.rp(), chId.plane());
+    const CTPPSDiamondDetId plId(chId.planeId());
     if (planePlots_.count(plId) == 0)
       planePlots_[plId] = PlanePlots(ibooker, plId);
     // per-pot plots
-    const CTPPSDiamondDetId rpId(chId.arm(), chId.station(), chId.rp());
+    const CTPPSDiamondDetId rpId(chId.rpId());
     if (potPlots_.count(rpId) == 0)
       potPlots_[rpId] = PotPlots(ibooker, rpId);
   }
@@ -645,12 +633,8 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
   // Using CTPPSDiamondDigi
   for (const auto& digis : *diamondDigis) {
-    const CTPPSDiamondDetId detId(digis.detId());
-    CTPPSDiamondDetId detId_pot(digis.detId());
-
+    const CTPPSDiamondDetId detId(digis.detId()), detId_pot(detId.rpId());
     for (const auto& digi : digis) {
-      detId_pot.setPlane(0);
-      detId_pot.setChannel(0);
       if (detId.channel() == CHANNEL_OF_VFAT_CLOCK)
         continue;
       if (potPlots_.count(detId_pot) == 0)
@@ -692,10 +676,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
   // EC Errors
   for (const auto& vfat_status : *diamondVFATStatus) {
-    const CTPPSDiamondDetId detId(vfat_status.detId());
-    CTPPSDiamondDetId detId_pot(vfat_status.detId());
-    detId_pot.setPlane(0);
-    detId_pot.setChannel(0);
+    const CTPPSDiamondDetId detId(vfat_status.detId()), detId_pot(detId.rpId());
     for (const auto& status : vfat_status) {
       if (!status.isOK())
         continue;
@@ -745,7 +726,8 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
   auto lumiCache = luminosityBlockCache(event.getLuminosityBlock().index());
   for (const auto& rechits : *diamondRecHits) {
-    const CTPPSDiamondDetId detId(rechits.detId()), detId_pot(detId.arm(), detId.station(), detId.rp());
+    const CTPPSDiamondDetId detId(rechits.detId()), detId_pot(detId.rpId());
+    const auto& x_shift = diamShifts_.at(detId_pot);
 
     for (const auto& rechit : rechits) {
       planes_inclusive[detId_pot].insert(detId.plane());
@@ -764,7 +746,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
       if (rechit.toT() != 0 && centralOOT_ != -999 && rechit.ootIndex() == centralOOT_) {
         TH2F* hitHistoTmp = potPlots_[detId_pot].hitDistribution2d->getTH2F();
         TAxis* hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
-        int startBin = hitHistoTmpYAxis->FindBin(rechit.x() - horizontalShiftOfDiamond_ - 0.5 * rechit.xWidth());
+        int startBin = hitHistoTmpYAxis->FindBin(rechit.x() - x_shift.global - 0.5 * rechit.xWidth());
         int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
         for (int i = 0; i < numOfBins; ++i) {
           hitHistoTmp->Fill(detId.plane() + UFSDShift, hitHistoTmpYAxis->GetBinCenter(startBin + i));
@@ -772,7 +754,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
         hitHistoTmp = lumiCache->hitDistribution2dMap[detId_pot].get();
         hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
-        startBin = hitHistoTmpYAxis->FindBin(rechit.x() - horizontalShiftOfDiamond_ - 0.5 * rechit.xWidth());
+        startBin = hitHistoTmpYAxis->FindBin(rechit.x() - x_shift.global - 0.5 * rechit.xWidth());
         numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
         for (int i = 0; i < numOfBins; ++i) {
           hitHistoTmp->Fill(detId.plane() + UFSDShift, hitHistoTmpYAxis->GetBinCenter(startBin + i));
@@ -786,7 +768,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
         TH2F* hitHistoOOTTmp = potPlots_[detId_pot].hitDistribution2dOOT->getTH2F();
         TAxis* hitHistoOOTTmpYAxis = hitHistoOOTTmp->GetYaxis();
-        int startBin = hitHistoOOTTmpYAxis->FindBin(rechit.x() - horizontalShiftOfDiamond_ - 0.5 * rechit.xWidth());
+        int startBin = hitHistoOOTTmpYAxis->FindBin(rechit.x() - x_shift.global - 0.5 * rechit.xWidth());
         int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
         for (int i = 0; i < numOfBins; ++i) {
           hitHistoOOTTmp->Fill(detId.plane() + 0.25 * rechit.ootIndex(),
@@ -797,7 +779,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
           // Only leading
           TH2F* hitHistoOOTTmp = potPlots_[detId_pot].hitDistribution2dOOT_le->getTH2F();
           TAxis* hitHistoOOTTmpYAxis = hitHistoOOTTmp->GetYaxis();
-          int startBin = hitHistoOOTTmpYAxis->FindBin(rechit.x() - horizontalShiftOfDiamond_ - 0.5 * rechit.xWidth());
+          int startBin = hitHistoOOTTmpYAxis->FindBin(rechit.x() - x_shift.global - 0.5 * rechit.xWidth());
           int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
           for (int i = 0; i < numOfBins; ++i) {
             hitHistoOOTTmp->Fill(detId.plane() + 0.25 * rechit.ootIndex(),
@@ -818,7 +800,8 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
   // Using CTPPSDiamondLocalTrack
   for (const auto& tracks : *diamondLocalTracks) {
-    const CTPPSDiamondDetId detId(tracks.detId()), detId_pot(detId.arm(), detId.station(), detId.rp());
+    const CTPPSDiamondDetId detId(tracks.detId()), detId_pot(detId.rpId());
+    const auto& x_shift = diamShifts_.at(detId_pot);
 
     for (const auto& track : tracks) {
       if (!track.isValid())
@@ -832,7 +815,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
       TH2F* trackHistoOOTTmp = potPlots_[detId_pot].trackDistributionOOT->getTH2F();
       TAxis* trackHistoOOTTmpYAxis = trackHistoOOTTmp->GetYaxis();
-      int startBin = trackHistoOOTTmpYAxis->FindBin(track.x0() - horizontalShiftOfDiamond_ - track.x0Sigma());
+      int startBin = trackHistoOOTTmpYAxis->FindBin(track.x0() - x_shift.global - track.x0Sigma());
       int numOfBins = 2 * track.x0Sigma() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
       for (int i = 0; i < numOfBins; ++i) {
         trackHistoOOTTmp->Fill(track.ootIndex(), trackHistoOOTTmpYAxis->GetBinCenter(startBin + i));
@@ -840,7 +823,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
       if (centralOOT_ != -999 && track.ootIndex() == centralOOT_) {
         TH1F* trackHistoInTimeTmp = potPlots_[detId_pot].trackDistribution->getTH1F();
-        int startBin = trackHistoInTimeTmp->FindBin(track.x0() - horizontalShiftOfDiamond_ - track.x0Sigma());
+        int startBin = trackHistoInTimeTmp->FindBin(track.x0() - x_shift.global - track.x0Sigma());
         int numOfBins = 2 * track.x0Sigma() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
         for (int i = 0; i < numOfBins; ++i) {
           trackHistoInTimeTmp->Fill(trackHistoInTimeTmp->GetBinCenter(startBin + i));
@@ -851,7 +834,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
   // Channel efficiency using CTPPSDiamondLocalTrack
   for (const auto& tracks : *diamondLocalTracks) {
-    const CTPPSDiamondDetId detId(tracks.detId()), detId_pot(detId.arm(), detId.station(), detId.rp());
+    const CTPPSDiamondDetId detId(tracks.detId()), detId_pot(detId.rpId());
     for (const auto& track : tracks) {
       // Find hits and planes in the track
       int numOfHits = 0;
@@ -898,7 +881,8 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
   // Tomography of diamonds using pixel
   for (const auto& rechits : *diamondRecHits) {
-    const CTPPSDiamondDetId detId(rechits.detId()), detId_pot(detId.arm(), detId.station(), detId.rp());
+    const CTPPSDiamondDetId detId(rechits.detId()), detId_pot(detId.rpId());
+    const auto pix_shift = diamShifts_.at(detId_pot).withPixels;
     for (const auto& rechit : rechits) {
       if (excludeMultipleHits_ && rechit.multipleHits() > 0)
         continue;
@@ -918,11 +902,10 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         for (const auto& lt : ds) {
           if (lt.isValid() && pixId.arm() == detId_pot.arm()) {
             if (rechit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING && rechit.ootIndex() >= 0 &&
-                potPlots_[detId_pot].pixelTomographyAll.count(rechit.ootIndex()) > 0 &&
-                lt.x0() - horizontalShiftBwDiamondPixels_ < 24)
+                potPlots_[detId_pot].pixelTomographyAll.count(rechit.ootIndex()) > 0 && lt.x0() - pix_shift < 24)
               potPlots_[detId_pot]
                   .pixelTomographyAll.at(rechit.ootIndex())
-                  ->Fill(lt.x0() - horizontalShiftBwDiamondPixels_ + 25 * detId.plane(), lt.y0());
+                  ->Fill(lt.x0() - pix_shift + 25 * detId.plane(), lt.y0());
           }
         }
       }
@@ -934,11 +917,8 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
   //------------------------------
   // Commented out to save space in the DQM files, but code should be kept
   // for ( const auto& digis : *diamondDigis ) {
-  //   const CTPPSDiamondDetId detId( digis.detId() );
-  //   CTPPSDiamondDetId detId_pot( digis.detId() );
+  //   const CTPPSDiamondDetId detId(digis.detId()), detId_pot(detId.rpId());
   //   if ( detId.channel() == CHANNEL_OF_VFAT_CLOCK ) {
-  //     detId_pot.setPlane( 0 );
-  //     detId_pot.setChannel( 0 );
   //     for ( const auto& digi : digis ) {
   //       if ( digi.leadingEdge() != 0 )  {
   //         if ( detId.plane() == 1 ) {
@@ -961,7 +941,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
   // Using CTPPSDiamondDigi
   std::unordered_map<unsigned int, unsigned int> channelsPerPlane;
   for (const auto& digis : *diamondDigis) {
-    const CTPPSDiamondDetId detId(digis.detId()), detId_plane(detId.arm(), detId.station(), detId.rp(), detId.plane());
+    const CTPPSDiamondDetId detId(digis.detId()), detId_plane(detId.planeId());
     for (const auto& digi : digis) {
       if (detId.channel() == CHANNEL_OF_VFAT_CLOCK)
         continue;
@@ -983,8 +963,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
   // Using CTPPSDiamondRecHit
   for (const auto& rechits : *diamondRecHits) {
-    const CTPPSDiamondDetId detId(rechits.detId()),
-        detId_plane(detId.arm(), detId.station(), detId.rp(), detId.plane());
+    const CTPPSDiamondDetId detId(rechits.detId()), detId_plane(detId.planeId()), detId_pot(detId.rpId());
     for (const auto& rechit : rechits) {
       if (excludeMultipleHits_ && rechit.multipleHits() > 0)
         continue;
@@ -993,7 +972,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
       if (planePlots_.count(detId_plane) != 0) {
         if (centralOOT_ != -999 && rechit.ootIndex() == centralOOT_) {
           TH1F* hitHistoTmp = planePlots_[detId_plane].hitProfile->getTH1F();
-          int startBin = hitHistoTmp->FindBin(rechit.x() - horizontalShiftOfDiamond_ - 0.5 * rechit.xWidth());
+          int startBin = hitHistoTmp->FindBin(rechit.x() - diamShifts_.at(detId_pot).global - 0.5 * rechit.xWidth());
           int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
           for (int i = 0; i < numOfBins; ++i)
             hitHistoTmp->Fill(hitHistoTmp->GetBinCenter(startBin + i));
@@ -1011,14 +990,18 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
       continue;
     for (const auto& lt : ds) {
       if (lt.isValid()) {
-        // For efficieny
-        CTPPSDiamondDetId detId_pot(pixId.arm(), CTPPS_DIAMOND_STATION_ID, CTPPS_DIAMOND_RP_ID);
-        potPlots_[detId_pot].pixelTracksMap.Fill(lt.x0() - horizontalShiftBwDiamondPixels_, lt.y0());
+        for (const auto& sh_vs_id : diamShifts_) {
+          const CTPPSDiamondDetId& detId_pot = sh_vs_id.first;
+          const auto& shift = sh_vs_id.second;
+          if (detId_pot.arm() == pixId.arm())
+            // For efficieny
+            potPlots_[detId_pot].pixelTracksMap.Fill(lt.x0() - shift.withPixels, lt.y0());
+        }
 
         std::set<CTPPSDiamondDetId> planesWitHits_set;
         for (const auto& rechits : *diamondRecHits) {
-          CTPPSDiamondDetId detId_plane(rechits.detId());
-          detId_plane.setChannel(0);
+          const CTPPSDiamondDetId detId(rechits.detId()), detId_plane(detId.planeId()), detId_pot(detId.rpId());
+          const auto pix_shift = diamShifts_.at(detId_pot).withPixels;
           for (const auto& rechit : rechits) {
             if (excludeMultipleHits_ && rechit.multipleHits() > 0)
               continue;
@@ -1026,17 +1009,18 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
               continue;
             if (planePlots_.count(detId_plane) == 0)
               continue;
-            if (pixId.arm() == detId_plane.arm() && lt.x0() - horizontalShiftBwDiamondPixels_ < 24) {
-              planePlots_[detId_plane].pixelTomography_far->Fill(
-                  lt.x0() - horizontalShiftBwDiamondPixels_ + 25 * rechit.ootIndex(), lt.y0());
+            if (pixId.arm() == detId_plane.arm() && lt.x0() - pix_shift < 24) {
+              planePlots_[detId_plane].pixelTomography_far->Fill(lt.x0() - pix_shift + 25 * rechit.ootIndex(), lt.y0());
               if (centralOOT_ != -999 && rechit.ootIndex() == centralOOT_)
                 planesWitHits_set.insert(detId_plane);
             }
           }
         }
 
-        for (auto& planeId : planesWitHits_set)
-          planePlots_[planeId].pixelTracksMapWithDiamonds.Fill(lt.x0() - horizontalShiftBwDiamondPixels_, lt.y0());
+        for (auto& planeId : planesWitHits_set) {
+          const CTPPSDiamondDetId detId_pot(planeId.rpId());
+          planePlots_[planeId].pixelTracksMapWithDiamonds.Fill(lt.x0() - diamShifts_.at(detId_pot).withPixels, lt.y0());
+        }
       }
     }
   }
@@ -1104,7 +1088,8 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
   // Tomography of diamonds using pixel
   for (const auto& rechits : *diamondRecHits) {
-    const CTPPSDiamondDetId detId(rechits.detId());
+    const CTPPSDiamondDetId detId(rechits.detId()), detId_pot(detId.rpId());
+    const auto shift_pix = diamShifts_.at(detId_pot).withPixels;
     for (const auto& rechit : rechits) {
       if (excludeMultipleHits_ && rechit.multipleHits() > 0)
         continue;
@@ -1122,9 +1107,8 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         if (ds.size() > 1)
           continue;
         for (const auto& lt : ds) {
-          if (lt.isValid() && pixId.arm() == detId.arm() && lt.x0() - horizontalShiftBwDiamondPixels_ < 24)
-            channelPlots_[detId].pixelTomography_far->Fill(
-                lt.x0() - horizontalShiftBwDiamondPixels_ + 25 * rechit.ootIndex(), lt.y0());
+          if (lt.isValid() && pixId.arm() == detId.arm() && lt.x0() - shift_pix < 24)
+            channelPlots_[detId].pixelTomography_far->Fill(lt.x0() - shift_pix + 25 * rechit.ootIndex(), lt.y0());
         }
       }
     }
@@ -1165,9 +1149,9 @@ void CTPPSDiamondDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock&
         3, HundredOverHitCounterPot * plot.second.CompleteCounter);
 
     plot.second.MHComprensive->Reset();
-    CTPPSDiamondDetId rpId(plot.first);
+    const CTPPSDiamondDetId rpId(plot.first);
     for (auto& chPlot : channelPlots_) {
-      CTPPSDiamondDetId chId(chPlot.first);
+      const CTPPSDiamondDetId chId(chPlot.first);
       if (chId.arm() == rpId.arm() && chId.rp() == rpId.rp()) {
         plot.second.MHComprensive->Fill(chId.plane(), chId.channel(), chPlot.second.HPTDCErrorFlags->getBinContent(16));
       }
@@ -1195,9 +1179,7 @@ void CTPPSDiamondDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock&
   for (auto& plot : planePlots_) {
     TH2F* hitHistoTmp = plot.second.EfficiencyWRTPixelsInPlane->getTH2F();
 
-    CTPPSDiamondDetId detId_pot(plot.first);
-    detId_pot.setPlane(0);
-
+    const CTPPSDiamondDetId detId(plot.first), detId_pot(detId.rpId());
     hitHistoTmp->Divide(&(plot.second.pixelTracksMapWithDiamonds), &(potPlots_[detId_pot].pixelTracksMap));
   }
 }
