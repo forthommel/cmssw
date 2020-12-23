@@ -409,7 +409,7 @@ CTPPSDiamondDQMSource::PlanePlots::PlanePlots(DQMStore::IBooker& ibooker, unsign
 
   CTPPSDiamondDetId(id).planeName(title, CTPPSDiamondDetId::nFull);
 
-  digiProfileCumulativePerPlane = ibooker.book1D("digi profile", title + " digi profile; ch number", 12, -0.5, 11.5);
+  digiProfileCumulativePerPlane = ibooker.book1D("digi profile", title + " digi profile; ch number", CTPPS_DIAMOND_NUM_OF_CHANNELS, -0.5, CTPPS_DIAMOND_NUM_OF_CHANNELS-0.5);
   hitProfile = ibooker.book1D(
       "hit profile", title + " hit profile;x (mm)", 19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -0.5, 18.5);
   hit_multiplicity = ibooker.book1D("channels per plane", title + " channels per plane; ch per plane", 13, -0.5, 12.5);
@@ -627,7 +627,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
       detId_pot.setChannel(0);
       if (detId.channel() == CHANNEL_OF_VFAT_CLOCK)
         continue;
-      if (potPlots_.find(detId_pot) == potPlots_.end())
+      if (potPlots_.count(detId_pot) == 0)
         continue;
       //Leading without trailing investigation
       if (digi.leadingEdge() != 0 || digi.trailingEdge() != 0) {
@@ -673,9 +673,9 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
     for (const auto& status : vfat_status) {
       if (!status.isOK())
         continue;
-      if (potPlots_.find(detId_pot) == potPlots_.end())
+      if (potPlots_.count(detId_pot) == 0)
         continue;
-      if (channelPlots_.find(detId) == channelPlots_.end())
+      if (channelPlots_.count(detId) == 0)
         continue;
 
       // Check Event Number
@@ -731,7 +731,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
       if (rechit.toT() != 0 && centralOOT_ != -999 && rechit.ootIndex() == centralOOT_)
         planes[detId_pot].insert(detId.plane());
 
-      if (potPlots_.find(detId_pot) == potPlots_.end())
+      if (potPlots_.count(detId_pot) == 0)
         continue;
 
       float UFSDShift = 0.0;
@@ -807,7 +807,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         continue;
       if (excludeMultipleHits_ && track.multipleHits() > 0)
         continue;
-      if (potPlots_.find(detId_pot) == potPlots_.end())
+      if (potPlots_.count(detId_pot) == 0)
         continue;
 
       TH2F* trackHistoOOTTmp = potPlots_[detId_pot].trackDistributionOOT->getTH2F();
@@ -853,11 +853,10 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
       }
 
       if (numOfHits > 0 && numOfHits <= 10 && planesInTrackSet.size() > 2) {
-        for (int plane = 0; plane < 4; ++plane) {
-          for (int channel = 0; channel < 12; ++channel) {
+        for (int plane = 0; plane < CTPPS_DIAMOND_NUM_OF_PLANES; ++plane) {
+          for (int channel = 0; channel < CTPPS_DIAMOND_NUM_OF_CHANNELS; ++channel) {
             int map_index = plane * 100 + channel;
-            if (potPlots_[detId_pot].effDoublecountingChMap.find(map_index) ==
-                potPlots_[detId_pot].effDoublecountingChMap.end()) {
+            if (potPlots_[detId_pot].effDoublecountingChMap.count(map_index) == 0) {
               potPlots_[detId_pot].effTriplecountingChMap[map_index] = 0;
               potPlots_[detId_pot].effDoublecountingChMap[map_index] = 0;
             }
@@ -867,14 +866,10 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
               ++(potPlots_[detId_pot].effDoublecountingChMap[map_index]);
               for (const auto& rechits : *diamondRecHits) {
                 CTPPSDiamondDetId detId_hit(rechits.detId());
-                if (detId_hit == detId) {
-                  for (const auto& rechit : rechits) {
-                    if (track.containsHit(rechit, 1)) {
-                      // Channel fired
+                if (detId_hit == detId)
+                  for (const auto& rechit : rechits)
+                    if (track.containsHit(rechit, 1)) // Channel fired
                       ++(potPlots_[detId_pot].effTriplecountingChMap[map_index]);
-                    }
-                  }
-                }
               }
             }
           }
@@ -896,7 +891,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         continue;
       if (!pixelTracks.isValid())
         continue;
-      if (potPlots_.find(detId_pot) == potPlots_.end())
+      if (potPlots_.count(detId_pot) == 0)
         continue;
 
       for (const auto& ds : *pixelTracks) {
@@ -957,12 +952,12 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
       detId_plane.setChannel(0);
       if (detId.channel() == CHANNEL_OF_VFAT_CLOCK)
         continue;
-      if (planePlots_.find(detId_plane) == planePlots_.end())
+      if (planePlots_.count(detId_plane) == 0)
         continue;
 
       if (digi.leadingEdge() != 0) {
         planePlots_[detId_plane].digiProfileCumulativePerPlane->Fill(detId.channel());
-        if (channelsPerPlane.find(detId_plane) != channelsPerPlane.end())
+        if (channelsPerPlane.count(detId_plane) != 0)
           channelsPerPlane[detId_plane]++;
         else
           channelsPerPlane[detId_plane] = 0;
@@ -983,14 +978,13 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         continue;
       if (rechit.toT() == 0)
         continue;
-      if (planePlots_.find(detId_plane) != planePlots_.end()) {
+      if (planePlots_.count(detId_plane) != 0) {
         if (centralOOT_ != -999 && rechit.ootIndex() == centralOOT_) {
           TH1F* hitHistoTmp = planePlots_[detId_plane].hitProfile->getTH1F();
           int startBin = hitHistoTmp->FindBin(rechit.x() - horizontalShiftOfDiamond_ - 0.5 * rechit.xWidth());
           int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
-          for (int i = 0; i < numOfBins; ++i) {
+          for (int i = 0; i < numOfBins; ++i)
             hitHistoTmp->Fill(hitHistoTmp->GetBinCenter(startBin + i));
-          }
         }
       }
     }
@@ -1018,7 +1012,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
               continue;
             if (rechit.ootIndex() == CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING || rechit.toT() == 0)
               continue;
-            if (planePlots_.find(detId_plane) == planePlots_.end())
+            if (planePlots_.count(detId_plane) == 0)
               continue;
             if (pixId.arm() == detId_plane.arm() && lt.x0() - horizontalShiftBwDiamondPixels_ < 24) {
               planePlots_[detId_plane].pixelTomography_far->Fill(
@@ -1045,7 +1039,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
     for (const auto& digi : digis) {
       if (detId.channel() == CHANNEL_OF_VFAT_CLOCK)
         continue;
-      if (channelPlots_.find(detId) != channelPlots_.end()) {
+      if (channelPlots_.count(detId) != 0) {
         // HPTDC Errors
         const HPTDCErrorFlags hptdcErrors = digi.hptdcErrorFlags();
         for (unsigned short hptdcErrorIndex = 1; hptdcErrorIndex < 16; ++hptdcErrorIndex)
@@ -1082,7 +1076,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
     for (const auto& rechit : rechits) {
       if (excludeMultipleHits_ && rechit.multipleHits() > 0)
         continue;
-      if (channelPlots_.find(detId) != channelPlots_.end()) {
+      if (channelPlots_.count(detId) != 0) {
         if (rechit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING && rechit.toT() != 0) {
           channelPlots_[detId].leadingEdgeCumulative_both->Fill(rechit.time() + 25 * rechit.ootIndex());
           channelPlots_[detId].TimeOverThresholdCumulativePerChannel->Fill(rechit.toT());
@@ -1106,7 +1100,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         continue;
       if (!pixelTracks.isValid())
         continue;
-      if (channelPlots_.find(detId) == channelPlots_.end())
+      if (channelPlots_.count(detId) == 0)
         continue;
 
       for (const auto& ds : *pixelTracks) {
