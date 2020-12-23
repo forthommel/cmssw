@@ -109,6 +109,10 @@ private:
   bool excludeMultipleHits_;
   double horizontalShiftBwDiamondPixels_;
   double horizontalShiftOfDiamond_;
+  struct DiamondShifts {
+    double global, withPixels;
+  };
+  std::unordered_map<CTPPSDetId, DiamondShifts> diamShifts_;
   std::vector<std::pair<edm::EventRange, int>> runParameters_;
   int centralOOT_;
   unsigned int verbosity_;
@@ -511,14 +515,25 @@ void CTPPSDiamondDQMSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
     }
   }
 
+  const CTPPSPixelDetId pixid(0, CTPPS_PIXEL_STATION_ID, CTPPS_FAR_RP_ID, 0);
+
   // Get detector shifts from the geometry
   const CTPPSGeometry& geom = iSetup.getData(ctppsGeometryRunToken_);
+  for (auto it = geom.beginSensor(); it != geom.endSensor(); ++it)
+    if (CTPPSDiamondDetId::check(it->first)) {
+      const CTPPSDiamondDetId diam(it->first);
+      diamShifts_[diam].global = it->second->translation().x()-it->second->getDiamondDimensions().xHalfWidth;
+      if (iRun.run() > 300000) { // pixel installed
+        auto pix = geom.sensor(pixid);
+        diamShifts_[diam].withPixels = pix->translation().x()-it->second->translation().x()-1.;
+      }
+    }
+
   const CTPPSDiamondDetId detid(0, CTPPS_DIAMOND_STATION_ID, CTPPS_DIAMOND_RP_ID, 0, 0);
   const DetGeomDesc* det = geom.sensor(detid);
   horizontalShiftOfDiamond_ = det->translation().x() - det->getDiamondDimensions().xHalfWidth;
 
   // Rough alignement of pixel detector for diamond thomography
-  const CTPPSPixelDetId pixid(0, CTPPS_PIXEL_STATION_ID, CTPPS_FAR_RP_ID, 0);
   if (iRun.run() > 300000) {  //Pixel installed
     det = geom.sensor(pixid);
     horizontalShiftBwDiamondPixels_ =
