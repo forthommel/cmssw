@@ -85,8 +85,6 @@ private:
   static const double DISPLAY_RESOLUTION_FOR_HITS_MM;  // Bin width of histograms showing hits and tracks (in mm)
   static const double INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
   static const double HPTDC_BIN_WIDTH_NS;  // ns per HPTDC bin
-  static const int CTPPS_DIAMOND_STATION_ID;
-  static const int CTPPS_DIAMOND_RP_ID;
   static const int CTPPS_PIXEL_STATION_ID;
   static const int CTPPS_FAR_RP_ID;
   static const int CTPPS_DIAMOND_NUM_OF_PLANES;
@@ -212,9 +210,7 @@ const int CTPPSDiamondDQMSource::CHANNEL_OF_VFAT_CLOCK = 30;
 const double CTPPSDiamondDQMSource::DISPLAY_RESOLUTION_FOR_HITS_MM = 0.1;
 const double CTPPSDiamondDQMSource::INV_DISPLAY_RESOLUTION_FOR_HITS_MM = 1. / DISPLAY_RESOLUTION_FOR_HITS_MM;
 const double CTPPSDiamondDQMSource::HPTDC_BIN_WIDTH_NS = 25. / 1024;
-const int CTPPSDiamondDQMSource::CTPPS_DIAMOND_STATION_ID = 1;
 const int CTPPSDiamondDQMSource::CTPPS_PIXEL_STATION_ID = 2;
-const int CTPPSDiamondDQMSource::CTPPS_DIAMOND_RP_ID = 6;
 const int CTPPSDiamondDQMSource::CTPPS_FAR_RP_ID = 3;
 const int CTPPSDiamondDQMSource::CTPPS_DIAMOND_NUM_OF_PLANES = 4;
 const int CTPPSDiamondDQMSource::CTPPS_DIAMOND_NUM_OF_CHANNELS = 12;
@@ -850,25 +846,24 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
       }
 
       if (numOfHits > 0 && numOfHits <= 10 && planesInTrackSet.size() > 2) {
-        //FIXME FIXME FIXME FIXME make it simpler!
-        for (int plane = 0; plane < CTPPS_DIAMOND_NUM_OF_PLANES; ++plane) {
-          for (int channel = 0; channel < CTPPS_DIAMOND_NUM_OF_CHANNELS; ++channel) {
-            int map_index = plane * 100 + channel;
-            if (potPlots_[detId_pot].effDoublecountingChMap.count(map_index) == 0) {
-              potPlots_[detId_pot].effTriplecountingChMap[map_index] = 0;
-              potPlots_[detId_pot].effDoublecountingChMap[map_index] = 0;
-            }
-            const CTPPSDiamondDetId detId(detId_pot.arm(), detId_pot.station(), detId_pot.rp(), plane, channel);
-            if (channelAlignedWithTrack(ctppsGeometry, detId, track, 0.2)) {
-              // Channel should fire
-              ++(potPlots_[detId_pot].effDoublecountingChMap[map_index]);
-              for (const auto& rechits : *diamondRecHits) {
-                const CTPPSDiamondDetId detId_hit(rechits.detId());
-                if (detId_hit == detId)
-                  for (const auto& rechit : rechits)
-                    if (track.containsHit(rechit, 1))  // Channel fired
-                      ++(potPlots_[detId_pot].effTriplecountingChMap[map_index]);
-              }
+        for (const auto& plt_vs_ch : channelPlots_) { // loop over all channels registered in geometry
+          const CTPPSDiamondDetId detId(plt_vs_ch.first);
+          if (detId.rpId() != detId_pot)
+            continue;
+          const unsigned short map_index = detId.plane() * 100 + detId.channel();
+          if (potPlots_[detId_pot].effDoublecountingChMap.count(map_index) == 0) {
+            potPlots_[detId_pot].effTriplecountingChMap[map_index] = 0;
+            potPlots_[detId_pot].effDoublecountingChMap[map_index] = 0;
+          }
+          if (channelAlignedWithTrack(ctppsGeometry, detId, track, 0.2)) {
+            // Channel should fire
+            ++(potPlots_[detId_pot].effDoublecountingChMap[map_index]);
+            for (const auto& rechits : *diamondRecHits) {
+              const CTPPSDiamondDetId detId_hit(rechits.detId());
+              if (detId_hit == detId)
+                for (const auto& rechit : rechits)
+                  if (track.containsHit(rechit, 1))  // Channel fired
+                    ++(potPlots_[detId_pot].effTriplecountingChMap[map_index]);
             }
           }
         }
