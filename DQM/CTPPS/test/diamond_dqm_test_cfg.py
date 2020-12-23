@@ -1,7 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 import string
 
-process = cms.Process('RECODQM')
+#from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+process = cms.Process('RECODQM', Run2_2018)
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.verbosity = cms.untracked.PSet( input = cms.untracked.int32(-1) )
@@ -14,7 +16,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         threshold = cms.untracked.string('WARNING')
     )
 )
-    
+
     # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -33,14 +35,16 @@ process.source = cms.Source("PoolSource",
     # replace '*.root',',' with the source file you want to use
     fileNames = cms.untracked.vstring(
     *(
-'/store/data/Run2017C/ZeroBias/AOD/PromptReco-v2/000/300/088/00000/469D8C89-1477-E711-A6A4-02163E01190C.root',
+#'/store/data/Run2017C/ZeroBias/AOD/PromptReco-v2/000/300/088/00000/469D8C89-1477-E711-A6A4-02163E01190C.root',
+'/store/data/Run2018C/ZeroBias/AOD/PromptReco-v2/000/319/697/00000/74746564-928A-E811-8782-FA163E52FC54.root',
      )
     ),
 )
 
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_relval', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_relval', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 # raw-to-digi conversion
 process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
@@ -68,7 +72,8 @@ process.path = cms.Path(
     process.ctppsDiamondRecHits *
     process.ctppsDiamondLocalTracks *
     process.ctppsPixelLocalTracks *
-    process.ctppsDQM
+    process.ctppsDQMOnlineSource *
+    process.ctppsDQMOnlineHarvest
     )
 
 

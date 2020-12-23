@@ -519,13 +519,14 @@ void CTPPSDiamondDQMSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
 
   // Get detector shifts from the geometry
   const CTPPSGeometry& geom = iSetup.getData(ctppsGeometryRunToken_);
-  for (auto it = geom.beginSensor(); it != geom.endSensor(); ++it)
+  for (auto it = geom.beginRP(); it != geom.endRP(); ++it)
     if (CTPPSDiamondDetId::check(it->first)) {
-      const CTPPSDiamondDetId diam(it->first);
-      diamShifts_[diam].global = it->second->translation().x()-it->second->getDiamondDimensions().xHalfWidth;
+      const CTPPSDiamondDetId diam_id(it->first);
+      const auto diam = geom.sensor(it->first);
+      diamShifts_[diam_id].global = diam->translation().x()-diam->getDiamondDimensions().xHalfWidth;
       if (iRun.run() > 300000) { // pixel installed
         auto pix = geom.sensor(pixid);
-        diamShifts_[diam].withPixels = pix->translation().x()-it->second->translation().x()-1.;
+        diamShifts_[diam_id].withPixels = pix->translation().x()-diam->translation().x()-1.;
       }
     }
 
@@ -543,23 +544,29 @@ void CTPPSDiamondDQMSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSDiamondDQMSource::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
+void CTPPSDiamondDQMSource::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup& iSetup) {
   ibooker.cd();
   ibooker.setCurrentFolder("CTPPS");
 
   globalPlot_ = GlobalPlots(ibooker);
 
-  for (unsigned short arm = 0; arm < CTPPS_NUM_OF_ARMS; ++arm) {
-    const CTPPSDiamondDetId rpId(arm, CTPPS_DIAMOND_STATION_ID, CTPPS_DIAMOND_RP_ID);
-    potPlots_[rpId] = PotPlots(ibooker, rpId);
-    for (unsigned short pl = 0; pl < CTPPS_DIAMOND_NUM_OF_PLANES; ++pl) {
-      const CTPPSDiamondDetId plId(arm, CTPPS_DIAMOND_STATION_ID, CTPPS_DIAMOND_RP_ID, pl);
+  // book plots from the geometry
+  const CTPPSGeometry& geom = iSetup.getData(ctppsGeometryRunToken_);
+  for (auto it = geom.beginSensor(); it != geom.endSensor(); ++it ) {
+    if (!CTPPSDiamondDetId::check(it->first))
+      continue;
+    // per-channel plots
+    const CTPPSDiamondDetId chId(it->first);
+    if (channelPlots_.count(chId) == 0)
+      channelPlots_[chId] = ChannelPlots(ibooker, chId);
+    // per-plane plots
+    const CTPPSDiamondDetId plId(chId.arm(), chId.station(), chId.rp(), chId.plane());
+    if (planePlots_.count(plId) == 0)
       planePlots_[plId] = PlanePlots(ibooker, plId);
-      for (unsigned short ch = 0; ch < CTPPS_DIAMOND_NUM_OF_CHANNELS; ++ch) {
-        const CTPPSDiamondDetId chId(arm, CTPPS_DIAMOND_STATION_ID, CTPPS_DIAMOND_RP_ID, pl, ch);
-        channelPlots_[chId] = ChannelPlots(ibooker, chId);
-      }
-    }
+    // per-pot plots
+    const CTPPSDiamondDetId rpId(chId.arm(), chId.station(), chId.rp());
+    if (potPlots_.count(rpId) == 0)
+      potPlots_[rpId] = PotPlots(ibooker, rpId);
   }
 }
 
