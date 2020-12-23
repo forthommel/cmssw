@@ -741,10 +741,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
   auto lumiCache = luminosityBlockCache(event.getLuminosityBlock().index());
   for (const auto& rechits : *diamondRecHits) {
-    CTPPSDiamondDetId detId_pot(rechits.detId());
-    detId_pot.setPlane(0);
-    detId_pot.setChannel(0);
-    const CTPPSDiamondDetId detId(rechits.detId());
+    const CTPPSDiamondDetId detId(rechits.detId()), detId_pot(detId.arm(), detId.station(), detId.rp());
 
     for (const auto& rechit : rechits) {
       planes_inclusive[detId_pot].insert(detId.plane());
@@ -817,10 +814,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
   // Using CTPPSDiamondLocalTrack
   for (const auto& tracks : *diamondLocalTracks) {
-    CTPPSDiamondDetId detId_pot(tracks.detId());
-    detId_pot.setPlane(0);
-    detId_pot.setChannel(0);
-    const CTPPSDiamondDetId detId(tracks.detId());
+    const CTPPSDiamondDetId detId(tracks.detId()), detId_pot(detId.arm(), detId.station(), detId.rp());
 
     for (const auto& track : tracks) {
       if (!track.isValid())
@@ -853,9 +847,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
   // Channel efficiency using CTPPSDiamondLocalTrack
   for (const auto& tracks : *diamondLocalTracks) {
-    CTPPSDiamondDetId detId_pot(tracks.detId());
-    detId_pot.setPlane(0);
-    detId_pot.setChannel(0);
+    const CTPPSDiamondDetId detId(tracks.detId()), detId_pot(detId.arm(), detId.station(), detId.rp());
     for (const auto& track : tracks) {
       // Find hits and planes in the track
       int numOfHits = 0;
@@ -902,10 +894,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
   // Tomography of diamonds using pixel
   for (const auto& rechits : *diamondRecHits) {
-    CTPPSDiamondDetId detId_pot(rechits.detId());
-    detId_pot.setPlane(0);
-    detId_pot.setChannel(0);
-    const CTPPSDiamondDetId detId(rechits.detId());
+    const CTPPSDiamondDetId detId(rechits.detId()), detId_pot(detId.arm(), detId.station(), detId.rp());
     for (const auto& rechit : rechits) {
       if (excludeMultipleHits_ && rechit.multipleHits() > 0)
         continue;
@@ -968,10 +957,8 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
   // Using CTPPSDiamondDigi
   std::unordered_map<unsigned int, unsigned int> channelsPerPlane;
   for (const auto& digis : *diamondDigis) {
-    const CTPPSDiamondDetId detId(digis.detId());
-    CTPPSDiamondDetId detId_plane(digis.detId());
+    const CTPPSDiamondDetId detId(digis.detId()), detId_plane(detId.arm(), detId.station(), detId.rp(), detId.plane());
     for (const auto& digi : digis) {
-      detId_plane.setChannel(0);
       if (detId.channel() == CHANNEL_OF_VFAT_CLOCK)
         continue;
       if (planePlots_.count(detId_plane) == 0)
@@ -987,14 +974,12 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
     }
   }
 
-  for (const auto& plt : channelsPerPlane) {
+  for (const auto& plt : channelsPerPlane)
     planePlots_[plt.first].hit_multiplicity->Fill(plt.second);
-  }
 
   // Using CTPPSDiamondRecHit
   for (const auto& rechits : *diamondRecHits) {
-    CTPPSDiamondDetId detId_plane(rechits.detId());
-    detId_plane.setChannel(0);
+    const CTPPSDiamondDetId detId(rechits.detId()), detId_plane(detId.arm(), detId.station(), detId.rp(), detId.plane());
     for (const auto& rechit : rechits) {
       if (excludeMultipleHits_ && rechit.multipleHits() > 0)
         continue;
