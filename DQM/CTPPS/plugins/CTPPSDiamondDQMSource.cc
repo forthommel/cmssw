@@ -87,7 +87,6 @@ private:
   static const double HPTDC_BIN_WIDTH_NS;  // ns per HPTDC bin
   static const int CTPPS_PIXEL_STATION_ID;
   static const int CTPPS_FAR_RP_ID;
-  static const int CTPPS_DIAMOND_NUM_OF_PLANES;
   static const int CTPPS_DIAMOND_NUM_OF_CHANNELS;
   static const int CTPPS_FED_ID_45;
   static const int CTPPS_FED_ID_56;
@@ -212,7 +211,6 @@ const double CTPPSDiamondDQMSource::INV_DISPLAY_RESOLUTION_FOR_HITS_MM = 1. / DI
 const double CTPPSDiamondDQMSource::HPTDC_BIN_WIDTH_NS = 25. / 1024;
 const int CTPPSDiamondDQMSource::CTPPS_PIXEL_STATION_ID = 2;
 const int CTPPSDiamondDQMSource::CTPPS_FAR_RP_ID = 3;
-const int CTPPSDiamondDQMSource::CTPPS_DIAMOND_NUM_OF_PLANES = 4;
 const int CTPPSDiamondDQMSource::CTPPS_DIAMOND_NUM_OF_CHANNELS = 12;
 const int CTPPSDiamondDQMSource::CTPPS_FED_ID_56 = 582;
 const int CTPPSDiamondDQMSource::CTPPS_FED_ID_45 = 583;
