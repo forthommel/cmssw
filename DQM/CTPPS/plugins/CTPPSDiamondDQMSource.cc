@@ -68,7 +68,6 @@ namespace dds {
 class CTPPSDiamondDQMSource : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<dds::Cache>> {
 public:
   CTPPSDiamondDQMSource(const edm::ParameterSet&);
-  ~CTPPSDiamondDQMSource() override;
 
 protected:
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
@@ -494,10 +493,6 @@ CTPPSDiamondDQMSource::CTPPSDiamondDQMSource(const edm::ParameterSet& ps)
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSDiamondDQMSource::~CTPPSDiamondDQMSource() {}
-
-//----------------------------------------------------------------------------------------------------
-
 void CTPPSDiamondDQMSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   centralOOT_ = -999;
   for (const auto& oot : runParameters_) {
@@ -507,8 +502,6 @@ void CTPPSDiamondDQMSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
     }
   }
 
-  const CTPPSPixelDetId pixid(0, CTPPS_PIXEL_STATION_ID, CTPPS_FAR_RP_ID, 0);
-
   // Get detector shifts from the geometry
   const CTPPSGeometry& geom = iSetup.getData(ctppsGeometryRunToken_);
   for (auto it = geom.beginRP(); it != geom.endRP(); ++it)
@@ -517,6 +510,7 @@ void CTPPSDiamondDQMSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
       const auto diam = geom.sensor(it->first);
       diamShifts_[diam_id].global = diam->translation().x() - diam->getDiamondDimensions().xHalfWidth;
       if (iRun.run() > 300000) {  // pixel installed
+        const CTPPSPixelDetId pixid(diam_id.arm(), CTPPS_PIXEL_STATION_ID, CTPPS_FAR_RP_ID);
         auto pix = geom.sensor(pixid);
         // Rough alignement of pixel detector for diamond tomography
         diamShifts_[diam_id].withPixels = pix->translation().x() - diam->translation().x() - 1.;
