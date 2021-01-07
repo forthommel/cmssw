@@ -89,6 +89,7 @@ private:
   static const int CTPPS_DIAMOND_NUM_OF_CHANNELS;
   static const int CTPPS_FED_ID_45;
   static const int CTPPS_FED_ID_56;
+  static constexpr unsigned int FIRST_RUN_W_PIXELS = 300000;
 
   edm::EDGetTokenT<edm::DetSetVector<TotemVFATStatus>> tokenStatus_;
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelLocalTrack>> tokenPixelTrack_;
@@ -509,7 +510,7 @@ void CTPPSDiamondDQMSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
       const CTPPSDiamondDetId diam_id(it->first);
       const auto diam = geom.sensor(it->first);
       diamShifts_[diam_id].global = diam->translation().x() - diam->getDiamondDimensions().xHalfWidth;
-      if (iRun.run() > 300000) {  // pixel installed
+      if (iRun.run() > FIRST_RUN_W_PIXELS) {  // pixel installed
         const CTPPSPixelDetId pixid(diam_id.arm(), CTPPS_PIXEL_STATION_ID, CTPPS_FAR_RP_ID);
         auto pix = geom.sensor(pixid);
         // Rough alignement of pixel detector for diamond tomography
