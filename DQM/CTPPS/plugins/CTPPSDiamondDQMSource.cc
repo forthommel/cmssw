@@ -79,16 +79,20 @@ protected:
 
 private:
   // Constants
-  static const double SEC_PER_LUMI_SECTION;  // Number of seconds per lumisection: used to compute hit rates in Hz
-  static const int CHANNEL_OF_VFAT_CLOCK;    // Channel ID of the VFAT that contains clock data
-  static const double DISPLAY_RESOLUTION_FOR_HITS_MM;  // Bin width of histograms showing hits and tracks (in mm)
-  static const double INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
-  static const double HPTDC_BIN_WIDTH_NS;  // ns per HPTDC bin
-  static const int CTPPS_PIXEL_STATION_ID;
-  static const int CTPPS_FAR_RP_ID;
-  static const int CTPPS_DIAMOND_NUM_OF_CHANNELS;
-  static const int CTPPS_FED_ID_45;
-  static const int CTPPS_FED_ID_56;
+  /// Number of seconds per lumisection: used to compute hit rates in Hz
+  static constexpr double SEC_PER_LUMI_SECTION = 23.31;
+  /// Channel ID of the VFAT that contains clock data
+  static constexpr unsigned short CHANNEL_OF_VFAT_CLOCK = 30;
+  /// Bin width of histograms showing hits and tracks (in mm)
+  static constexpr double DISPLAY_RESOLUTION_FOR_HITS_MM = 0.1;
+  static constexpr double INV_DISPLAY_RESOLUTION_FOR_HITS_MM = 1. / DISPLAY_RESOLUTION_FOR_HITS_MM;
+  /// ns per HPTDC bin
+  static constexpr double HPTDC_BIN_WIDTH_NS = 25. / 1024;
+  static constexpr unsigned short CTPPS_PIXEL_STATION_ID = 2;
+  static constexpr unsigned short CTPPS_FAR_RP_ID = 3;
+  static constexpr unsigned short CTPPS_DIAMOND_NUM_OF_CHANNELS = 12;
+  static constexpr unsigned short CTPPS_FED_ID_45 = 583;
+  static constexpr unsigned short CTPPS_FED_ID_56 = 582;
   static constexpr unsigned int FIRST_RUN_W_PIXELS = 300000;
 
   edm::EDGetTokenT<edm::DetSetVector<TotemVFATStatus>> tokenStatus_;
@@ -200,20 +204,6 @@ private:
 
   std::unordered_map<unsigned int, ChannelPlots> channelPlots_;
 };
-
-//----------------------------------------------------------------------------------------------------
-
-// Values for all constants
-const double CTPPSDiamondDQMSource::SEC_PER_LUMI_SECTION = 23.31;
-const int CTPPSDiamondDQMSource::CHANNEL_OF_VFAT_CLOCK = 30;
-const double CTPPSDiamondDQMSource::DISPLAY_RESOLUTION_FOR_HITS_MM = 0.1;
-const double CTPPSDiamondDQMSource::INV_DISPLAY_RESOLUTION_FOR_HITS_MM = 1. / DISPLAY_RESOLUTION_FOR_HITS_MM;
-const double CTPPSDiamondDQMSource::HPTDC_BIN_WIDTH_NS = 25. / 1024;
-const int CTPPSDiamondDQMSource::CTPPS_PIXEL_STATION_ID = 2;
-const int CTPPSDiamondDQMSource::CTPPS_FAR_RP_ID = 3;
-const int CTPPSDiamondDQMSource::CTPPS_DIAMOND_NUM_OF_CHANNELS = 12;
-const int CTPPSDiamondDQMSource::CTPPS_FED_ID_56 = 582;
-const int CTPPSDiamondDQMSource::CTPPS_FED_ID_45 = 583;
 
 //----------------------------------------------------------------------------------------------------
 
