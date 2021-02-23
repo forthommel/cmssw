@@ -95,33 +95,11 @@ private:
   static constexpr unsigned short CTPPS_FED_ID_56 = 582;
   static constexpr unsigned int FIRST_RUN_W_PIXELS = 300000;
 
-  edm::EDGetTokenT<edm::DetSetVector<TotemVFATStatus>> tokenStatus_;
-  edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelLocalTrack>> tokenPixelTrack_;
-  edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondDigi>> tokenDigi_;
-  edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondRecHit>> tokenDiamondHit_;
-  edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondLocalTrack>> tokenDiamondTrack_;
-  edm::EDGetTokenT<std::vector<TotemFEDInfo>> tokenFEDInfo_;
-
-  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> ctppsGeometryRunToken_;
-  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> ctppsGeometryEventToken_;
-
-  bool excludeMultipleHits_;
-  struct DiamondShifts {
-    double global, withPixels;
-  };
-  std::unordered_map<CTPPSDetId, DiamondShifts> diamShifts_;
-  std::vector<std::pair<edm::EventRange, int>> runParameters_;
-  int centralOOT_;
-  unsigned int verbosity_;
-
   /// plots related to the whole system
   struct GlobalPlots {
-    GlobalPlots() {}
+    GlobalPlots() = default;
     GlobalPlots(DQMStore::IBooker& ibooker);
   };
-
-  GlobalPlots globalPlot_;
-
   /// plots related to one Diamond detector package
   struct PotPlots {
     std::unordered_map<unsigned int, MonitorElement*> activity_per_bx;
@@ -159,13 +137,9 @@ private:
     MonitorElement* EfficiencyOfChannelsInPot = nullptr;
     TH2F pixelTracksMap;
 
-    PotPlots() {}
+    PotPlots() = default;
     PotPlots(DQMStore::IBooker& ibooker, unsigned int id);
   };
-
-  std::unordered_map<unsigned int, PotPlots> potPlots_;
-  int EC_difference_56_, EC_difference_45_;
-
   /// plots related to one Diamond plane
   struct PlanePlots {
     MonitorElement* digiProfileCumulativePerPlane = nullptr;
@@ -177,12 +151,9 @@ private:
 
     TH2F pixelTracksMapWithDiamonds;
 
-    PlanePlots() {}
+    PlanePlots() = default;
     PlanePlots(DQMStore::IBooker& ibooker, unsigned int id);
   };
-
-  std::unordered_map<unsigned int, PlanePlots> planePlots_;
-
   /// plots related to one Diamond channel
   struct ChannelPlots {
     std::unordered_map<unsigned int, MonitorElement*> activity_per_bx;
@@ -198,11 +169,37 @@ private:
 
     unsigned int HitCounter, MHCounter, LeadingOnlyCounter, TrailingOnlyCounter, CompleteCounter;
 
-    ChannelPlots() {}
+    ChannelPlots() = default;
     ChannelPlots(DQMStore::IBooker& ibooker, unsigned int id);
   };
 
+  void checkEventNumber(const CTPPSDiamondDetId&, const TotemFEDInfo&, const TotemVFATStatus&, PotPlots&, int&) const;
+
+  edm::EDGetTokenT<edm::DetSetVector<TotemVFATStatus>> tokenStatus_;
+  edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelLocalTrack>> tokenPixelTrack_;
+  edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondDigi>> tokenDigi_;
+  edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondRecHit>> tokenDiamondHit_;
+  edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondLocalTrack>> tokenDiamondTrack_;
+  edm::EDGetTokenT<std::vector<TotemFEDInfo>> tokenFEDInfo_;
+
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> ctppsGeometryRunToken_;
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> ctppsGeometryEventToken_;
+
+  bool excludeMultipleHits_;
+  struct DiamondShifts {
+    double global, withPixels;
+  };
+  std::unordered_map<CTPPSDetId, DiamondShifts> diamShifts_;
+  std::vector<std::pair<edm::EventRange, int>> runParameters_;
+  int centralOOT_;
+  unsigned int verbosity_;
+
+  GlobalPlots globalPlot_;
+  std::unordered_map<unsigned int, PotPlots> potPlots_;
+  std::unordered_map<unsigned int, PlanePlots> planePlots_;
   std::unordered_map<unsigned int, ChannelPlots> channelPlots_;
+
+  int EC_difference_56_, EC_difference_45_;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -638,8 +635,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
       // HPTDC Errors
       const HPTDCErrorFlags hptdcErrors = digi.hptdcErrorFlags();
-      if (detId.channel() == 6 || detId.channel() == 7)  // ch6 for HPTDC 0 and ch7 for HPTDC 1
-      {
+      if (detId.channel() == 6 || detId.channel() == 7) { // ch6 for HPTDC 0 and ch7 for HPTDC 1
         int verticalIndex = 2 * detId.plane() + (detId.channel() - 6);
         for (unsigned short hptdcErrorIndex = 1; hptdcErrorIndex < 16; ++hptdcErrorIndex)
           if (hptdcErrors.errorId(hptdcErrorIndex - 1))
@@ -652,46 +648,21 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
   // EC Errors
   for (const auto& vfat_status : *diamondVFATStatus) {
-    const CTPPSDiamondDetId detId(vfat_status.detId()), detId_pot(detId.rpId());
+    const CTPPSDiamondDetId detId(vfat_status.detId());
     for (const auto& status : vfat_status) {
       if (!status.isOK())
         continue;
-      if (potPlots_.count(detId_pot) == 0)
+      if (potPlots_.count(detId.rpId()) == 0)
         continue;
       if (channelPlots_.count(detId) == 0)
         continue;
 
       // Check Event Number
       for (const auto& optorx : *fedInfo) {
-        if (detId.arm() == 1 && optorx.fedId() == CTPPS_FED_ID_56) {
-          potPlots_[detId_pot].ECCheck->Fill((int)((optorx.lv1() & 0xFF) - ((unsigned int)status.ec() & 0xFF)) & 0xFF);
-          if ((static_cast<int>((optorx.lv1() & 0xFF) - status.ec()) != EC_difference_56_) &&
-              (static_cast<uint8_t>((optorx.lv1() & 0xFF) - status.ec()) < 128))
-            EC_difference_56_ = static_cast<int>(optorx.lv1() & 0xFF) - (static_cast<unsigned int>(status.ec()) & 0xFF);
-          if (EC_difference_56_ != 1 && EC_difference_56_ != -500 && std::abs(EC_difference_56_) < 127) {
-            if (detId.channel() == 6 || detId.channel() == 7)
-              potPlots_[detId_pot].HPTDCErrorFlags_2D->Fill(16, 2 * detId.plane() + (detId.channel() - 6));
-            if (verbosity_)
-              edm::LogProblem("CTPPSDiamondDQMSource")
-                  << "FED " << CTPPS_FED_ID_56 << ": ECError at EV: 0x" << std::hex << optorx.lv1() << "\t\tVFAT EC: 0x"
-                  << static_cast<unsigned int>(status.ec()) << "\twith ID: " << std::dec << detId
-                  << "\tdiff: " << EC_difference_56_;
-          }
-        } else if (detId.arm() == 0 && optorx.fedId() == CTPPS_FED_ID_45) {
-          potPlots_[detId_pot].ECCheck->Fill((int)((optorx.lv1() & 0xFF) - status.ec()) & 0xFF);
-          if ((static_cast<int>((optorx.lv1() & 0xFF) - status.ec()) != EC_difference_45_) &&
-              (static_cast<uint8_t>((optorx.lv1() & 0xFF) - status.ec()) < 128))
-            EC_difference_45_ = static_cast<int>(optorx.lv1() & 0xFF) - (static_cast<unsigned int>(status.ec()) & 0xFF);
-          if (EC_difference_45_ != 1 && EC_difference_45_ != -500 && std::abs(EC_difference_45_) < 127) {
-            if (detId.channel() == 6 || detId.channel() == 7)
-              potPlots_[detId_pot].HPTDCErrorFlags_2D->Fill(16, 2 * detId.plane() + (detId.channel() - 6));
-            if (verbosity_)
-              edm::LogProblem("CTPPSDiamondDQMSource")
-                  << "FED " << CTPPS_FED_ID_45 << ": ECError at EV: 0x" << std::hex << optorx.lv1() << "\t\tVFAT EC: 0x"
-                  << static_cast<unsigned int>(status.ec()) << "\twith ID: " << std::dec << detId
-                  << "\tdiff: " << EC_difference_45_;
-          }
-        }
+        if (detId.arm() == 1 && optorx.fedId() == CTPPS_FED_ID_56)
+          checkEventNumber(detId, optorx, status, potPlots_[detId.rpId()], EC_difference_56_);
+        else if (detId.arm() == 0 && optorx.fedId() == CTPPS_FED_ID_45)
+          checkEventNumber(detid, optorx, status, potPlots_[detId.rpId()], EC_difference_45_);
       }
     }
   }
@@ -724,17 +695,15 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         TAxis* hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
         int startBin = hitHistoTmpYAxis->FindBin(rechit.x() - x_shift.global - 0.5 * rechit.xWidth());
         int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
-        for (int i = 0; i < numOfBins; ++i) {
+        for (int i = 0; i < numOfBins; ++i)
           hitHistoTmp->Fill(detId.plane() + UFSDShift, hitHistoTmpYAxis->GetBinCenter(startBin + i));
-        }
 
         hitHistoTmp = lumiCache->hitDistribution2dMap[detId_pot].get();
         hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
         startBin = hitHistoTmpYAxis->FindBin(rechit.x() - x_shift.global - 0.5 * rechit.xWidth());
         numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
-        for (int i = 0; i < numOfBins; ++i) {
+        for (int i = 0; i < numOfBins; ++i)
           hitHistoTmp->Fill(detId.plane() + UFSDShift, hitHistoTmpYAxis->GetBinCenter(startBin + i));
-        }
       }
 
       if (rechit.toT() != 0) {
@@ -746,21 +715,18 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         TAxis* hitHistoOOTTmpYAxis = hitHistoOOTTmp->GetYaxis();
         int startBin = hitHistoOOTTmpYAxis->FindBin(rechit.x() - x_shift.global - 0.5 * rechit.xWidth());
         int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
+        for (int i = 0; i < numOfBins; ++i)
+          hitHistoOOTTmp->Fill(detId.plane() + 0.25 * rechit.ootIndex(),
+                               hitHistoOOTTmpYAxis->GetBinCenter(startBin + i));
+      } else if (rechit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING) {
+        // Only leading
+        TH2F* hitHistoOOTTmp = potPlots_[detId_pot].hitDistribution2dOOT_le->getTH2F();
+        TAxis* hitHistoOOTTmpYAxis = hitHistoOOTTmp->GetYaxis();
+        int startBin = hitHistoOOTTmpYAxis->FindBin(rechit.x() - x_shift.global - 0.5 * rechit.xWidth());
+        int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
         for (int i = 0; i < numOfBins; ++i) {
           hitHistoOOTTmp->Fill(detId.plane() + 0.25 * rechit.ootIndex(),
                                hitHistoOOTTmpYAxis->GetBinCenter(startBin + i));
-        }
-      } else {
-        if (rechit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING) {
-          // Only leading
-          TH2F* hitHistoOOTTmp = potPlots_[detId_pot].hitDistribution2dOOT_le->getTH2F();
-          TAxis* hitHistoOOTTmpYAxis = hitHistoOOTTmp->GetYaxis();
-          int startBin = hitHistoOOTTmpYAxis->FindBin(rechit.x() - x_shift.global - 0.5 * rechit.xWidth());
-          int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
-          for (int i = 0; i < numOfBins; ++i) {
-            hitHistoOOTTmp->Fill(detId.plane() + 0.25 * rechit.ootIndex(),
-                                 hitHistoOOTTmpYAxis->GetBinCenter(startBin + i));
-          }
         }
       }
       if (rechit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING &&
@@ -793,17 +759,15 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
       TAxis* trackHistoOOTTmpYAxis = trackHistoOOTTmp->GetYaxis();
       int startBin = trackHistoOOTTmpYAxis->FindBin(track.x0() - x_shift.global - track.x0Sigma());
       int numOfBins = 2 * track.x0Sigma() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
-      for (int i = 0; i < numOfBins; ++i) {
+      for (int i = 0; i < numOfBins; ++i)
         trackHistoOOTTmp->Fill(track.ootIndex(), trackHistoOOTTmpYAxis->GetBinCenter(startBin + i));
-      }
 
       if (centralOOT_ != -999 && track.ootIndex() == centralOOT_) {
         TH1F* trackHistoInTimeTmp = potPlots_[detId_pot].trackDistribution->getTH1F();
         int startBin = trackHistoInTimeTmp->FindBin(track.x0() - x_shift.global - track.x0Sigma());
         int numOfBins = 2 * track.x0Sigma() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
-        for (int i = 0; i < numOfBins; ++i) {
+        for (int i = 0; i < numOfBins; ++i)
           trackHistoInTimeTmp->Fill(trackHistoInTimeTmp->GetBinCenter(startBin + i));
-        }
       }
     }
   }
@@ -1157,6 +1121,29 @@ void CTPPSDiamondDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock&
 
     const CTPPSDiamondDetId detId(plot.first), detId_pot(detId.rpId());
     hitHistoTmp->Divide(&(plot.second.pixelTracksMapWithDiamonds), &(potPlots_[detId_pot].pixelTracksMap));
+  }
+}
+
+//----------------------------------------------------------------------------------------------------
+
+void CTPPSDiamondDQMSource::checkEventNumber(const CTPPSDiamondDetId& detId,
+                                             const TotemFEDInfo& optorx,
+                                             const TotemVFATStatus& status,
+                                             CTPPSDiamondDQMSource::PotPlots& plots,
+                                             int& EC_difference) const {
+  const CTPPSDiamondDetId detId_pot(detId.rpId());
+  plots.ECCheck->Fill((int)((optorx.lv1() & 0xFF) - ((unsigned int)status.ec() & 0xFF)) & 0xFF);
+  if ((static_cast<int>((optorx.lv1() & 0xFF) - status.ec()) != EC_difference) &&
+      (static_cast<uint8_t>((optorx.lv1() & 0xFF) - status.ec()) < 128))
+    EC_difference = static_cast<int>(optorx.lv1() & 0xFF) - (static_cast<unsigned int>(status.ec()) & 0xFF);
+  if (EC_difference != 1 && EC_difference != -500 && std::abs(EC_difference) < 127) {
+    if (detId.channel() == 6 || detId.channel() == 7)
+      plots.HPTDCErrorFlags_2D->Fill(16, 2 * detId.plane() + (detId.channel() - 6));
+    if (verbosity_)
+      edm::LogProblem("CTPPSDiamondDQMSource")
+          << "FED " << optorx.fedId() << ": ECError at EV: 0x" << std::hex << optorx.lv1() << "\t\tVFAT EC: 0x"
+          << static_cast<unsigned int>(status.ec()) << "\twith ID: " << std::dec << detId
+          << "\tdiff: " << EC_difference_56_;
   }
 }
 
