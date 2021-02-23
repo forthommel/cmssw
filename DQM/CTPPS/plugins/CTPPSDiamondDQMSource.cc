@@ -93,6 +93,8 @@ private:
   static constexpr unsigned short CTPPS_DIAMOND_NUM_OF_CHANNELS = 12;
   static constexpr unsigned short CTPPS_FED_ID_45 = 583;
   static constexpr unsigned short CTPPS_FED_ID_56 = 582;
+  static constexpr unsigned short HPTDC_0_CHANNEL = 6;
+  static constexpr unsigned short HPTDC_1_CHANNEL = 7;
   static constexpr unsigned int FIRST_RUN_W_PIXELS = 300000;
 
   /// plots related to the whole system
@@ -635,8 +637,8 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
       // HPTDC Errors
       const HPTDCErrorFlags hptdcErrors = digi.hptdcErrorFlags();
-      if (detId.channel() == 6 || detId.channel() == 7) { // ch6 for HPTDC 0 and ch7 for HPTDC 1
-        int verticalIndex = 2 * detId.plane() + (detId.channel() - 6);
+      if (detId.channel() == HPTDC_0_CHANNEL || detId.channel() == HPTDC_1_CHANNEL) { // ch6 for HPTDC 0 and ch7 for HPTDC 1
+        int verticalIndex = 2 * detId.plane() + (detId.channel() - HPTDC_0_CHANNEL);
         for (unsigned short hptdcErrorIndex = 1; hptdcErrorIndex < 16; ++hptdcErrorIndex)
           if (hptdcErrors.errorId(hptdcErrorIndex - 1))
             potPlots_[detId_pot].HPTDCErrorFlags_2D->Fill(hptdcErrorIndex, verticalIndex);
@@ -1132,8 +1134,8 @@ void CTPPSDiamondDQMSource::checkEventNumber(const CTPPSDiamondDetId& detId,
       (static_cast<uint8_t>((optorx.lv1() & 0xFF) - status.ec()) < 128))
     EC_difference = static_cast<int>(optorx.lv1() & 0xFF) - (static_cast<unsigned int>(status.ec()) & 0xFF);
   if (EC_difference != 1 && EC_difference != -500 && std::abs(EC_difference) < 127) {
-    if (detId.channel() == 6 || detId.channel() == 7)
-      plots.HPTDCErrorFlags_2D->Fill(16, 2 * detId.plane() + (detId.channel() - 6));
+    if (detId.channel() == HPTDC_0_CHANNEL || detId.channel() == HPTDC_1_CHANNEL)
+      plots.HPTDCErrorFlags_2D->Fill(16, 2 * detId.plane() + (detId.channel() - HPTDC_0_CHANNEL));
     if (verbosity_)
       edm::LogProblem("CTPPSDiamondDQMSource")
           << "FED " << optorx.fedId() << ": ECError at EV: 0x" << std::hex << optorx.lv1() << "\t\tVFAT EC: 0x"
