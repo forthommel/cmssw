@@ -662,7 +662,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         if (detId.arm() == 1 && optorx.fedId() == CTPPS_FED_ID_56)
           checkEventNumber(detId, optorx, status, potPlots_[detId.rpId()], EC_difference_56_);
         else if (detId.arm() == 0 && optorx.fedId() == CTPPS_FED_ID_45)
-          checkEventNumber(detid, optorx, status, potPlots_[detId.rpId()], EC_difference_45_);
+          checkEventNumber(detId, optorx, status, potPlots_[detId.rpId()], EC_difference_45_);
       }
     }
   }
