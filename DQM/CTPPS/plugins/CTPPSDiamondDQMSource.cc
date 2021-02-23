@@ -890,10 +890,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
       if (digi.leadingEdge() != 0) {
         planePlots_[detId_plane].digiProfileCumulativePerPlane->Fill(detId.channel());
-        if (channelsPerPlane.count(detId_plane) != 0)
-          channelsPerPlane[detId_plane]++;
-        else
-          channelsPerPlane[detId_plane] = 0;
+        channelsPerPlane[detId_plane]++;
       }
     }
   }
@@ -957,10 +954,8 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
           }
         }
 
-        for (auto& planeId : planesWitHits_set) {
-          const CTPPSDiamondDetId detId_pot(planeId.rpId());
-          planePlots_[planeId].pixelTracksMapWithDiamonds.Fill(lt.x0() - diamShifts_.at(detId_pot).withPixels, lt.y0());
-        }
+        for (auto& planeId : planesWitHits_set)
+          planePlots_[planeId].pixelTracksMapWithDiamonds.Fill(lt.x0() - diamShifts_.at(planeId.rpId()).withPixels, lt.y0());
       }
     }
   }
@@ -1143,7 +1138,7 @@ void CTPPSDiamondDQMSource::checkEventNumber(const CTPPSDiamondDetId& detId,
       edm::LogProblem("CTPPSDiamondDQMSource")
           << "FED " << optorx.fedId() << ": ECError at EV: 0x" << std::hex << optorx.lv1() << "\t\tVFAT EC: 0x"
           << static_cast<unsigned int>(status.ec()) << "\twith ID: " << std::dec << detId
-          << "\tdiff: " << EC_difference_56_;
+          << "\tdiff: " << EC_difference;
   }
 }
 
