@@ -189,7 +189,7 @@ private:
 
   bool excludeMultipleHits_;
   bool perLSsaving_;  //to avoid nanoDQMIO crashing, driven by  DQMServices/Core/python/DQMStore_cfi.py
-  const bool unpack_digis_;
+  const bool extract_digi_info_;
   struct DiamondShifts {
     double global, withPixels;
   };
@@ -471,12 +471,12 @@ CTPPSDiamondDQMSource::CTPPSDiamondDQMSource(const edm::ParameterSet& ps)
       ctppsGeometryEventToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()),
       excludeMultipleHits_(ps.getParameter<bool>("excludeMultipleHits")),
       perLSsaving_(ps.getUntrackedParameter<bool>("perLSsaving", false)),
-      unpack_digis_(ps.getParameter<bool>("unpackDigis")),
+      extract_digi_info_(ps.getParameter<bool>("unpackDigis")),
       centralOOT_(-999),
       verbosity_(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
       EC_difference_56_(-500),
       EC_difference_45_(-500) {
-  if (unpack_digis_) {
+  if (extract_digi_info_) {
     tokenStatus_ = consumes<edm::DetSetVector<TotemVFATStatus>>(ps.getParameter<edm::InputTag>("tagStatus"));
     tokenFEDInfo_ = consumes<std::vector<TotemFEDInfo>>(ps.getParameter<edm::InputTag>("tagFEDInfo"));
     tokenDigi_ = consumes<edm::DetSetVector<CTPPSDiamondDigi>>(ps.getParameter<edm::InputTag>("tagDigi"));
@@ -561,20 +561,18 @@ std::shared_ptr<dds::Cache> CTPPSDiamondDQMSource::globalBeginLuminosityBlock(co
 
 void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSetup& iSetup) {
   // get event data
+
   edm::Handle<edm::DetSetVector<TotemVFATStatus>> diamondVFATStatus;
-  if (unpack_digis_)
+  edm::Handle<edm::DetSetVector<CTPPSDiamondDigi>> diamondDigis;
+  edm::Handle<std::vector<TotemFEDInfo>> fedInfo;
+  if (extract_digi_info_) {
     event.getByToken(tokenStatus_, diamondVFATStatus);
+    event.getByToken(tokenDigi_, diamondDigis);
+    event.getByToken(tokenFEDInfo_, fedInfo);
+  }
 
   edm::Handle<edm::DetSetVector<CTPPSPixelLocalTrack>> pixelTracks;
   event.getByToken(tokenPixelTrack_, pixelTracks);
-
-  edm::Handle<edm::DetSetVector<CTPPSDiamondDigi>> diamondDigis;
-  if (unpack_digis_)
-    event.getByToken(tokenDigi_, diamondDigis);
-
-  edm::Handle<std::vector<TotemFEDInfo>> fedInfo;
-  if (unpack_digis_)
-    event.getByToken(tokenFEDInfo_, fedInfo);
 
   edm::Handle<edm::DetSetVector<CTPPSDiamondRecHit>> diamondRecHits;
   event.getByToken(tokenDiamondHit_, diamondRecHits);
@@ -586,10 +584,12 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
   // check validity
   bool valid = true;
-  valid &= (!unpack_digis_ || diamondVFATStatus.isValid());
+  if (extract_digi_info_) {
+    valid &= diamondVFATStatus.isValid();
+    valid &= diamondDigis.isValid();
+    valid &= fedInfo.isValid();
+  }
   valid &= pixelTracks.isValid();
-  valid &= (!unpack_digis_ || diamondDigis.isValid());
-  valid &= (!unpack_digis_ || fedInfo.isValid());
   valid &= diamondRecHits.isValid();
   valid &= diamondLocalTracks.isValid();
 
@@ -598,10 +598,12 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
       edm::LogProblem("CTPPSDiamondDQMSource")
           << "ERROR in CTPPSDiamondDQMSource::analyze > some of the required inputs are not valid. Skipping this "
              "event.\n"
+          << "  DIGI-level: (checked? " << std::boolalpha << extract_digi_info_ << ")\n"
           << "    diamondVFATStatus.isValid = " << diamondVFATStatus.isValid() << "\n"
-          << "    pixelTracks.isValid = " << pixelTracks.isValid() << "\n"
           << "    diamondDigis.isValid = " << diamondDigis.isValid() << "\n"
           << "    fedInfo.isValid = " << fedInfo.isValid() << "\n"
+          << "  RECO-level:\n"
+          << "    pixelTracks.isValid = " << pixelTracks.isValid() << "\n"
           << "    diamondRecHits.isValid = " << diamondRecHits.isValid() << "\n"
           << "    diamondLocalTracks.isValid = " << diamondLocalTracks.isValid();
     }
@@ -617,7 +619,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
   // Correlation Plots
   //------------------------------
 
-  if (unpack_digis_) {
+  if (extract_digi_info_) {
     // Using CTPPSDiamondDigi
     for (const auto& digis : *diamondDigis) {
       const CTPPSDiamondDetId detId(digis.detId()), detId_pot(detId.rpId());
@@ -663,7 +665,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
   }
 
   // EC Errors
-  if (unpack_digis_) {
+  if (extract_digi_info_) {
     for (const auto& vfat_status : *diamondVFATStatus) {
       const CTPPSDiamondDetId detId(vfat_status.detId());
       for (const auto& status : vfat_status) {
@@ -900,7 +902,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
   // Using CTPPSDiamondDigi
   std::unordered_map<unsigned int, unsigned int> channelsPerPlane;
-  if (unpack_digis_) {
+  if (extract_digi_info_) {
     for (const auto& digis : *diamondDigis) {
       const CTPPSDiamondDetId detId(digis.detId()), detId_plane(detId.planeId());
       for (const auto& digi : digis) {
@@ -988,7 +990,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
   //------------------------------
 
   // digi profile cumulative
-  if (unpack_digis_) {
+  if (extract_digi_info_) {
     for (const auto& digis : *diamondDigis) {
       const CTPPSDiamondDetId detId(digis.detId());
       for (const auto& digi : digis) {
