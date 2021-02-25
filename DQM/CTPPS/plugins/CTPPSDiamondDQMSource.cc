@@ -188,6 +188,7 @@ private:
   edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> ctppsGeometryEventToken_;
 
   bool excludeMultipleHits_;
+  const bool unpack_digis_;
   struct DiamondShifts {
     double global, withPixels;
   };
@@ -471,6 +472,7 @@ CTPPSDiamondDQMSource::CTPPSDiamondDQMSource(const edm::ParameterSet& ps)
       ctppsGeometryRunToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord, edm::Transition::BeginRun>()),
       ctppsGeometryEventToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()),
       excludeMultipleHits_(ps.getParameter<bool>("excludeMultipleHits")),
+      unpack_digis_(ps.getParameter<bool>("unpackDigis")),
       centralOOT_(-999),
       verbosity_(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
       EC_difference_56_(-500),
@@ -560,7 +562,8 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
   event.getByToken(tokenPixelTrack_, pixelTracks);
 
   edm::Handle<edm::DetSetVector<CTPPSDiamondDigi>> diamondDigis;
-  event.getByToken(tokenDigi_, diamondDigis);
+  if (unpack_digis_)
+    event.getByToken(tokenDigi_, diamondDigis);
 
   edm::Handle<std::vector<TotemFEDInfo>> fedInfo;
   event.getByToken(tokenFEDInfo_, fedInfo);
@@ -577,7 +580,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
   bool valid = true;
   valid &= diamondVFATStatus.isValid();
   valid &= pixelTracks.isValid();
-  valid &= diamondDigis.isValid();
+  valid &= (unpack_digis_ & diamondDigis.isValid());
   valid &= fedInfo.isValid();
   valid &= diamondRecHits.isValid();
   valid &= diamondLocalTracks.isValid();
@@ -606,45 +609,47 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
   // Correlation Plots
   //------------------------------
 
-  // Using CTPPSDiamondDigi
-  for (const auto& digis : *diamondDigis) {
-    const CTPPSDiamondDetId detId(digis.detId()), detId_pot(detId.rpId());
-    for (const auto& digi : digis) {
-      if (detId.channel() == CHANNEL_OF_VFAT_CLOCK)
-        continue;
-      if (potPlots_.count(detId_pot) == 0)
-        continue;
-      //Leading without trailing investigation
-      if (digi.leadingEdge() != 0 || digi.trailingEdge() != 0) {
-        ++(potPlots_[detId_pot].HitCounter);
-        if (digi.leadingEdge() != 0) {
-          potPlots_[detId_pot].leadingEdgeCumulative_all->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge());
+  if (unpack_digis_) {
+    // Using CTPPSDiamondDigi
+    for (const auto& digis : *diamondDigis) {
+      const CTPPSDiamondDetId detId(digis.detId()), detId_pot(detId.rpId());
+      for (const auto& digi : digis) {
+        if (detId.channel() == CHANNEL_OF_VFAT_CLOCK)
+          continue;
+        if (potPlots_.count(detId_pot) == 0)
+          continue;
+        //Leading without trailing investigation
+        if (digi.leadingEdge() != 0 || digi.trailingEdge() != 0) {
+          ++(potPlots_[detId_pot].HitCounter);
+          if (digi.leadingEdge() != 0) {
+            potPlots_[detId_pot].leadingEdgeCumulative_all->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge());
+          }
+          if (digi.leadingEdge() != 0 && digi.trailingEdge() == 0) {
+            ++(potPlots_[detId_pot].LeadingOnlyCounter);
+            potPlots_[detId_pot].leadingEdgeCumulative_le->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge());
+          }
+          if (digi.leadingEdge() == 0 && digi.trailingEdge() != 0) {
+            ++(potPlots_[detId_pot].TrailingOnlyCounter);
+            potPlots_[detId_pot].trailingEdgeCumulative_te->Fill(HPTDC_BIN_WIDTH_NS * digi.trailingEdge());
+          }
+          if (digi.leadingEdge() != 0 && digi.trailingEdge() != 0) {
+            ++(potPlots_[detId_pot].CompleteCounter);
+            potPlots_[detId_pot].leadingTrailingCorrelationPot->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge(),
+                                                                     HPTDC_BIN_WIDTH_NS * digi.trailingEdge());
+          }
         }
-        if (digi.leadingEdge() != 0 && digi.trailingEdge() == 0) {
-          ++(potPlots_[detId_pot].LeadingOnlyCounter);
-          potPlots_[detId_pot].leadingEdgeCumulative_le->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge());
-        }
-        if (digi.leadingEdge() == 0 && digi.trailingEdge() != 0) {
-          ++(potPlots_[detId_pot].TrailingOnlyCounter);
-          potPlots_[detId_pot].trailingEdgeCumulative_te->Fill(HPTDC_BIN_WIDTH_NS * digi.trailingEdge());
-        }
-        if (digi.leadingEdge() != 0 && digi.trailingEdge() != 0) {
-          ++(potPlots_[detId_pot].CompleteCounter);
-          potPlots_[detId_pot].leadingTrailingCorrelationPot->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge(),
-                                                                   HPTDC_BIN_WIDTH_NS * digi.trailingEdge());
-        }
-      }
 
-      // HPTDC Errors
-      const HPTDCErrorFlags hptdcErrors = digi.hptdcErrorFlags();
-      if (detId.channel() == HPTDC_0_CHANNEL || detId.channel() == HPTDC_1_CHANNEL) { // ch6 for HPTDC 0 and ch7 for HPTDC 1
-        int verticalIndex = 2 * detId.plane() + (detId.channel() - HPTDC_0_CHANNEL);
-        for (unsigned short hptdcErrorIndex = 1; hptdcErrorIndex < 16; ++hptdcErrorIndex)
-          if (hptdcErrors.errorId(hptdcErrorIndex - 1))
-            potPlots_[detId_pot].HPTDCErrorFlags_2D->Fill(hptdcErrorIndex, verticalIndex);
+        // HPTDC Errors
+        const HPTDCErrorFlags hptdcErrors = digi.hptdcErrorFlags();
+        if (detId.channel() == HPTDC_0_CHANNEL || detId.channel() == HPTDC_1_CHANNEL) { // ch6 for HPTDC 0 and ch7 for HPTDC 1
+          int verticalIndex = 2 * detId.plane() + (detId.channel() - HPTDC_0_CHANNEL);
+          for (unsigned short hptdcErrorIndex = 1; hptdcErrorIndex < 16; ++hptdcErrorIndex)
+            if (hptdcErrors.errorId(hptdcErrorIndex - 1))
+              potPlots_[detId_pot].HPTDCErrorFlags_2D->Fill(hptdcErrorIndex, verticalIndex);
+        }
+        if (digi.multipleHit())
+          ++(potPlots_[detId_pot].MHCounter);
       }
-      if (digi.multipleHit())
-        ++(potPlots_[detId_pot].MHCounter);
     }
   }
 
@@ -882,17 +887,19 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
   // Using CTPPSDiamondDigi
   std::unordered_map<unsigned int, unsigned int> channelsPerPlane;
-  for (const auto& digis : *diamondDigis) {
-    const CTPPSDiamondDetId detId(digis.detId()), detId_plane(detId.planeId());
-    for (const auto& digi : digis) {
-      if (detId.channel() == CHANNEL_OF_VFAT_CLOCK)
-        continue;
-      if (planePlots_.count(detId_plane) == 0)
-        continue;
+  if (unpack_digis_) {
+    for (const auto& digis : *diamondDigis) {
+      const CTPPSDiamondDetId detId(digis.detId()), detId_plane(detId.planeId());
+      for (const auto& digi : digis) {
+        if (detId.channel() == CHANNEL_OF_VFAT_CLOCK)
+          continue;
+        if (planePlots_.count(detId_plane) == 0)
+          continue;
 
-      if (digi.leadingEdge() != 0) {
-        planePlots_[detId_plane].digiProfileCumulativePerPlane->Fill(detId.channel());
-        channelsPerPlane[detId_plane]++;
+        if (digi.leadingEdge() != 0) {
+          planePlots_[detId_plane].digiProfileCumulativePerPlane->Fill(detId.channel());
+          channelsPerPlane[detId_plane]++;
+        }
       }
     }
   }
@@ -967,35 +974,37 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
   //------------------------------
 
   // digi profile cumulative
-  for (const auto& digis : *diamondDigis) {
-    const CTPPSDiamondDetId detId(digis.detId());
-    for (const auto& digi : digis) {
-      if (detId.channel() == CHANNEL_OF_VFAT_CLOCK)
-        continue;
-      if (channelPlots_.count(detId) != 0) {
-        // HPTDC Errors
-        const HPTDCErrorFlags hptdcErrors = digi.hptdcErrorFlags();
-        for (unsigned short hptdcErrorIndex = 1; hptdcErrorIndex < 16; ++hptdcErrorIndex)
-          if (hptdcErrors.errorId(hptdcErrorIndex - 1))
-            channelPlots_[detId].HPTDCErrorFlags->Fill(hptdcErrorIndex);
-        if (digi.multipleHit())
-          ++(channelPlots_[detId].MHCounter);
+  if (unpack_digis_) {
+    for (const auto& digis : *diamondDigis) {
+      const CTPPSDiamondDetId detId(digis.detId());
+      for (const auto& digi : digis) {
+        if (detId.channel() == CHANNEL_OF_VFAT_CLOCK)
+          continue;
+        if (channelPlots_.count(detId) != 0) {
+          // HPTDC Errors
+          const HPTDCErrorFlags hptdcErrors = digi.hptdcErrorFlags();
+          for (unsigned short hptdcErrorIndex = 1; hptdcErrorIndex < 16; ++hptdcErrorIndex)
+            if (hptdcErrors.errorId(hptdcErrorIndex - 1))
+              channelPlots_[detId].HPTDCErrorFlags->Fill(hptdcErrorIndex);
+          if (digi.multipleHit())
+            ++(channelPlots_[detId].MHCounter);
 
-        // Check dropped trailing edges
-        if (digi.leadingEdge() != 0 || digi.trailingEdge() != 0) {
-          ++(channelPlots_[detId].HitCounter);
-          if (digi.leadingEdge() != 0 && digi.trailingEdge() == 0) {
-            ++(channelPlots_[detId].LeadingOnlyCounter);
-            channelPlots_[detId].leadingEdgeCumulative_le->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge());
-          }
-          if (digi.leadingEdge() == 0 && digi.trailingEdge() != 0) {
-            ++(channelPlots_[detId].TrailingOnlyCounter);
-            channelPlots_[detId].trailingEdgeCumulative_te->Fill(HPTDC_BIN_WIDTH_NS * digi.trailingEdge());
-          }
-          if (digi.leadingEdge() != 0 && digi.trailingEdge() != 0) {
-            ++(channelPlots_[detId].CompleteCounter);
-            channelPlots_[detId].LeadingTrailingCorrelationPerChannel->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge(),
-                                                                            HPTDC_BIN_WIDTH_NS * digi.trailingEdge());
+          // Check dropped trailing edges
+          if (digi.leadingEdge() != 0 || digi.trailingEdge() != 0) {
+            ++(channelPlots_[detId].HitCounter);
+            if (digi.leadingEdge() != 0 && digi.trailingEdge() == 0) {
+              ++(channelPlots_[detId].LeadingOnlyCounter);
+              channelPlots_[detId].leadingEdgeCumulative_le->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge());
+            }
+            if (digi.leadingEdge() == 0 && digi.trailingEdge() != 0) {
+              ++(channelPlots_[detId].TrailingOnlyCounter);
+              channelPlots_[detId].trailingEdgeCumulative_te->Fill(HPTDC_BIN_WIDTH_NS * digi.trailingEdge());
+            }
+            if (digi.leadingEdge() != 0 && digi.trailingEdge() != 0) {
+              ++(channelPlots_[detId].CompleteCounter);
+              channelPlots_[detId].LeadingTrailingCorrelationPerChannel->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge(),
+                                                                              HPTDC_BIN_WIDTH_NS * digi.trailingEdge());
+            }
           }
         }
       }
