@@ -10,7 +10,7 @@ ctppsDiamondDQMSource = DQMEDAnalyzer('CTPPSDiamondDQMSource',
     tagPixelLocalTracks = cms.InputTag("ctppsPixelLocalTracks"),
 
     excludeMultipleHits = cms.bool(True),
-    unpackDigis = cms.bool(True),
+    extractDigiInfo = cms.bool(True),
 
     offsetsOOT = cms.VPSet( # cut on the OOT bin for physics hits
         # 2016, after TS2
