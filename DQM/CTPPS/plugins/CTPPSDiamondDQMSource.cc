@@ -460,15 +460,12 @@ CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker& ibooker, un
 //----------------------------------------------------------------------------------------------------
 
 CTPPSDiamondDQMSource::CTPPSDiamondDQMSource(const edm::ParameterSet& ps)
-    : tokenStatus_(consumes<edm::DetSetVector<TotemVFATStatus>>(ps.getParameter<edm::InputTag>("tagStatus"))),
-      tokenPixelTrack_(
+    : tokenPixelTrack_(
           consumes<edm::DetSetVector<CTPPSPixelLocalTrack>>(ps.getParameter<edm::InputTag>("tagPixelLocalTracks"))),
-      tokenDigi_(consumes<edm::DetSetVector<CTPPSDiamondDigi>>(ps.getParameter<edm::InputTag>("tagDigi"))),
       tokenDiamondHit_(
           consumes<edm::DetSetVector<CTPPSDiamondRecHit>>(ps.getParameter<edm::InputTag>("tagDiamondRecHits"))),
       tokenDiamondTrack_(
           consumes<edm::DetSetVector<CTPPSDiamondLocalTrack>>(ps.getParameter<edm::InputTag>("tagDiamondLocalTracks"))),
-      tokenFEDInfo_(consumes<std::vector<TotemFEDInfo>>(ps.getParameter<edm::InputTag>("tagFEDInfo"))),
       ctppsGeometryRunToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord, edm::Transition::BeginRun>()),
       ctppsGeometryEventToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()),
       excludeMultipleHits_(ps.getParameter<bool>("excludeMultipleHits")),
@@ -477,6 +474,11 @@ CTPPSDiamondDQMSource::CTPPSDiamondDQMSource(const edm::ParameterSet& ps)
       verbosity_(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
       EC_difference_56_(-500),
       EC_difference_45_(-500) {
+  if (unpack_digis_) {
+    tokenStatus_ = consumes<edm::DetSetVector<TotemVFATStatus>>(ps.getParameter<edm::InputTag>("tagStatus"));
+    tokenFEDInfo_ = consumes<std::vector<TotemFEDInfo>>(ps.getParameter<edm::InputTag>("tagFEDInfo"));
+    tokenDigi_ = consumes<edm::DetSetVector<CTPPSDiamondDigi>>(ps.getParameter<edm::InputTag>("tagDigi"));
+  }
   for (const auto& pset : ps.getParameter<std::vector<edm::ParameterSet>>("offsetsOOT")) {
     runParameters_.emplace_back(
         std::make_pair(pset.getParameter<edm::EventRange>("validityRange"), pset.getParameter<int>("centralOOT")));
@@ -556,7 +558,8 @@ std::shared_ptr<dds::Cache> CTPPSDiamondDQMSource::globalBeginLuminosityBlock(co
 void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSetup& iSetup) {
   // get event data
   edm::Handle<edm::DetSetVector<TotemVFATStatus>> diamondVFATStatus;
-  event.getByToken(tokenStatus_, diamondVFATStatus);
+  if (unpack_digis_)
+    event.getByToken(tokenStatus_, diamondVFATStatus);
 
   edm::Handle<edm::DetSetVector<CTPPSPixelLocalTrack>> pixelTracks;
   event.getByToken(tokenPixelTrack_, pixelTracks);
@@ -566,7 +569,8 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
     event.getByToken(tokenDigi_, diamondDigis);
 
   edm::Handle<std::vector<TotemFEDInfo>> fedInfo;
-  event.getByToken(tokenFEDInfo_, fedInfo);
+  if (unpack_digis_)
+    event.getByToken(tokenFEDInfo_, fedInfo);
 
   edm::Handle<edm::DetSetVector<CTPPSDiamondRecHit>> diamondRecHits;
   event.getByToken(tokenDiamondHit_, diamondRecHits);
@@ -578,10 +582,10 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
   // check validity
   bool valid = true;
-  valid &= diamondVFATStatus.isValid();
+  valid &= (!unpack_digis_ || diamondVFATStatus.isValid());
   valid &= pixelTracks.isValid();
-  valid &= (unpack_digis_ & diamondDigis.isValid());
-  valid &= fedInfo.isValid();
+  valid &= (!unpack_digis_ || diamondDigis.isValid());
+  valid &= (!unpack_digis_ || fedInfo.isValid());
   valid &= diamondRecHits.isValid();
   valid &= diamondLocalTracks.isValid();
 
@@ -654,22 +658,24 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
   }
 
   // EC Errors
-  for (const auto& vfat_status : *diamondVFATStatus) {
-    const CTPPSDiamondDetId detId(vfat_status.detId());
-    for (const auto& status : vfat_status) {
-      if (!status.isOK())
-        continue;
-      if (potPlots_.count(detId.rpId()) == 0)
-        continue;
-      if (channelPlots_.count(detId) == 0)
-        continue;
+  if (unpack_digis_) {
+    for (const auto& vfat_status : *diamondVFATStatus) {
+      const CTPPSDiamondDetId detId(vfat_status.detId());
+      for (const auto& status : vfat_status) {
+        if (!status.isOK())
+          continue;
+        if (potPlots_.count(detId.rpId()) == 0)
+          continue;
+        if (channelPlots_.count(detId) == 0)
+          continue;
 
-      // Check Event Number
-      for (const auto& optorx : *fedInfo) {
-        if (detId.arm() == 1 && optorx.fedId() == CTPPS_FED_ID_56)
-          checkEventNumber(detId, optorx, status, potPlots_[detId.rpId()], EC_difference_56_);
-        else if (detId.arm() == 0 && optorx.fedId() == CTPPS_FED_ID_45)
-          checkEventNumber(detId, optorx, status, potPlots_[detId.rpId()], EC_difference_45_);
+        // Check Event Number
+        for (const auto& optorx : *fedInfo) {
+          if (detId.arm() == 1 && optorx.fedId() == CTPPS_FED_ID_56)
+            checkEventNumber(detId, optorx, status, potPlots_[detId.rpId()], EC_difference_56_);
+          else if (detId.arm() == 0 && optorx.fedId() == CTPPS_FED_ID_45)
+            checkEventNumber(detId, optorx, status, potPlots_[detId.rpId()], EC_difference_45_);
+        }
       }
     }
   }
