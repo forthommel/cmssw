@@ -8,8 +8,9 @@ ctppsDiamondDQMSource = DQMEDAnalyzer('CTPPSDiamondDQMSource',
     tagDiamondRecHits = cms.InputTag("ctppsDiamondRecHits"),
     tagDiamondLocalTracks = cms.InputTag("ctppsDiamondLocalTracks"),
     tagPixelLocalTracks = cms.InputTag("ctppsPixelLocalTracks"),
-    
+
     excludeMultipleHits = cms.bool(True),
+    unpackDigis = cms.bool(True),
 
     offsetsOOT = cms.VPSet( # cut on the OOT bin for physics hits
         # 2016, after TS2
@@ -33,6 +34,6 @@ ctppsDiamondDQMSource = DQMEDAnalyzer('CTPPSDiamondDQMSource',
             centralOOT = cms.int32(0),
         ),
     ),
-  
+
     verbosity = cms.untracked.uint32(10),
 )
