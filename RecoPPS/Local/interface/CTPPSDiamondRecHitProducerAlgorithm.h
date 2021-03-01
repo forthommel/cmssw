@@ -11,7 +11,6 @@
 
 #include "RecoPPS/Local/interface/TimingRecHitProducerAlgorithm.h"
 
-#include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "DataFormats/CTPPSDigi/interface/CTPPSDiamondDigi.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
 

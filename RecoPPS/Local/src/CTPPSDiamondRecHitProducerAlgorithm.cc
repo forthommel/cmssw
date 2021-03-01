@@ -6,9 +6,10 @@
 *
 ****************************************************************************/
 
-#include <memory>
 #include "FWCore/Utilities/interface/isFinite.h"
+
 #include "RecoPPS/Local/interface/CTPPSDiamondRecHitProducerAlgorithm.h"
+#include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 
 //----------------------------------------------------------------------------------------------------
 

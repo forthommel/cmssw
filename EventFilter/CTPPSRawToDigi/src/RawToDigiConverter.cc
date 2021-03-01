@@ -381,11 +381,11 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll,
   }
 }
 
-void RawToDigiConverter::run(const VFATFrameCollection& coll,
-                             const TotemDAQMapping& mapping,
-                             const TotemAnalysisMask& mask,
-                             edm::DetSetVector<TotemT2Digi>& digi,
-                             edm::DetSetVector<TotemVFATStatus>& status) {
+void RawToDigiConverter::run(const VFATFrameCollection &coll,
+                             const TotemDAQMapping &mapping,
+                             const TotemAnalysisMask &mask,
+                             edm::DetSetVector<TotemT2Digi> &digi,
+                             edm::DetSetVector<TotemVFATStatus> &status) {
   // structure merging vfat frame data with the mapping
   map<TotemFramePosition, Record> records;
 
@@ -394,7 +394,7 @@ void RawToDigiConverter::run(const VFATFrameCollection& coll,
 
   // second loop over data
   for (auto &p : records) {
-    Record& record = p.second;
+    Record &record = p.second;
 
     // calculate ids
     TotemT2DetId detId(record.info->symbolicID.symbolicID);
@@ -404,7 +404,7 @@ void RawToDigiConverter::run(const VFATFrameCollection& coll,
       record.status.setEC(record.frame->getEC() & 0xFF);
 
       // create the digi
-      DetSet<TotemT2Digi>& digiDetSet = digi.find_or_insert(detId);
+      DetSet<TotemT2Digi> &digiDetSet = digi.find_or_insert(detId);
       digiDetSet.emplace_back(totem::nt2::vfat::geoId(*record.frame),
                               totem::nt2::vfat::channelId(*record.frame),
                               totem::nt2::vfat::channelMarker(*record.frame),
@@ -413,7 +413,7 @@ void RawToDigiConverter::run(const VFATFrameCollection& coll,
     }
 
     // save status
-    DetSet<TotemVFATStatus>& statusDetSet = status.find_or_insert(detId);
+    DetSet<TotemVFATStatus> &statusDetSet = status.find_or_insert(detId);
     statusDetSet.push_back(record.status);
   }
 }
