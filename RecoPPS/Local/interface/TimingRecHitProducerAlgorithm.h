@@ -12,10 +12,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/Utils/interface/FormulaEvaluator.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "CondFormats/PPSObjects/interface/PPSTimingCalibration.h"
 
-template<typename D, typename R>
+template <typename D, typename R>
 class TimingRecHitProducerAlgorithm {
 public:
   TimingRecHitProducerAlgorithm(const edm::ParameterSet& conf);
