@@ -6,12 +6,12 @@
  *
  ****************************************************************************/
 
-#ifndef DataFormats_TotemReco_TotemT2Digi_h
-#define DataFormats_TotemReco_TotemT2Digi_h
+#ifndef DataFormats_TotemReco_TotemT2RecHit_h
+#define DataFormats_TotemReco_TotemT2RecHit_h
 
-class TotemT2Digi {
+class TotemT2RecHit {
 public:
-  explicit TotemT2Digi() = default;
+  explicit TotemT2RecHit() = default;
 
   void setLeadingEdge(unsigned short le) { lead_edge_ = le; }
   unsigned short leadingEdge() const { return lead_edge_; }
@@ -25,7 +25,7 @@ private:
   unsigned short trail_edge_;
 };
 
-bool operator<(const TotemT2Digi& lhs, const TotemT2Digi& rhs) {
+bool operator<(const TotemT2RecHit& lhs, const TotemT2RecHit& rhs) {
   if (lhs.leadingEdge() < rhs.leadingEdge())
     return true;
   if (lhs.leadingEdge() > rhs.leadingEdge())
