@@ -1,9 +1,8 @@
 /****************************************************************************
  *
- * This is a part of PPS offline software.
+ * This is a part of TOTEM offline software.
  * Authors:
  *   Laurent Forthomme (laurent.forthomme@cern.ch)
- *   Nicola Minafra (nicola.minafra@cern.ch)
  *
  ****************************************************************************/
 
@@ -23,8 +22,8 @@
 #include "DataFormats/Common/interface/DetSet.h"
 
 #include "DataFormats/CTPPSDetId/interface/TotemT2DetId.h"
-#include "DataFormats/CTPPSDigi/interface/TotemT2Digi.h"
-#include "DataFormats/CTPPSReco/interface/TotemT2RecHit.h"
+#include "DataFormats/TotemReco/interface/TotemT2Digi.h"
+#include "DataFormats/TotemReco/interface/TotemT2RecHit.h"
 
 #include "RecoPPS/Local/interface/TotemT2RecHitProducerAlgorithm.h"
 
