@@ -251,25 +251,26 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots(DQMStore::IBooker& ibooker, unsigned i
                                                  18.5);
   hitDistribution2dOOT = ibooker.book2D("hits with OOT in planes",
                                         title + " hits with OOT in planes;plane number, OOT index;x (mm)",
-                                        1+NUM_OOT*4,
-                                        -1./NUM_OOT,
+                                        1 + NUM_OOT * 4,
+                                        -1. / NUM_OOT,
                                         4,
                                         19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
                                         -0.5,
                                         18.5);
   hitDistribution2dOOT_le = ibooker.book2D("hits with OOT in planes (le only)",
                                            title + " hits with OOT in planes (le only);plane number, OOT index;x (mm)",
-                                           1+NUM_OOT*4,
-                                           -1./NUM_OOT,
+                                           1 + NUM_OOT * 4,
+                                           -1. / NUM_OOT,
                                            4,
                                            19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
                                            -0.5,
                                            18.5);
-  { // bin labelling (for clarity)
-    int idx = 2; // start counting at 1, first bin is empty
+  {               // bin labelling (for clarity)
+    int idx = 2;  // start counting at 1, first bin is empty
     for (int pl = 0; pl < 4; ++pl)
       for (int oot = 0; oot < NUM_OOT; ++oot) {
-        const std::string bin_label = (oot == 0 ? "Plane "+std::to_string(pl)+", " : "")+"OOT"+std::to_string(oot);
+        const std::string bin_label =
+            (oot == 0 ? "Plane " + std::to_string(pl) + ", " : "") + "OOT" + std::to_string(oot);
         hitDistribution2dOOT->setBinLabel(idx, bin_label);
         hitDistribution2dOOT_le->setBinLabel(idx, bin_label);
         ++idx;
@@ -593,7 +594,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
   // check validity
   bool valid = true;
-  if (extract_digi_info_) { // drop DIGI-level validity checks if not monitored
+  if (extract_digi_info_) {  // drop DIGI-level validity checks if not monitored
     valid &= diamondVFATStatus.isValid();
     valid &= diamondDigis.isValid();
     valid &= fedInfo.isValid();
@@ -658,7 +659,8 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
         // HPTDC Errors
         const HPTDCErrorFlags hptdcErrors = digi.hptdcErrorFlags();
-        if (detId.channel() == HPTDC_0_CHANNEL || detId.channel() == HPTDC_1_CHANNEL) { // ch6 for HPTDC 0 and ch7 for HPTDC 1
+        if (detId.channel() == HPTDC_0_CHANNEL ||
+            detId.channel() == HPTDC_1_CHANNEL) {  // ch6 for HPTDC 0 and ch7 for HPTDC 1
           int verticalIndex = 2 * detId.plane() + (detId.channel() - HPTDC_0_CHANNEL);
           for (unsigned short hptdcErrorIndex = 1; hptdcErrorIndex < 16; ++hptdcErrorIndex)
             if (hptdcErrors.errorId(hptdcErrorIndex - 1))
@@ -983,7 +985,8 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         }
 
         for (auto& planeId : planesWitHits_set)
-          planePlots_[planeId].pixelTracksMapWithDiamonds.Fill(lt.x0() - diamShifts_.at(planeId.rpId()).withPixels, lt.y0());
+          planePlots_[planeId].pixelTracksMapWithDiamonds.Fill(lt.x0() - diamShifts_.at(planeId.rpId()).withPixels,
+                                                               lt.y0());
       }
     }
   }
