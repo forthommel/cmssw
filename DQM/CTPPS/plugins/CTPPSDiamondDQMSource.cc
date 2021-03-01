@@ -95,6 +95,8 @@ private:
   static constexpr unsigned short CTPPS_FED_ID_56 = 582;
   static constexpr unsigned short HPTDC_0_CHANNEL = 6;
   static constexpr unsigned short HPTDC_1_CHANNEL = 7;
+  /// Number of OOT indices monitored
+  static constexpr unsigned short NUM_OOT = 4;
   static constexpr unsigned int FIRST_RUN_W_PIXELS = 300000;
 
   /// plots related to the whole system
@@ -248,21 +250,32 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots(DQMStore::IBooker& ibooker, unsigned i
                                                  -0.5,
                                                  18.5);
   hitDistribution2dOOT = ibooker.book2D("hits with OOT in planes",
-                                        title + " hits with OOT in planes;plane number + 0.25 OOT;x (mm)",
-                                        17,
-                                        -0.25,
+                                        title + " hits with OOT in planes;plane number, OOT index;x (mm)",
+                                        1+NUM_OOT*4,
+                                        -1./NUM_OOT,
                                         4,
                                         19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
                                         -0.5,
                                         18.5);
   hitDistribution2dOOT_le = ibooker.book2D("hits with OOT in planes (le only)",
-                                           title + " hits with OOT in planes (le only);plane number + 0.25 OOT;x (mm)",
-                                           17,
-                                           -0.25,
+                                           title + " hits with OOT in planes (le only);plane number, OOT index;x (mm)",
+                                           1+NUM_OOT*4,
+                                           -1./NUM_OOT,
                                            4,
                                            19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
                                            -0.5,
                                            18.5);
+  { // bin labelling (for clarity)
+    int idx = 2; // start counting at 1, first bin is empty
+    for (int pl = 0; pl < 4; ++pl)
+      for (int oot = 0; oot < NUM_OOT; ++oot) {
+        const std::string bin_label = (oot == 0 ? "Plane "+std::to_string(pl)+", " : "")+"OOT"+std::to_string(oot);
+        hitDistribution2dOOT->setBinLabel(idx, bin_label);
+        hitDistribution2dOOT_le->setBinLabel(idx, bin_label);
+        ++idx;
+      }
+  }
+
   activePlanes =
       ibooker.book1D("active planes", title + " active planes (per event);number of active planes", 6, -0.5, 5.5);
   activePlanesInclusive =
@@ -469,7 +482,7 @@ CTPPSDiamondDQMSource::CTPPSDiamondDQMSource(const edm::ParameterSet& ps)
       ctppsGeometryRunToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord, edm::Transition::BeginRun>()),
       ctppsGeometryEventToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()),
       excludeMultipleHits_(ps.getParameter<bool>("excludeMultipleHits")),
-      extract_digi_info_(ps.getParameter<bool>("unpackDigis")),
+      extract_digi_info_(ps.getParameter<bool>("extractDigiInfo")),
       centralOOT_(-999),
       verbosity_(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
       EC_difference_56_(-500),
@@ -580,7 +593,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
   // check validity
   bool valid = true;
-  if (extract_digi_info_) {
+  if (extract_digi_info_) { // drop DIGI-level validity checks if not monitored
     valid &= diamondVFATStatus.isValid();
     valid &= diamondDigis.isValid();
     valid &= fedInfo.isValid();
@@ -590,7 +603,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
   valid &= diamondLocalTracks.isValid();
 
   if (!valid) {
-    if (verbosity_) {
+    if (verbosity_)
       edm::LogProblem("CTPPSDiamondDQMSource")
           << "ERROR in CTPPSDiamondDQMSource::analyze > some of the required inputs are not valid. Skipping this "
              "event.\n"
@@ -602,8 +615,6 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
           << "    pixelTracks.isValid = " << pixelTracks.isValid() << "\n"
           << "    diamondRecHits.isValid = " << diamondRecHits.isValid() << "\n"
           << "    diamondLocalTracks.isValid = " << diamondLocalTracks.isValid();
-    }
-
     return;
   }
 
@@ -626,20 +637,20 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
           continue;
         //Leading without trailing investigation
         if (digi.leadingEdge() != 0 || digi.trailingEdge() != 0) {
-          ++(potPlots_[detId_pot].HitCounter);
+          ++potPlots_[detId_pot].HitCounter;
           if (digi.leadingEdge() != 0) {
             potPlots_[detId_pot].leadingEdgeCumulative_all->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge());
           }
           if (digi.leadingEdge() != 0 && digi.trailingEdge() == 0) {
-            ++(potPlots_[detId_pot].LeadingOnlyCounter);
+            ++potPlots_[detId_pot].LeadingOnlyCounter;
             potPlots_[detId_pot].leadingEdgeCumulative_le->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge());
           }
           if (digi.leadingEdge() == 0 && digi.trailingEdge() != 0) {
-            ++(potPlots_[detId_pot].TrailingOnlyCounter);
+            ++potPlots_[detId_pot].TrailingOnlyCounter;
             potPlots_[detId_pot].trailingEdgeCumulative_te->Fill(HPTDC_BIN_WIDTH_NS * digi.trailingEdge());
           }
           if (digi.leadingEdge() != 0 && digi.trailingEdge() != 0) {
-            ++(potPlots_[detId_pot].CompleteCounter);
+            ++potPlots_[detId_pot].CompleteCounter;
             potPlots_[detId_pot].leadingTrailingCorrelationPot->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge(),
                                                                      HPTDC_BIN_WIDTH_NS * digi.trailingEdge());
           }
@@ -654,7 +665,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
               potPlots_[detId_pot].HPTDCErrorFlags_2D->Fill(hptdcErrorIndex, verticalIndex);
         }
         if (digi.multipleHit())
-          ++(potPlots_[detId_pot].MHCounter);
+          ++potPlots_[detId_pot].MHCounter;
       }
     }
   }
@@ -820,13 +831,13 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
           }
           if (channelAlignedWithTrack(ctppsGeometry, detId, track, 0.2)) {
             // Channel should fire
-            ++(potPlots_[detId_pot].effDoublecountingChMap[map_index]);
+            ++potPlots_[detId_pot].effDoublecountingChMap[map_index];
             for (const auto& rechits : *diamondRecHits) {
               const CTPPSDiamondDetId detId_hit(rechits.detId());
               if (detId_hit == detId)
                 for (const auto& rechit : rechits)
                   if (track.containsHit(rechit, 1))  // Channel fired
-                    ++(potPlots_[detId_pot].effTriplecountingChMap[map_index]);
+                    ++potPlots_[detId_pot].effTriplecountingChMap[map_index];
             }
           }
         }
@@ -995,21 +1006,21 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
             if (hptdcErrors.errorId(hptdcErrorIndex - 1))
               channelPlots_[detId].HPTDCErrorFlags->Fill(hptdcErrorIndex);
           if (digi.multipleHit())
-            ++(channelPlots_[detId].MHCounter);
+            ++channelPlots_[detId].MHCounter;
 
           // Check dropped trailing edges
           if (digi.leadingEdge() != 0 || digi.trailingEdge() != 0) {
-            ++(channelPlots_[detId].HitCounter);
+            ++channelPlots_[detId].HitCounter;
             if (digi.leadingEdge() != 0 && digi.trailingEdge() == 0) {
-              ++(channelPlots_[detId].LeadingOnlyCounter);
+              ++channelPlots_[detId].LeadingOnlyCounter;
               channelPlots_[detId].leadingEdgeCumulative_le->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge());
             }
             if (digi.leadingEdge() == 0 && digi.trailingEdge() != 0) {
-              ++(channelPlots_[detId].TrailingOnlyCounter);
+              ++channelPlots_[detId].TrailingOnlyCounter;
               channelPlots_[detId].trailingEdgeCumulative_te->Fill(HPTDC_BIN_WIDTH_NS * digi.trailingEdge());
             }
             if (digi.leadingEdge() != 0 && digi.trailingEdge() != 0) {
-              ++(channelPlots_[detId].CompleteCounter);
+              ++channelPlots_[detId].CompleteCounter;
               channelPlots_[detId].LeadingTrailingCorrelationPerChannel->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge(),
                                                                               HPTDC_BIN_WIDTH_NS * digi.trailingEdge());
             }
@@ -1031,7 +1042,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
           channelPlots_[detId].leadingEdgeCumulative_both->Fill(rechit.time() + 25 * rechit.ootIndex());
           channelPlots_[detId].TimeOverThresholdCumulativePerChannel->Fill(rechit.toT());
         }
-        ++(lumiCache->hitsCounterMap[detId]);
+        ++lumiCache->hitsCounterMap[detId];
       }
 
       if (rechit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING &&
