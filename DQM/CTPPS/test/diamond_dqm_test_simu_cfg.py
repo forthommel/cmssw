@@ -30,7 +30,7 @@ process.dqmSaver.tag = "CTPPS"
 # diamond DQM module
 process.load('DQM.CTPPS.ctppsDiamondDQMSource_cfi')
 #process.ctppsDiamondDQMSource.excludeMultipleHits = cms.bool(True)
-process.ctppsDiamondDQMSource.unpackDigis = cms.bool(False)
+process.ctppsDiamondDQMSource.extractDigiInfo = cms.bool(False)
 process.ctppsDiamondDQMSource.tagDiamondRecHits = cms.InputTag('ctppsDirectProtonSimulation')
 #process.ctppsLocalTrackLiteProducer.includeDiamonds = cms.bool(True)
 process.ctppsDiamondLocalReconstructionTask = process.ctppsDiamondLocalReconstructionTask.copyAndExclude([
