@@ -12,17 +12,6 @@
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSDiamondRecHitProducerAlgorithm::CTPPSDiamondRecHitProducerAlgorithm(const edm::ParameterSet& iConfig)
-    : ts_to_ns_(iConfig.getParameter<double>("timeSliceNs")),
-      apply_calib_(iConfig.getParameter<bool>("applyCalibration")) {}
-
-void CTPPSDiamondRecHitProducerAlgorithm::setCalibration(const PPSTimingCalibration& calib,
-                                                         const PPSTimingCalibrationLUT& calibLUT) {
-  calib_ = calib;
-  calibLUT_ = calibLUT;
-  calib_fct_ = std::make_unique<reco::FormulaEvaluator>(calib_.formula());
-}
-
 void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
                                                 const edm::DetSetVector<CTPPSDiamondDigi>& input,
                                                 edm::DetSetVector<CTPPSDiamondRecHit>& output) {
