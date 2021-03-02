@@ -45,7 +45,7 @@ private:
   /// A watcher to detect timing calibration changes.
   edm::ESWatcher<PPSTimingCalibrationRcd> calibWatcher_;
 
-  bool applyCalib_;
+  const bool applyCalib_;
   TotemT2RecHitProducerAlgorithm algo_;
 };
 
@@ -55,7 +55,8 @@ TotemT2RecHitProducer::TotemT2RecHitProducer(const edm::ParameterSet& iConfig)
       applyCalib_(iConfig.getParameter<bool>("applyCalibration")),
       algo_(iConfig) {
   if (applyCalib_)
-    timingCalibrationToken_ = esConsumes<PPSTimingCalibration, PPSTimingCalibrationRcd>(edm::ESInputTag(iConfig.getParameter<std::string>("timingCalibrationTag")));
+    timingCalibrationToken_ = esConsumes<PPSTimingCalibration, PPSTimingCalibrationRcd>(
+        edm::ESInputTag(iConfig.getParameter<std::string>("timingCalibrationTag")));
   produces<edm::DetSetVector<TotemT2RecHit> >();
 }
 
