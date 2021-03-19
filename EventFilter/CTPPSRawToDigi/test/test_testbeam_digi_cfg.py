@@ -21,9 +21,9 @@ process.output = cms.OutputModule('PoolOutputModule',
 # either define your mapping (+other configuration parameters for the EDProducer) here
 process.totemTimingTestBeamDigis = cms.EDProducer('TotemTimingTestBeamRawToDigi',
     idsMapping = cms.VPSet(
-        cms.PSet(detId = cms.uint32(2080374784), treeChId = cms.uint32(0)),
-        cms.PSet(detId = cms.uint32(2080378880), treeChId = cms.uint32(1)),
-        cms.PSet(detId = cms.uint32(2080505856), treeChId = cms.uint32(2))
+        cms.PSet(detId = cms.uint32(2088763392), treeChId = cms.uint32(0)),
+        cms.PSet(detId = cms.uint32(2088767488), treeChId = cms.uint32(1)),
+        cms.PSet(detId = cms.uint32(2088894464), treeChId = cms.uint32(2))
     ),
 )
 # or load it directly from the python configuration automatically generated
@@ -35,3 +35,5 @@ process.totemTimingTestBeamDigis = cms.EDProducer('TotemTimingTestBeamRawToDigi'
 process.p = cms.Path(
     process.totemTimingTestBeamDigis
 )
+# output definition
+process.outpath = cms.EndPath(process.output)

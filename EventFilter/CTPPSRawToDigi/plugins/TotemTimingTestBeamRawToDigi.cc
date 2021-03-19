@@ -32,7 +32,7 @@ public:
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   TTree* input_tree_;
-  std::unordered_map<unsigned short, unsigned short> detid_vs_chid_;
+  std::unordered_map<unsigned int, unsigned int> detid_vs_chid_;
 };
 
 TotemTimingTestBeamRawToDigi::TotemTimingTestBeamRawToDigi(const edm::ParameterSet& iConfig) {
@@ -52,7 +52,7 @@ void TotemTimingTestBeamRawToDigi::produce(edm::Event& iEvent, const edm::EventS
 
   // for (unsigned long long ev_id = 0; ev_id < input_tree_->GetEntriesFast(); ++ev_id) {
   // collection of "fake info" to be filled from TTree read/recasted event info
-  unsigned short ch_id = 0;  // <-- most important part to perform channel mapping
+  unsigned short ch_id = rand() % 3; // 0, 1, or 2
   uint8_t hw_id = 0;
   uint64_t fpga_timestamp = 0;
   uint16_t timestamp_a = 0, timestamp_b = 0, cell_info = 0;
@@ -64,7 +64,8 @@ void TotemTimingTestBeamRawToDigi::produce(edm::Event& iEvent, const edm::EventS
 
   // add a new DetId-indexed collection ("vector"-like)
   edm::DetSet<TotemTimingDigi> digis_for_detid = digis->find_or_insert(detid);
-  // inline addition of a new TotemTimingDigi (see https://github.com/cms-sw/cmssw/blob/master/DataFormats/CTPPSDigi/interface/TotemTimingDigi.h#L21-L27)
+  // inline addition of a new TotemTimingDigi
+  // (see https://github.com/cms-sw/cmssw/blob/master/DataFormats/CTPPSDigi/interface/TotemTimingDigi.h#L21-L27)
   digis_for_detid.emplace_back(hw_id, fpga_timestamp, timestamp_a, timestamp_b, cell_info, samples, evt_info);
   //}
 
@@ -77,26 +78,28 @@ void TotemTimingTestBeamRawToDigi::fillDescriptions(edm::ConfigurationDescriptio
   // validator for a mapping entry in the python configuration
   edm::ParameterSetDescription idmap_valid;
   idmap_valid.add<unsigned int>("treeChId", 0)->setComment("HW id as retrieved from tree");
-  idmap_valid.add<unsigned int>("detId", 0)->setComment("mapped TotemTimingDetId for this channel");
+  idmap_valid.add<unsigned int>("detId", TotemTimingDetId(0, 2))->setComment("mapped TotemTimingDetId for this channel");
 
   std::vector<edm::ParameterSet> idmap_default;
   // add three channels mapping as an example (can be done in python configuration directly)
-  // TotemTimingDetId(arm, station, rp, plane, channel) (see https://github.com/cms-sw/cmssw/blob/master/DataFormats/CTPPSDetId/interface/TotemTimingDetId.h#L36)
+  // TotemTimingDetId(arm, station, rp, plane, channel)
+  // (see https://github.com/cms-sw/cmssw/blob/master/DataFormats/CTPPSDetId/interface/TotemTimingDetId.h#L36)
 
   // tree channel 0 -> plane 0, channel 0
   auto& ch0 = idmap_default.emplace_back();
   ch0.addParameter<unsigned int>("treeChId", 0);
-  ch0.addParameter<unsigned int>("detId", TotemTimingDetId(0, 0, 0, 0, 0));
+  ch0.addParameter<unsigned int>("detId", TotemTimingDetId(0, 2, 0, 0, 0));
   // tree channel 1 -> plane 0, channel 1
   auto& ch1 = idmap_default.emplace_back();
   ch1.addParameter<unsigned int>("treeChId", 1);
-  ch1.addParameter<unsigned int>("detId", TotemTimingDetId(0, 0, 0, 0, 1));
+  ch1.addParameter<unsigned int>("detId", TotemTimingDetId(0, 2, 0, 0, 1));
   // tree channel 2 -> plane 1, channel 0
   auto& ch2 = idmap_default.emplace_back();
   ch2.addParameter<unsigned int>("treeChId", 2);
-  ch2.addParameter<unsigned int>("detId", TotemTimingDetId(0, 0, 0, 1, 0));
+  ch2.addParameter<unsigned int>("detId", TotemTimingDetId(0, 2, 0, 1, 0));
 
-  // add this configuration (and the validator) to generate automatically a python configuration (see https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideConfigurationValidationAndHelp)
+  // add this configuration (and the validator) to generate automatically a python configuration
+  // (see https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideConfigurationValidationAndHelp)
   desc.addVPSet("idsMapping", idmap_valid, idmap_default);
 
   descriptions.add("totemTimingTestBeamDigis", desc);
