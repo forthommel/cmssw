@@ -28,6 +28,7 @@
 #include "RecoPPS/Local/interface/TotemT2RecHitProducerAlgorithm.h"
 
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
+#include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "CondFormats/DataRecord/interface/PPSTimingCalibrationRcd.h"
 
 class TotemT2RecHitProducer : public edm::stream::EDProducer<> {
