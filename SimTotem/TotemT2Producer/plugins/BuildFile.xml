@@ -1,9 +1,12 @@
 <use name="DataFormats/CTPPSDetId"/>
 <use name="DataFormats/TotemReco"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
 <use name="FWCore/Utilities"/>
 <use name="Geometry/ForwardGeometry"/>
+<use name="SimDataFormats/GeneratorProducts"/>
 <use name="dd4hep"/>
+<use name="HepMC"/>
 <use name="root"/>
-<library name="SimTotemTotemT2ProducerPlugins" file="*.cc">
-  <flags EDM_PLUGIN="1"/>
-</library>
+<flags EDM_PLUGIN="1"/>
