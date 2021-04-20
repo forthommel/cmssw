@@ -5,7 +5,7 @@
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/Utilities"/>
 <use name="Geometry/ForwardGeometry"/>
-<use name="SimDataFormats/CrossingFrame"/>
+<use name="SimDataFormats/CaloHit"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="SimGeneral/MixingModule"/>
 <use name="dd4hep"/>
