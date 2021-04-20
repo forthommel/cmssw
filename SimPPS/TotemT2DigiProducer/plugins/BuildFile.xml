@@ -1,6 +1,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/PluginManager"/>
-<use name="SimDataFormats/GeneratorProducts"/>
-<use name="HepMC"/>
+<use name="SimGeneral/MixingModule"/>
+<use name="SimDataFormats/CrossingFrame"/>
+<use name="DataFormats/TotemReco"/>
 <flags EDM_PLUGIN="1"/>
