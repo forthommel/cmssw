@@ -2,6 +2,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/PluginManager"/>
 <use name="SimGeneral/MixingModule"/>
-<use name="SimDataFormats/CrossingFrame"/>
+<use name="SimDataFormats/CaloHit"/>
 <use name="DataFormats/TotemReco"/>
 <flags EDM_PLUGIN="1"/>

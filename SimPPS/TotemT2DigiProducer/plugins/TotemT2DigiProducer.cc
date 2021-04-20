@@ -20,8 +20,7 @@
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
-#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/TotemReco/interface/TotemT2Digi.h"
@@ -38,15 +37,14 @@ private:
   void accumulate(const PileUpEventPrincipal&, const edm::EventSetup&, const edm::StreamID&) override;
   void finalizeEvent(edm::Event&, const edm::EventSetup&) override;
 
-  using InputColl = CrossingFrame<PSimHit>;
-  void accumulateHits(const InputColl&, int);
+  void accumulateHits(const std::vector<PCaloHit>&, int);
 
   edm::InputTag prodTag_;
 };
 
 TotemT2DigiProducer::TotemT2DigiProducer(const edm::ParameterSet& iConfig, edm::ProducesCollector pColl, edm::ConsumesCollector& iCons) :
   prodTag_{iConfig.getParameter<edm::InputTag>("hitsCollection")} {
-  iCons.consumes<InputColl>(prodTag_);
+  iCons.consumes<std::vector<PCaloHit> >(prodTag_);
   pColl.produces<edm::DetSetVector<TotemT2Digi>>();
 }
 
@@ -54,15 +52,15 @@ void TotemT2DigiProducer::initializeEvent(const edm::Event&, const edm::EventSet
 }
 
 void TotemT2DigiProducer::accumulate(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<InputColl> crossFrameIn;
-  iEvent.getByLabel(prodTag_, crossFrameIn);
-  accumulateHits(*crossFrameIn, 0);
+  edm::Handle<std::vector<PCaloHit> > hHits;
+  iEvent.getByLabel(prodTag_, hHits);
+  accumulateHits(*hHits, 0);
 }
 
 void TotemT2DigiProducer::accumulate(const PileUpEventPrincipal& iPU, const edm::EventSetup& iSetup, const edm::StreamID& iStream) {
-  edm::Handle<InputColl> crossFrameIn;
-  iPU.getByLabel(prodTag_, crossFrameIn);
-  accumulateHits(*crossFrameIn, iPU.bunchCrossing());
+  edm::Handle<std::vector<PCaloHit> > hHits;
+  iPU.getByLabel(prodTag_, hHits);
+  accumulateHits(*hHits, iPU.bunchCrossing());
 }
 
 void TotemT2DigiProducer::finalizeEvent(edm::Event& iEvent, const edm::EventSetup&) {
@@ -74,7 +72,7 @@ void TotemT2DigiProducer::finalizeEvent(edm::Event& iEvent, const edm::EventSetu
   iEvent.put(std::move(digis));
 }
 
-void TotemT2DigiProducer::accumulateHits(const TotemT2DigiProducer::InputColl& input, int bx) {
+void TotemT2DigiProducer::accumulateHits(const std::vector<PCaloHit>& input, int bx) {
 
 }
 
