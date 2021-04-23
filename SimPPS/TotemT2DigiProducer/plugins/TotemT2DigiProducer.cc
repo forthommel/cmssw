@@ -25,6 +25,10 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/TotemReco/interface/TotemT2Digi.h"
 
+#include "SimPPS/TotemT2DigiProducer/interface/TotemT2TrivialDigitiserAlgorithm.h"
+
+#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
+
 class TotemT2DigiProducer : public DigiAccumulatorMixMod {
 public:
   explicit TotemT2DigiProducer(const edm::ParameterSet&, edm::ProducesCollector, edm::ConsumesCollector&);
@@ -32,48 +36,54 @@ public:
   //static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void initializeEvent(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void initializeEvent(const edm::Event&, const edm::EventSetup&) override {}
   void accumulate(const edm::Event&, const edm::EventSetup&) override;
   void accumulate(const PileUpEventPrincipal&, const edm::EventSetup&, const edm::StreamID&) override;
   void finalizeEvent(edm::Event&, const edm::EventSetup&) override;
 
-  void accumulateHits(const std::vector<PCaloHit>&, int);
-
   edm::InputTag prodTag_;
+  std::unique_ptr<TotemT2DigitiserAlgorithm> digitiser_;
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geometryToken_;
 };
 
 TotemT2DigiProducer::TotemT2DigiProducer(const edm::ParameterSet& iConfig, edm::ProducesCollector pColl, edm::ConsumesCollector& iCons) :
   prodTag_{iConfig.getParameter<edm::InputTag>("hitsCollection")} {
   iCons.consumes<std::vector<PCaloHit> >(prodTag_);
+  iCons.esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>();
   pColl.produces<edm::DetSetVector<TotemT2Digi>>();
+
+  const auto algo = iConfig.getParameter<std::string>("algo");
+  if (algo == "trivial")
+    digitiser_ = std::make_unique<TotemT2TrivialDigitiserAlgorithm>(iConfig);
 }
 
-void TotemT2DigiProducer::initializeEvent(const edm::Event&, const edm::EventSetup&) {
+void TotemT2DigiProducer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
+  edm::ESHandle<CTPPSGeometry> hGeom = iSetup.getHandle(geometryToken_);
+
+  digitiser_->setRunConditions(*hGeom);
 }
 
 void TotemT2DigiProducer::accumulate(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<std::vector<PCaloHit> > hHits;
   iEvent.getByLabel(prodTag_, hHits);
-  accumulateHits(*hHits, 0);
+  digitiser_->addHits(*hHits, 0);
 }
 
 void TotemT2DigiProducer::accumulate(const PileUpEventPrincipal& iPU, const edm::EventSetup& iSetup, const edm::StreamID& iStream) {
   edm::Handle<std::vector<PCaloHit> > hHits;
   iPU.getByLabel(prodTag_, hHits);
-  accumulateHits(*hHits, iPU.bunchCrossing());
+  digitiser_->addHits(*hHits, iPU.bunchCrossing());
 }
 
 void TotemT2DigiProducer::finalizeEvent(edm::Event& iEvent, const edm::EventSetup&) {
   // output digis
   auto digis = std::make_unique<edm::DetSetVector<TotemT2Digi>>();
 
-  //...
+  digitiser_->run(*digis);
+  digitiser_->reset();
 
   iEvent.put(std::move(digis));
-}
-
-void TotemT2DigiProducer::accumulateHits(const std::vector<PCaloHit>& input, int bx) {
-
 }
 
 /*void TotemT2DigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
