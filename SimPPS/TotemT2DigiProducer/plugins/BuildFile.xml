@@ -4,4 +4,7 @@
 <use name="SimGeneral/MixingModule"/>
 <use name="SimDataFormats/CaloHit"/>
 <use name="DataFormats/TotemReco"/>
+<use name="SimPPS/TotemT2DigiProducer"/>
+<use name="Geometry/Records"/>
+<use name="dd4hep"/>
 <flags EDM_PLUGIN="1"/>
