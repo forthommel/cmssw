@@ -5,4 +5,5 @@
 <use name="Geometry/CaloTopology"/>
 <use name="DataFormats/HcalDetId"/>
 <use name="FWCore/MessageLogger"/>
+<use name="Geometry/VeryForwardGeometryBuilder"/>
 <use name="clhep"/>
