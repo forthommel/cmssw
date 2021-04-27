@@ -50,6 +50,7 @@ TotemT2DQMSource::TotemT2DQMSource(const edm::ParameterSet& iConfig)
 }
 
 void TotemT2DQMSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+  const auto& geom = iSetup.getData(geometryRunToken_);
 }
 
 void TotemT2DQMSource::bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) {}
