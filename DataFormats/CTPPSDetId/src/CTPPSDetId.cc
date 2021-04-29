@@ -1,9 +1,9 @@
 /****************************************************************************
  *
  * This is a part of TOTEM offline software.
- * Authors: 
+ * Authors:
  *	Hubert Niewiadomski
- *	Jan Kašpar (jan.kaspar@gmail.com) 
+ *	Jan Kašpar (jan.kaspar@gmail.com)
  *
  ****************************************************************************/
 
@@ -47,7 +47,7 @@ CTPPSDetId::CTPPSDetId(uint32_t id) : DetId(id) {
 CTPPSDetId::CTPPSDetId(uint32_t SubDet, uint32_t Arm, uint32_t Station, uint32_t RomanPot)
     : DetId(DetId::VeryForward, SubDet) {
   if (SubDet != sdTrackingStrip && SubDet != sdTrackingPixel && SubDet != sdTimingDiamond &&
-      SubDet != sdTimingFastSilicon) {
+      SubDet != sdTimingFastSilicon && SubDet != sdTotemT2) {
     throw cms::Exception("InvalidDetId") << "CTPPSDetId ctor: invalid sub-detector " << SubDet << ".";
   }
 
