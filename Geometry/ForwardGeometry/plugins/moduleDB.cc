@@ -14,8 +14,3 @@ DEFINE_FWK_EVENTSETUP_MODULE(ZdcGeometryFromDBEP);
 typedef CaloGeometryDBEP<CastorGeometry, CaloGeometryDBReader> CastorGeometryFromDBEP;
 
 DEFINE_FWK_EVENTSETUP_MODULE(CastorGeometryFromDBEP);
-
-#include "Geometry/ForwardGeometry/interface/TotemGeometry.h"
-#include "FWCore/Utilities/interface/typelookup.h"
-
-TYPELOOKUP_DATA_REG(TotemGeometry);
