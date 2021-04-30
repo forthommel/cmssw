@@ -5,4 +5,3 @@ TotemT2TrivialDigitiserAlgorithm::TotemT2TrivialDigitiserAlgorithm(const edm::Pa
     : TotemT2DigitiserAlgorithm(iConfig) {}
 
 void TotemT2TrivialDigitiserAlgorithm::run(edm::DetSetVector<TotemT2Digi>&) {}
-

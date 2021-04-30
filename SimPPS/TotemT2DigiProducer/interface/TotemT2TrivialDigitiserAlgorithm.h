@@ -11,7 +11,7 @@ public:
   void run(edm::DetSetVector<TotemT2Digi>&) override;
 
 private:
-  std::unique_ptr<reco::FormulaEvaluator> tf_; ///< Q-to-timing transfer function
+  std::unique_ptr<reco::FormulaEvaluator> tf_;  ///< Q-to-timing transfer function
 };
 
 #endif
