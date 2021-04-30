@@ -47,9 +47,11 @@ private:
   edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geometryToken_;
 };
 
-TotemT2DigiProducer::TotemT2DigiProducer(const edm::ParameterSet& iConfig, edm::ProducesCollector pColl, edm::ConsumesCollector& iCons) :
-  prodTag_{iConfig.getParameter<edm::InputTag>("hitsCollection")} {
-  iCons.consumes<std::vector<PCaloHit> >(prodTag_);
+TotemT2DigiProducer::TotemT2DigiProducer(const edm::ParameterSet& iConfig,
+                                         edm::ProducesCollector pColl,
+                                         edm::ConsumesCollector& iCons)
+    : prodTag_{iConfig.getParameter<edm::InputTag>("hitsCollection")} {
+  iCons.consumes<std::vector<PCaloHit>>(prodTag_);
   iCons.esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>();
   pColl.produces<edm::DetSetVector<TotemT2Digi>>();
 
@@ -65,13 +67,15 @@ void TotemT2DigiProducer::beginRun(const edm::Run&, const edm::EventSetup& iSetu
 }
 
 void TotemT2DigiProducer::accumulate(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<std::vector<PCaloHit> > hHits;
+  edm::Handle<std::vector<PCaloHit>> hHits;
   iEvent.getByLabel(prodTag_, hHits);
   digitiser_->addHits(*hHits, 0);
 }
 
-void TotemT2DigiProducer::accumulate(const PileUpEventPrincipal& iPU, const edm::EventSetup& iSetup, const edm::StreamID& iStream) {
-  edm::Handle<std::vector<PCaloHit> > hHits;
+void TotemT2DigiProducer::accumulate(const PileUpEventPrincipal& iPU,
+                                     const edm::EventSetup& iSetup,
+                                     const edm::StreamID& iStream) {
+  edm::Handle<std::vector<PCaloHit>> hHits;
   iPU.getByLabel(prodTag_, hHits);
   digitiser_->addHits(*hHits, iPU.bunchCrossing());
 }
