@@ -17,14 +17,18 @@ class TotemGeometry {
 public:
   TotemGeometry(const DetGeomDesc*);
 
-  bool addT2Sector(const TotemT2DetId&, const DetGeomDesc*&);
   bool addT2Plane(const TotemT2DetId&, const DetGeomDesc*&);
   bool addT2Tile(const TotemT2DetId&, const DetGeomDesc*&);
 
-  const DetGeomDesc*& tile(const TotemT2DetId&) const;
+  const DetGeomDesc* plane(const TotemT2DetId&) const;
+  const DetGeomDesc* tile(const TotemT2DetId&) const;
 
 private:
-  std::map<CTPPSDetId, const DetGeomDesc*&> nt2_tiles_;
+  void browse(const DetGeomDesc*&, bool in_t2);
+  void browseT2(const DetGeomDesc*&);
+
+  std::map<CTPPSDetId, const DetGeomDesc*> nt2_planes_;
+  std::map<CTPPSDetId, const DetGeomDesc*> nt2_tiles_;
 };
 
 #endif
