@@ -1,23 +1,22 @@
 #ifndef Geometry_ForwardGeometry_TotemT2Tile_h
 #define Geometry_ForwardGeometry_TotemT2Tile_h
 
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
 
-class TotemT2Tile : public CaloCellGeometry {
+#include <DD4hep/DD4hepUnits.h>
+
+class TotemT2Tile {
 public:
   TotemT2Tile();
-  explicit TotemT2Tile(const GlobalPoint&, CornersMgr*, const DetGeomDesc*);
-  ~TotemT2Tile() override;
+  explicit TotemT2Tile(const DetGeomDesc*);
+  ~TotemT2Tile();
 
-  static CCGFloat* computeParamsFromDetGeomDesc(const DetGeomDesc*);
-
-  enum Parameters { P_RAD = 0, P_LEN_MIN, P_LEN_MAX, P_THICK, P_ANG, P_NUM_PARAMS };
+  const GlobalPoint& centre() const { return centre_; }
 
 private:
-  void initCorners(CornersVec&) override;
-  void vocalCorners(CaloCellGeometry::Pt3DVec&, const CCGFloat*, CaloCellGeometry::Pt3D&) const override {}
-  CCGFloat* dgd_;
+  dd4hep::PlacedVolume vol_;
+  GlobalPoint centre_;
 };
 
 #endif
