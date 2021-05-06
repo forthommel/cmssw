@@ -7,7 +7,6 @@
 ****************************************************************************/
 
 #include "Geometry/ForwardGeometry/interface/TotemGeometry.h"
-#include "Geometry/ForwardGeometry/interface/TotemT2Tile.h"
 
 TotemGeometry::TotemGeometry(const DetGeomDesc* dgd) {
   std::deque<const DetGeomDesc*> buffer;
@@ -59,12 +58,8 @@ const DetGeomDesc* TotemGeometry::plane(const TotemT2DetId& detid) const { retur
 bool TotemGeometry::addT2Tile(const TotemT2DetId& detid, const DetGeomDesc*& dgd) {
   if (nt2_tiles_.count(detid) != 0)
     return false;
-  TotemT2Tile tile(
-      GlobalPoint{(float)dgd->translation().x(), (float)dgd->translation().y(), (float)dgd->translation().z()},
-      nullptr,
-      dgd);
-  nt2_tiles_[detid] = dgd;
+  nt2_tiles_[detid] = TotemT2Tile(dgd);
   return true;
 }
 
-const DetGeomDesc* TotemGeometry::tile(const TotemT2DetId& detid) const { return nt2_tiles_.at(detid); }
+const TotemT2Tile& TotemGeometry::tile(const TotemT2DetId& detid) const { return nt2_tiles_.at(detid); }
