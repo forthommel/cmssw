@@ -23,9 +23,15 @@ const uint32_t CTPPSDetId::startRPBit = 19, CTPPSDetId::maskRP = 0x7, CTPPSDetId
                CTPPSDetId::lowMaskRP = 0x7FFFF;
 
 const string CTPPSDetId::subDetectorNames[] = {
-    "", "", "", "ctpps_tr_strip", "ctpps_tr_pixel", "ctpps_ti_diamond", "ctpps_ti_fastsilicon"};
-const string CTPPSDetId::subDetectorPaths[] = {
-    "", "", "", "CTPPS/TrackingStrip", "CTPPS/TrackingPixel", "CTPPS/TimingDiamond", "CTPPS/TimingFastSilicon"};
+    "", "", "", "ctpps_tr_strip", "ctpps_tr_pixel", "ctpps_ti_diamond", "ctpps_ti_fastsilicon", "totem_t2"};
+const string CTPPSDetId::subDetectorPaths[] = {"",
+                                               "",
+                                               "",
+                                               "CTPPS/TrackingStrip",
+                                               "CTPPS/TrackingPixel",
+                                               "CTPPS/TimingDiamond",
+                                               "CTPPS/TimingFastSilicon",
+                                               "TotemT2"};
 const string CTPPSDetId::armNames[] = {"45", "56"};
 const string CTPPSDetId::stationNames[] = {"210", "220cyl", "220"};
 const string CTPPSDetId::rpNames[] = {"nr_tp", "nr_bt", "nr_hr", "fr_hr", "fr_tp", "fr_bt", "cyl_hr"};
