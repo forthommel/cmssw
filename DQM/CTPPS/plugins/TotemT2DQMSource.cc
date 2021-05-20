@@ -44,29 +44,41 @@ private:
       detid.armName(path, TotemT2DetId::nPath);
       detid.armName(title, TotemT2DetId::nFull);
       iBooker.setCurrentFolder(path);
-      std::cout<<detid<<"::"<<path<<"::"<<title<<std::endl;
-      digiSummaryPlot = iBooker.book2D("Arm summary (digi)",
-                                       title + " digis in station;Plane number;Tile number",
-                                       TotemT2DetId::maxPlane + 1,
-                                       -0.5,
-                                       TotemT2DetId::maxPlane + 0.5,
-                                       TotemT2DetId::maxChannel + 1,
-                                       -0.5,
-                                       TotemT2DetId::maxChannel + 0.5);
-      rechitSummaryPlot = iBooker.book2D("Arm summary (rechit)",
-                                         title + " rechits in station;Plane number;Tile number",
+      digiOccupancyPlot = iBooker.book2D("Arm occupancy (digi)",
+                                         title + " digis in station;Plane number;Tile number",
                                          TotemT2DetId::maxPlane + 1,
                                          -0.5,
                                          TotemT2DetId::maxPlane + 0.5,
                                          TotemT2DetId::maxChannel + 1,
                                          -0.5,
                                          TotemT2DetId::maxChannel + 0.5);
+      rechitOccupancyPlot = iBooker.book2D("Arm occupancy (rechit)",
+                                           title + " rechits in station;Plane number;Tile number",
+                                           TotemT2DetId::maxPlane + 1,
+                                           -0.5,
+                                           TotemT2DetId::maxPlane + 0.5,
+                                           TotemT2DetId::maxChannel + 1,
+                                           -0.5,
+                                           TotemT2DetId::maxChannel + 0.5);
     }
     //std::unordered_map<unsigned int, MonitorElement*> activity_per_bx;
-    MonitorElement* digiSummaryPlot = nullptr;
-    MonitorElement* rechitSummaryPlot = nullptr;
+    MonitorElement* digiOccupancyPlot = nullptr;
+    MonitorElement* rechitOccupancyPlot = nullptr;
   };
   std::unordered_map<unsigned short, ArmPlots> arm_plots_;
+  struct PlanePlots {
+    PlanePlots() = default;
+    PlanePlots(DQMStore::IBooker& iBooker, const TotemT2DetId& detid) {
+      std::string path, title;
+      detid.planeName(path, TotemT2DetId::nPath);
+      detid.planeName(title, TotemT2DetId::nFull);
+      iBooker.setCurrentFolder(path);
+      rechitsPositionPlot = iBooker.book2D(
+          "Plane occupancy (rechits)", title + " rechits in plane;x (mm);y (mm)", 20, -100., 100., 20, -100., 100.);
+    }
+    MonitorElement* rechitsPositionPlot = nullptr;
+  };
+  std::unordered_map<unsigned short, PlanePlots> planes_plots_;
 };
 
 TotemT2DQMSource::TotemT2DQMSource(const edm::ParameterSet& iConfig)
@@ -83,26 +95,29 @@ void TotemT2DQMSource::bookHistograms(DQMStore::IBooker& iBooker, const edm::Run
   for (unsigned short arm = 0; arm <= TotemT2DetId::maxArm; ++arm) {
     const TotemT2DetId arm_id(arm, 0);
     arm_plots_[arm_id] = ArmPlots(iBooker, arm_id);
+    for (unsigned short pl = 0; pl <= TotemT2DetId::maxPlane; ++pl) {
+      const TotemT2DetId pl_id(arm, pl);
+      planes_plots_[pl_id] = PlanePlots(iBooker, pl_id);
+    }
   }
 }
 
 void TotemT2DQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
-  edm::Handle<edm::DetSetVector<TotemT2Digi>> hDigis;
-  iEvent.getByToken(digisToken_, hDigis);
-
-  edm::Handle<edm::DetSetVector<TotemT2RecHit>> hRechits;
-  iEvent.getByToken(rechitsToken_, hRechits);
-
-  for (const auto& digis : *hDigis) {
+  for (const auto& digis : iEvent.get(digisToken_)) {
     const TotemT2DetId detid(digis.detId());
     auto& arm_plots = arm_plots_.at(detid.armId());
-    arm_plots.digiSummaryPlot->getTH2F()->Fill(detid.plane(), detid.channel(), digis.size());
+    arm_plots.digiOccupancyPlot->getTH2F()->Fill(detid.plane(), detid.channel(), digis.size());
   }
 
-  for (const auto& rechits : *hRechits) {
+  for (const auto& rechits : iEvent.get(rechitsToken_)) {
     const TotemT2DetId detid(rechits.detId());
     auto& arm_plots = arm_plots_.at(detid.armId());
-    arm_plots.rechitSummaryPlot->getTH2F()->Fill(detid.plane(), detid.channel(), rechits.size());
+    arm_plots.rechitOccupancyPlot->getTH2F()->Fill(detid.plane(), detid.channel(), rechits.size());
+    for (const auto& rechit : rechits) {
+      auto& pl_plots = planes_plots_.at(detid.planeId());
+      pl_plots.rechitsPositionPlot->getTH2F()->Fill(rechit.centre().x(), rechit.centre().y());
+      std::cout << detid << ":" << rechit.centre().x() << "," << rechit.centre().y() << std::endl;
+    }
   }
 }
 
