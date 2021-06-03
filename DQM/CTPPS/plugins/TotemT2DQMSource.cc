@@ -79,6 +79,28 @@ private:
     MonitorElement* rechitsPositionPlot = nullptr;
   };
   std::unordered_map<unsigned short, PlanePlots> planes_plots_;
+  struct TilePlots {
+    TilePlots() = default;
+    TilePlots(DQMStore::IBooker& iBooker, const TotemT2DetId& detid) {
+      std::string path, title;
+      detid.channelName(path, TotemT2DetId::nPath);
+      detid.channelName(title, TotemT2DetId::nFull);
+      iBooker.setCurrentFolder(path);
+      rechitsMeanT0Plot = iBooker.book1D(
+          "Mean time of arrival (rechits)", title + " rechits in tile;Time of arrival (s);Entries", 20, -10., 10.);
+      rechitsTotVsT0Plot = iBooker.book2D("ToT vs. time of arrival (rechits)",
+                                          title + " rechits in tile;Time of arrival (s);Time over threshold (s)",
+                                          100,
+                                          -10.,
+                                          10.,
+                                          100,
+                                          0.,
+                                          20.);
+    }
+    MonitorElement* rechitsMeanT0Plot = nullptr;
+    MonitorElement* rechitsTotVsT0Plot = nullptr;
+  };
+  std::unordered_map<unsigned short, TilePlots> tiles_plots_;
 };
 
 TotemT2DQMSource::TotemT2DQMSource(const edm::ParameterSet& iConfig)
@@ -98,6 +120,10 @@ void TotemT2DQMSource::bookHistograms(DQMStore::IBooker& iBooker, const edm::Run
     for (unsigned short pl = 0; pl <= TotemT2DetId::maxPlane; ++pl) {
       const TotemT2DetId pl_id(arm, pl);
       planes_plots_[pl_id] = PlanePlots(iBooker, pl_id);
+      for (unsigned short tile = 0; tile <= TotemT2DetId::maxChannel; ++tile) {
+        const TotemT2DetId tile_id(arm, pl, tile);
+        tiles_plots_[tile_id] = TilePlots(iBooker, tile_id);
+      }
     }
   }
 }
@@ -117,6 +143,9 @@ void TotemT2DQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup&)
       auto& pl_plots = planes_plots_.at(detid.planeId());
       pl_plots.rechitsPositionPlot->getTH2F()->Fill(rechit.centre().x(), rechit.centre().y());
       std::cout << detid << ":" << rechit.centre().x() << "," << rechit.centre().y() << std::endl;
+      auto& tile_plots = tiles_plots_.at(detid);
+      tile_plots.rechitsMeanT0Plot->getTH1F()->Fill(rechit.time());
+      tile_plots.rechitsTotVsT0Plot->getTH2F()->Fill(rechit.time(), rechit.toT());
     }
   }
 }
