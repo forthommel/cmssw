@@ -1,3 +1,5 @@
+import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 # configuration for composite source of alignment, optics, ...
 from CalibPPS.ESProducers.ctppsCompositeESSource_cfi import ctppsCompositeESSource as _esComp
 from CalibPPS.ESProducers.ctppsBeamParametersFromLHCInfoESSource_cfi import ctppsBeamParametersFromLHCInfoESSource as _esLHCinfo
@@ -31,7 +33,6 @@ ctppsBeamParametersFromLHCInfoESSource = _esLHCinfo.clone(
 )
 
 ppsAssociationCutsESSource = _esAssCuts.clone()
-use_single_infinite_iov_entry(ppsAssociationCutsESSource, ac.p2016) #FIXME
 
 # direct simulation
 ctppsDirectProtonSimulation = _dirProtonSim.clone(
@@ -42,3 +43,26 @@ ctppsDirectProtonSimulation = _dirProtonSim.clone(
     produceScoringPlaneHits = cms.bool(False),
 )
 
+ppsDirectSimTask = cms.Task(
+    ctppsDirectProtonSimulation,
+)
+
+ppsDirectSim = cms.Sequence(ppsDirectSimTask)
+
+# modify according to era
+
+def _modify2016(process):
+    from CalibPPS.ESProducers.ppsAssociationCuts_non_DB_cff import use_single_infinite_iov_entry, p2016
+    use_single_infinite_iov_entry(process.ppsAssociationCutsESSource, p2016)
+
+def _modify2017(process):
+    from CalibPPS.ESProducers.ppsAssociationCuts_non_DB_cff import use_single_infinite_iov_entry, p2017
+    use_single_infinite_iov_entry(process.ppsAssociationCutsESSource, p2017)
+
+def _modify2018(process):
+    from CalibPPS.ESProducers.ppsAssociationCuts_non_DB_cff import use_single_infinite_iov_entry, p2018
+    use_single_infinite_iov_entry(process.ppsAssociationCutsESSource, p2018)
+
+modifyConfigurationStandardSequencesFor2016_ = eras.ctpps_2016.makeProcessModifier(_modify2016)
+modifyConfigurationStandardSequencesFor2017_ = eras.ctpps_2016.makeProcessModifier(_modify2017)
+modifyConfigurationStandardSequencesFor2018_ = eras.ctpps_2016.makeProcessModifier(_modify2018)
