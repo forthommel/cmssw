@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Validation.CTPPS.simu_config.base_cff import *
-
+from SimPPS.DirectSimProducer.base_cff import *
 import CalibPPS.ESProducers.ppsAssociationCuts_non_DB_cff as ac
 ac.use_single_infinite_iov_entry(ac.ppsAssociationCutsESSource, ac.p2017)
 ppsAssociationCutsESSource = ac.ppsAssociationCutsESSource
@@ -48,6 +47,6 @@ rpIds = cms.PSet(
 )
 
 # default list of profiles
-from Validation.CTPPS.simu_config.profile_2017_preTS2_cff import profile_2017_preTS2
-from Validation.CTPPS.simu_config.profile_2017_postTS2_cff import profile_2017_postTS2
+from SimPPS.DirectSimProducer.profile_2017_preTS2_cff import profile_2017_preTS2
+from SimPPS.DirectSimProducer.profile_2017_postTS2_cff import profile_2017_postTS2
 ctppsCompositeESSource.periods = [profile_2017_postTS2, profile_2017_preTS2]

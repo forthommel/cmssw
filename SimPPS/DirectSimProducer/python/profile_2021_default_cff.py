@@ -1,14 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-from Validation.CTPPS.simu_config.year_2018_cff import *
+from SimPPS.DirectSimProducer.year_2021_cff import *
 
-alignmentFile = "Validation/CTPPS/alignment/2018_preTS1.xml"
+alignmentFile = "Validation/CTPPS/alignment/2021.xml"
 
-profile_2018_preTS1 = profile_base_2018.clone(
-  L_int = 18.488297964,
+profile_2021_default = profile_base_2021.clone(
+  L_int = 1,
 
   ctppsLHCInfo = dict(
-    xangleBetaStarHistogramObject = "2018_preTS1/h2_betaStar_vs_xangle"
+    xangleBetaStarHistogramObject = "2021/h2_betaStar_vs_xangle"
   ),
 
   ctppsRPAlignmentCorrectionsDataXML = dict(
@@ -17,7 +17,6 @@ profile_2018_preTS1 = profile_base_2018.clone(
   ),
 
   ctppsDirectSimuData = dict(
-    # timing not available in this period
     timeResolutionDiamonds45 = "0.200",
     timeResolutionDiamonds56 = "0.200"
   )

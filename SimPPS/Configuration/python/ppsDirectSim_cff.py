@@ -6,7 +6,7 @@ from CalibPPS.ESProducers.ctppsBeamParametersFromLHCInfoESSource_cfi import ctpp
 from CalibPPS.ESProducers.ppsAssociationCutsESSource_cfi import ppsAssociationCutsESSource as _esAssCuts
 from CalibPPS.ESProducers.ppsAssociationCuts_non_DB_cff import use_single_infinite_iov_entry
 # direct proton simulation
-from Validation.CTPPS.ctppsDirectProtonSimulation_cfi import ctppsDirectProtonSimulation as _dirProtonSim
+from SimPPS.DirectSimProducer.ppsDirectProtonSimulation_cfi import ppsDirectProtonSimulation as _dirProtonSim
 
 ctppsCompositeESSource = _esComp.clone(
     generateEveryNEvents = 100,
@@ -35,7 +35,7 @@ ctppsBeamParametersFromLHCInfoESSource = _esLHCinfo.clone(
 ppsAssociationCutsESSource = _esAssCuts.clone()
 
 # direct simulation
-ctppsDirectProtonSimulation = _dirProtonSim.clone(
+ppsDirectProtonSimulation = _dirProtonSim.clone(
     hepMCTag = cms.InputTag('beamDivergenceVtxGenerator'),
     pitchStrips = cms.double(66.e-3 * 12 / 19), # effective value to reproduce real RP resolution
     pitchPixelsHor = cms.double(5.e-3),
@@ -44,7 +44,7 @@ ctppsDirectProtonSimulation = _dirProtonSim.clone(
 )
 
 ppsDirectSimTask = cms.Task(
-    ctppsDirectProtonSimulation,
+    ppsDirectProtonSimulation,
 )
 
 ppsDirectSim = cms.Sequence(ppsDirectSimTask)

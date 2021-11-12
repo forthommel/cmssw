@@ -4,8 +4,8 @@ from Configuration.Eras.Era_$ERA_cff import *
 process = cms.Process('CTPPSTest', $ERA)
 
 # load config
-import Validation.CTPPS.simu_config.year_$CONFIG_cff as config
-process.load("Validation.CTPPS.simu_config.year_$CONFIG_cff")
+import SimPPS.DirectSimProducer.year_$CONFIG_cff as config
+process.load("SimPPS.DirectSimProducer.year_$CONFIG_cff")
 
 # minimal logger settings
 process.MessageLogger = cms.Service("MessageLogger",
@@ -55,7 +55,7 @@ process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstruc
 process.p = cms.Path(
   process.generator
   * process.beamDivergenceVtxGenerator
-  * process.ctppsDirectProtonSimulation
+  * process.ppsDirectProtonSimulation
 
   * process.reco_local
   * process.ctppsProtons

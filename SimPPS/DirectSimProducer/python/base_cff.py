@@ -77,7 +77,7 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
   sourceSeed = cms.PSet(initialSeed = cms.untracked.uint32(98765)),
   generator = cms.PSet(initialSeed = cms.untracked.uint32(98766)),
   beamDivergenceVtxGenerator = cms.PSet(initialSeed = cms.untracked.uint32(3849)),
-  ctppsDirectProtonSimulation = cms.PSet(initialSeed = cms.untracked.uint32(4981))
+  ppsDirectProtonSimulation = cms.PSet(initialSeed = cms.untracked.uint32(4981))
 )
 
 # default source
@@ -96,17 +96,17 @@ generator.theta_y_sigma = 60E-6
 from IOMC.EventVertexGenerators.beamDivergenceVtxGenerator_cfi import *
 
 # direct simulation
-from Validation.CTPPS.ctppsDirectProtonSimulation_cfi import *
-ctppsDirectProtonSimulation.verbosity = 0
-ctppsDirectProtonSimulation.hepMCTag = cms.InputTag('beamDivergenceVtxGenerator')
-ctppsDirectProtonSimulation.roundToPitch = True
-ctppsDirectProtonSimulation.pitchStrips = 66E-3 * 12 / 19 # effective value to reproduce real RP resolution
-ctppsDirectProtonSimulation.pitchPixelsHor = 50E-3
-ctppsDirectProtonSimulation.pitchPixelsVer = 80E-3
-ctppsDirectProtonSimulation.useEmpiricalApertures = True
-ctppsDirectProtonSimulation.produceHitsRelativeToBeam = True
-ctppsDirectProtonSimulation.produceScoringPlaneHits = False
-ctppsDirectProtonSimulation.produceRecHits = True
+from SimPPS.DirectSimProducer.ppsDirectProtonSimulation_cfi import *
+ppsDirectProtonSimulation.verbosity = 0
+ppsDirectProtonSimulation.hepMCTag = cms.InputTag('beamDivergenceVtxGenerator')
+ppsDirectProtonSimulation.roundToPitch = True
+ppsDirectProtonSimulation.pitchStrips = 66E-3 * 12 / 19 # effective value to reproduce real RP resolution
+ppsDirectProtonSimulation.pitchPixelsHor = 50E-3
+ppsDirectProtonSimulation.pitchPixelsVer = 80E-3
+ppsDirectProtonSimulation.useEmpiricalApertures = True
+ppsDirectProtonSimulation.produceHitsRelativeToBeam = True
+ppsDirectProtonSimulation.produceScoringPlaneHits = False
+ppsDirectProtonSimulation.produceRecHits = True
 
 # local reconstruction
 from CalibPPS.ESProducers.ppsTopology_cff import *
@@ -116,9 +116,9 @@ from RecoPPS.Local.ctppsPixelLocalReconstruction_cff import *
 from RecoPPS.Local.ctppsDiamondLocalReconstruction_cff import *
 from RecoPPS.Local.ctppsLocalTrackLiteProducer_cff import *
 
-totemRPUVPatternFinder.tagRecHit = cms.InputTag('ctppsDirectProtonSimulation')
-ctppsPixelLocalTracks.tag = cms.InputTag('ctppsDirectProtonSimulation')
-ctppsDiamondLocalTracks.recHitsTag = cms.InputTag('ctppsDirectProtonSimulation')
+totemRPUVPatternFinder.tagRecHit = cms.InputTag('ppsDirectProtonSimulation')
+ctppsPixelLocalTracks.tag = cms.InputTag('ppsDirectProtonSimulation')
+ctppsDiamondLocalTracks.recHitsTag = cms.InputTag('ppsDirectProtonSimulation')
 
 ctppsLocalTrackLiteProducer.includeDiamonds = False
 
@@ -140,7 +140,7 @@ def SetSmearingLevel1(obj):
 def SetLevel1(process):
   SetSmearingLevel1(process.ctppsBeamParametersFromLHCInfoESSource)
 
-  process.ctppsDirectProtonSimulation.roundToPitch = False
+  process.ppsDirectProtonSimulation.roundToPitch = False
 
 def SetSmearingLevel2(obj):
   obj.beamDivX45 = 0E-6
@@ -151,10 +151,10 @@ def SetSmearingLevel2(obj):
 def SetLevel2(process):
   SetSmearingLevel2(process.ctppsBeamParametersFromLHCInfoESSource)
 
-  process.ctppsDirectProtonSimulation.roundToPitch = False
+  process.ppsDirectProtonSimulation.roundToPitch = False
 
 def SetLevel3(process):
-  process.ctppsDirectProtonSimulation.roundToPitch = False
+  process.ppsDirectProtonSimulation.roundToPitch = False
 
 def SetLevel4(process):
   pass
