@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Validation.CTPPS.simu_config.year_2016_cff import *
+from SimPPS.DirectSimProducer.year_2016_cff import *
 
 from CalibPPS.ESProducers.ctppsOpticalFunctions_non_DB_cff import optics_2016_postTS2 as selected_optics
 

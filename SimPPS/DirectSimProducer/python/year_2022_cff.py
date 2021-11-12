@@ -1,15 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-from Validation.CTPPS.simu_config.base_cff import *
-
+from SimPPS.DirectSimProducer.base_cff import *
 import CalibPPS.ESProducers.ppsAssociationCuts_non_DB_cff as ac
-ac.use_single_infinite_iov_entry(ac.ppsAssociationCutsESSource, ac.p2021)
+ac.use_single_infinite_iov_entry(ac.ppsAssociationCutsESSource, ac.p2022)
 ppsAssociationCutsESSource = ac.ppsAssociationCutsESSource
 
-from CalibPPS.ESProducers.ctppsOpticalFunctions_non_DB_cff import optics_2021 as selected_optics
+from CalibPPS.ESProducers.ctppsOpticalFunctions_non_DB_cff import optics_2022 as selected_optics
 
-# base profile settings for 2021
-profile_base_2021 = profile_base.clone(
+# base profile settings for 2022
+profile_base_2022 = profile_base.clone(
   ctppsLHCInfo = dict(
     beamEnergy = 7000
   ),
@@ -18,7 +17,7 @@ profile_base_2021 = profile_base.clone(
     opticalFunctions = selected_optics.opticalFunctions,
     scoringPlanes = selected_optics.scoringPlanes,
   ),
- 
+
   ctppsDirectSimuData = dict(
     empiricalAperture45 = cms.string("1E3*([xi] - 0.20)"),
     empiricalAperture56 = cms.string("1E3*([xi] - 0.20)")
@@ -26,10 +25,9 @@ profile_base_2021 = profile_base.clone(
 )
 
 # adjust basic settings
-generator.energy = profile_base_2021.ctppsLHCInfo.beamEnergy
+generator.energy = profile_base_2022.ctppsLHCInfo.beamEnergy
 
-# geometry
-from Geometry.VeryForwardGeometry.geometryRPFromDD_2021_cfi import *
+from Geometry.VeryForwardGeometry.geometryRPFromDD_2022_cfi import *
 ctppsCompositeESSource.compactViewTag = ctppsGeometryESModule.compactViewTag
 del ctppsGeometryESModule # this functionality is replaced by the composite ES source
 
@@ -53,5 +51,5 @@ rpIds = cms.PSet(
 )
 
 # default list of profiles
-from Validation.CTPPS.simu_config.profile_2021_default_cff import profile_2021_default
-ctppsCompositeESSource.periods = [profile_2021_default]
+from SimPPS.DirectSimProducer.profile_2022_default_cff import profile_2022_default
+ctppsCompositeESSource.periods = [profile_2022_default]
