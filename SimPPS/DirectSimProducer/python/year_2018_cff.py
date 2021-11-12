@@ -24,23 +24,6 @@ profile_base_2018 = profile_base.clone(
   )
 )
 
-# geometry
-from Geometry.VeryForwardGeometry.commons_cff import cloneGeometry
-XMLIdealGeometryESSource_CTPPS, _ctppsGeometryESModule = cloneGeometry('Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi')
-ctppsCompositeESSource.compactViewTag = _ctppsGeometryESModule.compactViewTag
-ctppsCompositeESSource.isRun2 = _ctppsGeometryESModule.isRun2
-
-# local reconstruction
-ctppsLocalTrackLiteProducer.includeStrips = False
-ctppsLocalTrackLiteProducer.includePixels = True
-ctppsLocalTrackLiteProducer.includeDiamonds = True
-
-reco_local = cms.Sequence(
-  ctppsPixelLocalTracks
-  * ctppsDiamondLocalReconstruction
-  * ctppsLocalTrackLiteProducer
-)
-
 # RP ids
 rpIds = cms.PSet(
   rp_45_F = cms.uint32(23),
@@ -48,9 +31,3 @@ rpIds = cms.PSet(
   rp_56_N = cms.uint32(103),
   rp_56_F = cms.uint32(123)
 )
-
-# default list of profiles
-from SimPPS.DirectSimProducer.profile_2018_preTS1_cff import profile_2018_preTS1
-from SimPPS.DirectSimProducer.profile_2018_postTS2_cff import profile_2018_postTS2
-from SimPPS.DirectSimProducer.profile_2018_TS1_TS2_cff import profile_2018_TS1_TS2
-ctppsCompositeESSource.periods = [profile_2018_postTS2, profile_2018_preTS1, profile_2018_TS1_TS2]

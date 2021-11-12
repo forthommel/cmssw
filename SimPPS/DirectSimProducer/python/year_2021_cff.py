@@ -27,22 +27,6 @@ profile_base_2021 = profile_base.clone(
 # adjust basic settings
 generator.energy = profile_base_2021.ctppsLHCInfo.beamEnergy
 
-# geometry
-from Geometry.VeryForwardGeometry.geometryRPFromDD_2021_cfi import *
-ctppsCompositeESSource.compactViewTag = ctppsGeometryESModule.compactViewTag
-del ctppsGeometryESModule # this functionality is replaced by the composite ES source
-
-# local reconstruction
-ctppsLocalTrackLiteProducer.includeStrips = False
-ctppsLocalTrackLiteProducer.includePixels = True
-ctppsLocalTrackLiteProducer.includeDiamonds = True
-
-reco_local = cms.Sequence(
-  ctppsPixelLocalTracks
-  * ctppsDiamondLocalReconstruction
-  * ctppsLocalTrackLiteProducer
-)
-
 # RP ids
 rpIds = cms.PSet(
   rp_45_F = cms.uint32(23),
@@ -50,7 +34,3 @@ rpIds = cms.PSet(
   rp_56_N = cms.uint32(103),
   rp_56_F = cms.uint32(123)
 )
-
-# default list of profiles
-from SimPPS.DirectSimProducer.profile_2021_default_cff import profile_2021_default
-ctppsCompositeESSource.periods = [profile_2021_default]

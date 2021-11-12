@@ -4,8 +4,7 @@ from Configuration.Eras.Era_$ERA_cff import *
 process = cms.Process('CTPPSTest', $ERA)
 
 # load config
-import SimPPS.DirectSimProducer.year_$CONFIG_cff as config
-process.load("SimPPS.DirectSimProducer.year_$CONFIG_cff")
+process.load("SimPPS.Configuration.ppsDirectSim_cff")
 
 # minimal logger settings
 process.MessageLogger = cms.Service("MessageLogger",

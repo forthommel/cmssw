@@ -1,16 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
-# configuration for composite source of alignment, optics, ...
-from CalibPPS.ESProducers.ctppsCompositeESSource_cfi import ctppsCompositeESSource as _esComp
 from CalibPPS.ESProducers.ctppsBeamParametersFromLHCInfoESSource_cfi import ctppsBeamParametersFromLHCInfoESSource as _esLHCinfo
-from CalibPPS.ESProducers.ppsAssociationCutsESSource_cfi import ppsAssociationCutsESSource as _esAssCuts
-from CalibPPS.ESProducers.ppsAssociationCuts_non_DB_cff import use_single_infinite_iov_entry
-# direct proton simulation
 from SimPPS.DirectSimProducer.ppsDirectProtonSimulation_cfi import ppsDirectProtonSimulation as _dirProtonSim
 
-ctppsCompositeESSource = _esComp.clone(
-    generateEveryNEvents = 100,
-)
 # beam parameters as determined by PPS
 ctppsBeamParametersFromLHCInfoESSource = _esLHCinfo.clone(
     lhcInfoLabel = cms.string(""),
@@ -32,7 +24,6 @@ ctppsBeamParametersFromLHCInfoESSource = _esLHCinfo.clone(
     vtxStddevZ = cms.double(5.)
 )
 
-ppsAssociationCutsESSource = _esAssCuts.clone()
 
 # direct simulation
 ppsDirectProtonSimulation = _dirProtonSim.clone(
@@ -52,17 +43,22 @@ ppsDirectSim = cms.Sequence(ppsDirectSimTask)
 # modify according to era
 
 def _modify2016(process):
-    from CalibPPS.ESProducers.ppsAssociationCuts_non_DB_cff import use_single_infinite_iov_entry, p2016
-    use_single_infinite_iov_entry(process.ppsAssociationCutsESSource, p2016)
+    print('Process customised for 2016 PPS era')
+    process.load('SimPPS.DirectSimProducer.simPPS2016_cfi')
 
 def _modify2017(process):
-    from CalibPPS.ESProducers.ppsAssociationCuts_non_DB_cff import use_single_infinite_iov_entry, p2017
-    use_single_infinite_iov_entry(process.ppsAssociationCutsESSource, p2017)
+    print('Process customised for 2017 PPS era')
+    process.load('SimPPS.DirectSimProducer.simPPS2017_cfi')
 
 def _modify2018(process):
-    from CalibPPS.ESProducers.ppsAssociationCuts_non_DB_cff import use_single_infinite_iov_entry, p2018
-    use_single_infinite_iov_entry(process.ppsAssociationCutsESSource, p2018)
+    print('Process customised for 2018 PPS era')
+    process.load('SimPPS.DirectSimProducer.simPPS2018_cfi')
+
+def _modify2021(process):
+    print('Process customised for 2021 PPS era')
+    process.load('SimPPS.DirectSimProducer.simPPS2021_cfi')
 
 modifyConfigurationStandardSequencesFor2016_ = eras.ctpps_2016.makeProcessModifier(_modify2016)
-modifyConfigurationStandardSequencesFor2017_ = eras.ctpps_2016.makeProcessModifier(_modify2017)
-modifyConfigurationStandardSequencesFor2018_ = eras.ctpps_2016.makeProcessModifier(_modify2018)
+modifyConfigurationStandardSequencesFor2017_ = eras.ctpps_2017.makeProcessModifier(_modify2017)
+modifyConfigurationStandardSequencesFor2018_ = eras.ctpps_2018.makeProcessModifier(_modify2018)
+modifyConfigurationStandardSequencesFor2021_ = eras.ctpps_2021.makeProcessModifier(_modify2021)
