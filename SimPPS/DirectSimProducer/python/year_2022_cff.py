@@ -1,27 +1,21 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimPPS.DirectSimProducer.base_cff import *
-import CalibPPS.ESProducers.ppsAssociationCuts_non_DB_cff as ac
-ac.use_single_infinite_iov_entry(ac.ppsAssociationCutsESSource, ac.p2022)
-ppsAssociationCutsESSource = ac.ppsAssociationCutsESSource
-
+from SimPPS.DirectSimProducer.profile_base_cff import profile_base as _base
 from CalibPPS.ESProducers.ctppsOpticalFunctions_non_DB_cff import optics_2022 as selected_optics
 
 # base profile settings for 2022
-profile_base_2022 = profile_base.clone(
-  ctppsLHCInfo = dict(
-    beamEnergy = 7000
-  ),
-
-  ctppsOpticalFunctions = dict(
-    opticalFunctions = selected_optics.opticalFunctions,
-    scoringPlanes = selected_optics.scoringPlanes,
-  ),
-
-  ctppsDirectSimuData = dict(
-    empiricalAperture45 = cms.string("1E3*([xi] - 0.20)"),
-    empiricalAperture56 = cms.string("1E3*([xi] - 0.20)")
-  )
+profile_base_2022 = _base.clone(
+    ctppsLHCInfo = _base.ctppsLHCInfo.clone(
+        beamEnergy = 7000
+    ),
+    ctppsOpticalFunctions = _base.ctppsOpticalFunctions.clone(
+        opticalFunctions = selected_optics.opticalFunctions,
+        scoringPlanes = selected_optics.scoringPlanes,
+    ),
+    ctppsDirectSimuData = _base.ctppsDirectSimuData.clone(
+        empiricalAperture45 = cms.string("1E3*([xi] - 0.20)"),
+        empiricalAperture56 = cms.string("1E3*([xi] - 0.20)")
+    )
 )
 
 # adjust basic settings
