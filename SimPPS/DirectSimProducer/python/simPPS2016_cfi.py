@@ -1,6 +1,8 @@
+import FWCore.ParameterSet.Config as cms
+
 from CalibPPS.ESProducers.ctppsCompositeESSource_cfi import ctppsCompositeESSource as _esComp
-from CalibPPS.ESProducers.ppsAssociationCutsESSource_cfi import ppsAssociationCutsESSource as _esAssCuts
 from CalibPPS.ESProducers.ppsAssociationCuts_non_DB_cff import use_single_infinite_iov_entry, p2016
+from CalibPPS.ESProducers.ppsAssociationCuts_non_DB_cff import ppsAssociationCutsESSource as _esAssCuts
 from Geometry.VeryForwardGeometry.commons_cff import cloneGeometry
 from SimPPS.DirectSimProducer.profile_2016_preTS2_cff import profile_2016_preTS2
 from SimPPS.DirectSimProducer.profile_2016_postTS2_cff import profile_2016_postTS2
@@ -17,17 +19,10 @@ ctppsCompositeESSource = _esComp.clone(
     isRun2 = ctppsGeometryESModule.isRun2
 )
 
-def enableSPReco(process):
-    # local reconstruction (if scoring plane hits stored)
-    process.load('RecoPPS.Local.totemRPLocalReconstruction_cff')
-    process.load('RecoPPS.Local.ctppsLocalTrackLiteProducer_cff')
-    process.totemRPUVPatternFinder.tagRecHit = cms.InputTag('ppsDirectProtonSimulation')
-    process.ctppsLocalTrackLiteProducer.includeStrips = True
-    process.ctppsLocalTrackLiteProducer.includePixels = False
-    process.ctppsLocalTrackLiteProducer.includeDiamonds = False
-    process.reco_local = cms.Sequence(
-        process.totemRPUVPatternFinder
-        * process.totemRPLocalTrackFitter
-        * process.ctppsLocalTrackLiteProducer
-    )
+# RP ids
+rpIds = cms.PSet(
+    rp_45_F = cms.uint32(3),
+    rp_45_N = cms.uint32(2),
+    rp_56_N = cms.uint32(102),
+    rp_56_F = cms.uint32(103)
 )

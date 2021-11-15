@@ -3,9 +3,6 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_$ERA_cff import *
 process = cms.Process('CTPPSTest', $ERA)
 
-# load config
-process.load("SimPPS.Configuration.ppsDirectSim_cff")
-
 # minimal logger settings
 process.MessageLogger = cms.Service("MessageLogger",
   statistics = cms.untracked.vstring(),
@@ -14,6 +11,44 @@ process.MessageLogger = cms.Service("MessageLogger",
     threshold = cms.untracked.string('WARNING')
   )
 )
+
+# global tag
+#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+#from Configuration.AlCa.GlobalTag import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, '120X_mcRun3_2021_realistic_v6', '')
+#process.load('Geometry.VeryForwardGeometry.geometryRPFromDB_cfi')
+
+# default source
+process.source = cms.Source("EmptySource",
+    firstRun = cms.untracked.uint32(1),
+    numberEventsInLuminosityBlock = process.ctppsCompositeESSource.generateEveryNEvents
+)
+
+# particle generator
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+from Configuration.Generator.randomXiThetaGunProducer_cfi import generator as _gen
+process.generator = _gen.clone(
+    xi_max = 0.25,
+    theta_x_sigma = 60.e-6,
+    theta_y_sigma = 60.e-6
+)
+
+# beam smearing
+process.load('IOMC.EventVertexGenerators.beamDivergenceVtxGenerator_cfi')
+
+# random seeds
+process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+    sourceSeed = cms.PSet(initialSeed = cms.untracked.uint32(98765)),
+    generator = cms.PSet(initialSeed = cms.untracked.uint32(98766)),
+    beamDivergenceVtxGenerator = cms.PSet(initialSeed = cms.untracked.uint32(3849)),
+    ppsDirectProtonSimulation = cms.PSet(initialSeed = cms.untracked.uint32(4981))
+)
+
+# load config
+process.load('SimPPS.Configuration.ppsDirectSim_cff')
+process.load('RecoPPS.Configuration.recoCTPPS_cff')
+from SimPPS.DirectSimProducer.profile_base_cff import matchDirectSimOutputs
+matchDirectSimOutputs(process)
 
 # number of events
 process.maxEvents = cms.untracked.PSet(
@@ -56,7 +91,7 @@ process.p = cms.Path(
   * process.beamDivergenceVtxGenerator
   * process.ppsDirectProtonSimulation
 
-  * process.reco_local
+  * process.recoCTPPS
   * process.ctppsProtons
 
   * process.ctppsLHCInfoPlotter

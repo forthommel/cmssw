@@ -24,7 +24,6 @@ ctppsBeamParametersFromLHCInfoESSource = _esLHCinfo.clone(
     vtxStddevZ = cms.double(5.)
 )
 
-
 # direct simulation
 ppsDirectProtonSimulation = _dirProtonSim.clone(
     hepMCTag = cms.InputTag('beamDivergenceVtxGenerator'),
