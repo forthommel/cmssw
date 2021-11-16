@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimPPS.DirectSimProducer.year_2017_cff import profile_base_2017
+from SimPPS.DirectSimProducer.profile_base_2017_cff import profile_base_2017
 
 alignmentFile = "Validation/CTPPS/alignment/2017_postTS2.xml"
 

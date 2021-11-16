@@ -5,11 +5,11 @@ process = cms.Process('CTPPSTest', $ERA)
 
 # minimal logger settings
 process.MessageLogger = cms.Service("MessageLogger",
-  statistics = cms.untracked.vstring(),
-  destinations = cms.untracked.vstring('cout'),
-  cout = cms.untracked.PSet(
-    threshold = cms.untracked.string('WARNING')
-  )
+    statistics = cms.untracked.vstring(),
+    destinations = cms.untracked.vstring('cout'),
+    cout = cms.untracked.PSet(
+        threshold = cms.untracked.string('WARNING')
+    )
 )
 
 # global tag
@@ -17,6 +17,11 @@ process.MessageLogger = cms.Service("MessageLogger",
 #from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, '120X_mcRun3_2021_realistic_v6', '')
 #process.load('Geometry.VeryForwardGeometry.geometryRPFromDB_cfi')
+
+# load config
+process.load('SimPPS.Configuration.ppsDirectSim_cff')
+process.load('RecoPPS.Configuration.recoCTPPS_cff')
+process.load('RecoPPS.ProtonReconstruction.ctppsProtons_cff')
 
 # default source
 process.source = cms.Source("EmptySource",
@@ -44,15 +49,12 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
     ppsDirectProtonSimulation = cms.PSet(initialSeed = cms.untracked.uint32(4981))
 )
 
-# load config
-process.load('SimPPS.Configuration.ppsDirectSim_cff')
-process.load('RecoPPS.Configuration.recoCTPPS_cff')
 from SimPPS.DirectSimProducer.profile_base_cff import matchDirectSimOutputs
 matchDirectSimOutputs(process)
 
 # number of events
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(int($N_EVENTS))
+    input = cms.untracked.int32(int($N_EVENTS))
 )
 
 # LHCInfo plotter
@@ -61,40 +63,40 @@ process.ctppsLHCInfoPlotter.outputFile = "$OUT_LHCINFO"
 
 # track distribution plotter
 process.ctppsTrackDistributionPlotter = cms.EDAnalyzer("CTPPSTrackDistributionPlotter",
-  tagTracks = cms.InputTag("ctppsLocalTrackLiteProducer"),
+    tagTracks = cms.InputTag("ctppsLocalTrackLiteProducer"),
 
-  rpId_45_F = process.rpIds.rp_45_F,
-  rpId_45_N = process.rpIds.rp_45_N,
-  rpId_56_N = process.rpIds.rp_56_N,
-  rpId_56_F = process.rpIds.rp_56_F,
+    rpId_45_F = process.rpIds.rp_45_F,
+    rpId_45_N = process.rpIds.rp_45_N,
+    rpId_56_N = process.rpIds.rp_56_N,
+    rpId_56_F = process.rpIds.rp_56_F,
 
-  outputFile = cms.string("$OUT_TRACKS")
+    outputFile = cms.string("$OUT_TRACKS")
 )
 
 # reconstruction plotter
 process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstructionPlotter",
-  tagTracks = cms.InputTag("ctppsLocalTrackLiteProducer"),
-  tagRecoProtonsSingleRP = cms.InputTag("ctppsProtons", "singleRP"),
-  tagRecoProtonsMultiRP = cms.InputTag("ctppsProtons", "multiRP"),
+    tagTracks = cms.InputTag("ctppsLocalTrackLiteProducer"),
+    tagRecoProtonsSingleRP = cms.InputTag("ctppsProtons", "singleRP"),
+    tagRecoProtonsMultiRP = cms.InputTag("ctppsProtons", "multiRP"),
 
-  rpId_45_F = process.rpIds.rp_45_F,
-  rpId_45_N = process.rpIds.rp_45_N,
-  rpId_56_N = process.rpIds.rp_56_N,
-  rpId_56_F = process.rpIds.rp_56_F,
+    rpId_45_F = process.rpIds.rp_45_F,
+    rpId_45_N = process.rpIds.rp_45_N,
+    rpId_56_N = process.rpIds.rp_56_N,
+    rpId_56_F = process.rpIds.rp_56_F,
 
-  outputFile = cms.string("$OUT_PROTONS")
+    outputFile = cms.string("$OUT_PROTONS")
 )
 
 # processing path
 process.p = cms.Path(
-  process.generator
-  * process.beamDivergenceVtxGenerator
-  * process.ppsDirectProtonSimulation
+    process.generator
+    * process.beamDivergenceVtxGenerator
+    * process.ppsDirectProtonSimulation
 
-  * process.recoCTPPS
-  * process.ctppsProtons
+    * process.recoCTPPS
+    * process.ctppsProtons
 
-  * process.ctppsLHCInfoPlotter
-  * process.ctppsTrackDistributionPlotter
-  * process.ctppsProtonReconstructionPlotter
+    * process.ctppsLHCInfoPlotter
+    * process.ctppsTrackDistributionPlotter
+    * process.ctppsProtonReconstructionPlotter
 )
