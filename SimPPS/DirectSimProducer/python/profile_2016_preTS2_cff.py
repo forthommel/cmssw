@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimPPS.DirectSimProducer.year_2016_cff import profile_base_2016
-
+from SimPPS.DirectSimProducer.profile_base_2016_cff import profile_base_2016
 from CalibPPS.ESProducers.ctppsOpticalFunctions_non_DB_cff import optics_2016_preTS2 as selected_optics
 
 alignmentFile = "Validation/CTPPS/alignment/2016_preTS2.xml"

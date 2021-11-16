@@ -9,12 +9,12 @@ from SimPPS.DirectSimProducer.profile_2016_postTS2_cff import profile_2016_postT
 
 ppsAssociationCutsESSource = _esAssCuts.clone()
 use_single_infinite_iov_entry(ppsAssociationCutsESSource, p2016)
+# geometry (using 2017 here is OK)
 XMLIdealGeometryESSource_CTPPS, ctppsGeometryESModule = cloneGeometry('Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi')
 
 ctppsCompositeESSource = _esComp.clone(
     generateEveryNEvents = 100,
     periods = [profile_2016_postTS2, profile_2016_preTS2],
-    # geometry (using 2017 here is OK)
     compactViewTag = ctppsGeometryESModule.compactViewTag,
     isRun2 = ctppsGeometryESModule.isRun2
 )
