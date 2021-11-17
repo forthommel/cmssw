@@ -12,16 +12,9 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 )
 
-# global tag
-#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-#from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, '120X_mcRun3_2021_realistic_v6', '')
-#process.load('Geometry.VeryForwardGeometry.geometryRPFromDB_cfi')
-
-# load config
-process.load('SimPPS.Configuration.ppsDirectSim_cff')
+# load config (start with RECO, then direct SIM as geometry ESSource is overridden)
 process.load('RecoPPS.Configuration.recoCTPPS_cff')
-process.load('RecoPPS.ProtonReconstruction.ctppsProtons_cff')
+process.load('SimPPS.Configuration.ppsDirectSim_cff')
 
 # default source
 process.source = cms.Source("EmptySource",
