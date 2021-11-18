@@ -3,6 +3,13 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_$ERA_cff import *
 process = cms.Process('CTPPSTest', $ERA)
 
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+process.load('IOMC.EventVertexGenerators.beamDivergenceVtxGenerator_cfi')
+# start with RECO, then direct SIM as geometry ESSource is overridden
+process.load('RecoPPS.Configuration.recoCTPPS_cff')
+process.load('SimPPS.Configuration.directSimPPS_cff')
+process.load('Validation.CTPPS.ctppsLHCInfoPlotter_cfi')
+
 # minimal logger settings
 process.MessageLogger = cms.Service("MessageLogger",
     statistics = cms.untracked.vstring(),
@@ -12,10 +19,6 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 )
 
-# load config (start with RECO, then direct SIM as geometry ESSource is overridden)
-process.load('RecoPPS.Configuration.recoCTPPS_cff')
-process.load('SimPPS.Configuration.directSimPPS_cff')
-
 # default source
 process.source = cms.Source("EmptySource",
     firstRun = cms.untracked.uint32(1),
@@ -23,16 +26,12 @@ process.source = cms.Source("EmptySource",
 )
 
 # particle generator
-process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 from Configuration.Generator.randomXiThetaGunProducer_cfi import generator as _gen
 process.generator = _gen.clone(
     xi_max = 0.25,
     theta_x_sigma = 60.e-6,
     theta_y_sigma = 60.e-6
 )
-
-# beam smearing
-process.load('IOMC.EventVertexGenerators.beamDivergenceVtxGenerator_cfi')
 
 # random seeds
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
@@ -51,7 +50,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # LHCInfo plotter
-process.load("Validation.CTPPS.ctppsLHCInfoPlotter_cfi")
 process.ctppsLHCInfoPlotter.outputFile = "$OUT_LHCINFO"
 
 # track distribution plotter
