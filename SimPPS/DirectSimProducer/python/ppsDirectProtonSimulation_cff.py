@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 from CalibPPS.ESProducers.ctppsBeamParametersFromLHCInfoESSource_cfi import ctppsBeamParametersFromLHCInfoESSource as _esLHCinfo
 from SimPPS.DirectSimProducer.ppsDirectProtonSimulation_cfi import ppsDirectProtonSimulation as _dirProtonSim
 
@@ -32,32 +31,3 @@ ppsDirectProtonSimulation = _dirProtonSim.clone(
     pitchPixelsVer = cms.double(80.e-3),
     produceScoringPlaneHits = cms.bool(False),
 )
-
-ppsDirectSimTask = cms.Task(
-    ppsDirectProtonSimulation,
-)
-
-ppsDirectSim = cms.Sequence(ppsDirectSimTask)
-
-# modify according to era
-
-def _modify2016(process):
-    print('Process customised for 2016 PPS era')
-    process.load('SimPPS.DirectSimProducer.simPPS2016_cfi')
-
-def _modify2017(process):
-    print('Process customised for 2017 PPS era')
-    process.load('SimPPS.DirectSimProducer.simPPS2017_cfi')
-
-def _modify2018(process):
-    print('Process customised for 2018 PPS era')
-    process.load('SimPPS.DirectSimProducer.simPPS2018_cfi')
-
-def _modify2021(process):
-    print('Process customised for 2021 PPS era')
-    process.load('SimPPS.DirectSimProducer.simPPS2021_cfi')
-
-modifyConfigurationStandardSequencesFor2016_ = eras.ctpps_2016.makeProcessModifier(_modify2016)
-modifyConfigurationStandardSequencesFor2017_ = eras.ctpps_2017.makeProcessModifier(_modify2017)
-modifyConfigurationStandardSequencesFor2018_ = eras.ctpps_2018.makeProcessModifier(_modify2018)
-modifyConfigurationStandardSequencesFor2021_ = eras.ctpps_2021.makeProcessModifier(_modify2021)
