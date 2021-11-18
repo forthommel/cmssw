@@ -84,7 +84,7 @@ process.p = cms.Path(
     * process.beamDivergenceVtxGenerator
 
     * process.directSimPPS
-    * process.recoCTPPS
+    * process.recoDirectSimPPS
 
     * process.ctppsLHCInfoPlotter
     * process.ctppsTrackDistributionPlotter
