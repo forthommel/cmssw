@@ -14,7 +14,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 # load config (start with RECO, then direct SIM as geometry ESSource is overridden)
 process.load('RecoPPS.Configuration.recoCTPPS_cff')
-process.load('SimPPS.Configuration.ppsDirectSim_cff')
+process.load('SimPPS.Configuration.directSimPPS_cff')
 
 # default source
 process.source = cms.Source("EmptySource",
@@ -84,10 +84,9 @@ process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstruc
 process.p = cms.Path(
     process.generator
     * process.beamDivergenceVtxGenerator
-    * process.ppsDirectProtonSimulation
 
+    * process.directSimPPS
     * process.recoCTPPS
-    * process.ctppsProtons
 
     * process.ctppsLHCInfoPlotter
     * process.ctppsTrackDistributionPlotter
