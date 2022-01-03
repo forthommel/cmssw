@@ -74,7 +74,8 @@ nanoTableTaskCommon = cms.Task(
 
 nanoSequenceCommon = cms.Sequence(nanoTableTaskCommon)
 
-nanoSequenceOnlyFullSim = cms.Sequence(triggerObjectTablesTask)
+nanoSequenceOnlyFullSim = cms.Sequence(cms.Task(protonTablesTask,triggerObjectTablesTask))
+
 nanoSequenceOnlyData = cms.Sequence(cms.Sequence(protonTablesTask) + lhcInfoTable)
 
 nanoSequence = cms.Sequence(nanoSequenceCommon + nanoSequenceOnlyData + nanoSequenceOnlyFullSim)
