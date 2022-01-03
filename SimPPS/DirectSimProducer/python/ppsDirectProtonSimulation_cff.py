@@ -14,17 +14,19 @@ ctppsBeamParametersFromLHCInfoESSource = _esLHCinfo.clone(
     beamDivX56 = cms.double(30.e-6),
     beamDivY45 = cms.double(30.e-6),
     beamDivY56 = cms.double(30.e-6),
-    # vertex offset (cm)
-    vtxOffsetX45 = cms.double(0.),
+    
+    # vertex offset (cm) - undo CMS vertex shift
+    vtxOffsetX45 = cms.double(+0.2475 * 1E-1),
     vtxOffsetX56 = cms.double(0.),
-    vtxOffsetY45 = cms.double(0.),
+    vtxOffsetY45 = cms.double(-0.6924 * 1E-1),
     vtxOffsetY56 = cms.double(0.),
-    vtxOffsetZ45 = cms.double(0.),
+    vtxOffsetZ45 = cms.double(-8.1100 * 1E-1),
     vtxOffsetZ56 = cms.double(0.),
-    # vertex sigma (cm)
-    vtxStddevX = cms.double(1.e-3),
-    vtxStddevY = cms.double(1.e-3),
-    vtxStddevZ = cms.double(5.)
+
+    # vertex sigma (cm) - do not apply vertex smearing again
+    vtxStddevX = cms.double(0.0),
+    vtxStddevY = cms.double(0.0),
+    vtxStddevZ = cms.double(0.0)
 )
 
 # direct simulation
