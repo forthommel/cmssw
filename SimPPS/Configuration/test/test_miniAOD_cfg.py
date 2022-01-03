@@ -10,8 +10,10 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 # PPS simulation and reconstruction chains with standard settings
-process.load('RecoPPS.Configuration.recoCTPPS_cff')
+process.load('Validation.CTPPS.PPS_config_cff')
 process.load('SimPPS.Configuration.directSimPPS_cff')
+process.load('RecoPPS.Configuration.recoCTPPS_cff')
+
 
 # minimum of logs
 process.load('FWCore.MessageService.MessageLogger_cfi')
