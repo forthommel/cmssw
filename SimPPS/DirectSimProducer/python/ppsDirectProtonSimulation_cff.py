@@ -15,12 +15,12 @@ ctppsBeamParametersFromLHCInfoESSource = _esLHCinfo.clone(
     beamDivY45 = cms.double(30.e-6),
     beamDivY56 = cms.double(30.e-6),
     
-    # vertex offset (cm) - undo CMS vertex shift
-    vtxOffsetX45 = cms.double(+0.2475 * 1E-1),
+    # vertex offset (cm) 
+    vtxOffsetX45 = cms.double(0.),
     vtxOffsetX56 = cms.double(0.),
-    vtxOffsetY45 = cms.double(-0.6924 * 1E-1),
+    vtxOffsetY45 = cms.double(0.),
     vtxOffsetY56 = cms.double(0.),
-    vtxOffsetZ45 = cms.double(-8.1100 * 1E-1),
+    vtxOffsetZ45 = cms.double(0.),
     vtxOffsetZ56 = cms.double(0.),
 
     # vertex sigma (cm) - do not apply vertex smearing again
@@ -36,4 +36,20 @@ ppsDirectProtonSimulation = _dirProtonSim.clone(
     pitchPixelsHor = cms.double(5.e-3),
     pitchPixelsVer = cms.double(80.e-3),
     produceScoringPlaneHits = cms.bool(False),
+)
+
+#Update vertex depending on CMS vertex shift
+from Configuration.Eras.Modifier_ctpps_2017_cff import ctpps_2017
+from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
+#from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import Realistic25ns13TeVEarly2017CollisionVtxSmearingParameters as vtxOffset2017
+#from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import Realistic25ns13TeVEarly2018CollisionVtxSmearingParameters as vtxOffset2018
+ctpps_2017.toModify(ctppsBeamParametersFromLHCInfoESSource, 
+		vtxOffsetX45=cms.double(+0.024755),
+		vtxOffsetY45=cms.double(-0.069233),
+		vtxOffsetZ45=cms.double(-0.820540)
+)
+ctpps_2018.toModify(ctppsBeamParametersFromLHCInfoESSource, 
+		vtxOffsetX45=cms.double(-0.0107682),
+		vtxOffsetY45=cms.double(-0.041722),
+		vtxOffsetZ45=cms.double(-0.035748)
 )
