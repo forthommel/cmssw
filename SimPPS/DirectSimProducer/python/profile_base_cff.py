@@ -12,8 +12,8 @@ profile_base = cms.PSet(
     ),
     # optics
     ctppsOpticalFunctions = cms.PSet(
-      	opticalFunctions = cms.VPSet(),
-  	    scoringPlanes = cms.VPSet()
+        opticalFunctions = cms.VPSet(),
+        scoringPlanes = cms.VPSet()
     ),
     # alignment
     ctppsRPAlignmentCorrectionsDataXML = cms.PSet(
