@@ -9,7 +9,10 @@ directSimPPSTask = cms.Task(
 
 directSimPPS = cms.Sequence(directSimPPSTask)
 
-def unshiftVertex(beamESSource, smearingParams):
+def unshiftVertex(process, smearingParams):
+    """Undo vertex smearing using the parameters used for the sample production"""
+    if not hasattr(process, 'ctppsBeamParametersFromLHCInfoESSource'):
+        return
     from importlib import import_module
     _params = import_module('IOMC.EventVertexGenerators.VtxSmearedParameters_cfi')
     if not hasattr(_params, smearingParams):
@@ -24,18 +27,17 @@ def unshiftVertex(beamESSource, smearingParams):
 def _modify2016(process):
     print('Process customised for 2016 PPS era')
     process.load('SimPPS.DirectSimProducer.simPPS2016_cfi')
+    unshiftVertex(process, 'Realistic25ns13TeV2016CollisionVtxSmearingParameters')
 
 def _modify2017(process):
     print('Process customised for 2017 PPS era')
     process.load('SimPPS.DirectSimProducer.simPPS2017_cfi')
-    if hasattr(process, 'ctppsBeamParametersFromLHCInfoESSource'):
-        unshiftVertex(process.ctppsBeamParametersFromLHCInfoESSource, 'Realistic25ns13TeVEarly2017CollisionVtxSmearingParameters')
+    unshiftVertex(process, 'Realistic25ns13TeVEarly2017CollisionVtxSmearingParameters')
 
 def _modify2018(process):
     print('Process customised for 2018 PPS era')
     process.load('SimPPS.DirectSimProducer.simPPS2018_cfi')
-    if hasattr(process, 'ctppsBeamParametersFromLHCInfoESSource'):
-        unshiftVertex(process.ctppsBeamParametersFromLHCInfoESSource, 'Realistic25ns13TeVEarly2018CollisionVtxSmearingParameters')
+    unshiftVertex(process, 'Realistic25ns13TeVEarly2018CollisionVtxSmearingParameters')
 
 def _modify2021(process):
     print('Process customised for 2021 PPS era')
