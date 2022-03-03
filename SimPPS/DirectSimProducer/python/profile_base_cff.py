@@ -45,5 +45,6 @@ def matchDirectSimOutputs(process, AOD=False, miniAOD=False):
     elif miniAOD:
         process.beamDivergenceVtxGenerator.src = cms.InputTag('')
         process.beamDivergenceVtxGenerator.srcGenParticle = cms.VInputTag(
-            cms.InputTag('genPUProtons', 'genPUProtons')
+            cms.InputTag('genPUProtons', 'genPUProtons'),
+            cms.InputTag('prunedGenParticles')
         )
