@@ -4,7 +4,7 @@ from CalibPPS.ESProducers.ppsAssociationCuts_non_DB_cff import use_single_infini
 from CalibPPS.ESProducers.ppsAssociationCuts_non_DB_cff import ppsAssociationCutsESSource as _esAssCuts
 from Geometry.VeryForwardGeometry.commons_cff import cloneGeometry
 from SimPPS.DirectSimProducer.profiles_2022_cff import profile_2022_default
-from SimPPS.DirectSimProducer.simPPs2017_cfi import rpIds
+from SimPPS.DirectSimProducer.simPPS2017_cfi import rpIds
 
 ppsAssociationCutsESSource = _esAssCuts.clone()
 use_single_infinite_iov_entry(ppsAssociationCutsESSource, p2022)
