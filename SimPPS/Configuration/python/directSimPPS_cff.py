@@ -18,9 +18,9 @@ def unshiftVertex(process, smearingParams):
     if not hasattr(_params, smearingParams):
         raise ImportError('Failed to import {} from vertex smearing parameters!'.format(smearingParams))
     _params = getattr(_params, smearingParams)
-    beamESSource.vtxOffsetX45 = cms.double(-_params.X0.value())
-    beamESSource.vtxOffsetY45 = cms.double(-_params.Y0.value())
-    beamESSource.vtxOffsetZ45 = cms.double(-_params.Z0.value())
+    process.ctppsBeamParametersFromLHCInfoESSource.vtxOffsetX45 = cms.double(-_params.X0.value())
+    process.ctppsBeamParametersFromLHCInfoESSource.vtxOffsetY45 = cms.double(-_params.Y0.value())
+    process.ctppsBeamParametersFromLHCInfoESSource.vtxOffsetZ45 = cms.double(-_params.Z0.value())
 
 # modify according to era
 
@@ -38,6 +38,8 @@ def _modify2018(process):
     print('Process customised for 2018 PPS era')
     process.load('SimPPS.DirectSimProducer.simPPS2018_cfi')
     unshiftVertex(process, 'Realistic25ns13TeVEarly2018CollisionVtxSmearingParameters')
+    process.ctppsLocalTrackLiteProducer.includePixels = True
+    process.ctppsLocalTrackLiteProducer.includeDiamonds = True
 
 def _modify2021(process):
     print('Process customised for 2021 PPS era')
@@ -47,6 +49,8 @@ def _modify2021(process):
     if hasattr(process, 'ctppsGeometryESModule'):
         # replaced by the composite ESSource
         delattr(process, 'ctppsGeometryESModule')
+    process.ctppsLocalTrackLiteProducer.includePixels = True
+    process.ctppsLocalTrackLiteProducer.includeDiamonds = True
 
 def _modify2022(process):
     print('Process customised for 2022 PPS era')
@@ -56,6 +60,8 @@ def _modify2022(process):
     if hasattr(process, 'ctppsGeometryESModule'):
         # replaced by the composite ESSource
         delattr(process, 'ctppsGeometryESModule')
+    process.ctppsLocalTrackLiteProducer.includePixels = True
+    process.ctppsLocalTrackLiteProducer.includeDiamonds = True
 
 modifyConfigurationStandardSequencesFor2016_ = eras.ctpps_2016.makeProcessModifier(_modify2016)
 modifyConfigurationStandardSequencesFor2017_ = eras.ctpps_2017.makeProcessModifier(_modify2017)
