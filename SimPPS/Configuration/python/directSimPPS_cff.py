@@ -18,9 +18,9 @@ def unshiftVertex(process, smearingParams):
     if not hasattr(_params, smearingParams):
         raise ImportError('Failed to import {} from vertex smearing parameters!'.format(smearingParams))
     _params = getattr(_params, smearingParams)
-    beamESSource.vtxOffsetX45 = cms.double(-_params.X0.value())
-    beamESSource.vtxOffsetY45 = cms.double(-_params.Y0.value())
-    beamESSource.vtxOffsetZ45 = cms.double(-_params.Z0.value())
+    ctppsBeamParametersFromLHCInfoESSource.vtxOffsetX45 = cms.double(-_params.X0.value())
+    ctppsBeamParametersFromLHCInfoESSource.vtxOffsetY45 = cms.double(-_params.Y0.value())
+    ctppsBeamParametersFromLHCInfoESSource.vtxOffsetZ45 = cms.double(-_params.Z0.value())
 
 # modify according to era
 

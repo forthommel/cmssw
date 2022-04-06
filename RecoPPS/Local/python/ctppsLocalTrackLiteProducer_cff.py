@@ -6,9 +6,28 @@ ctppsLocalTrackLiteProducer = ctppsLocalTrackLiteDefaultProducer.clone()
 
 # enable the module for CTPPS era(s)
 from Configuration.Eras.Modifier_ctpps_cff import ctpps
-ctpps.toModify(
+from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+from Configuration.Eras.Modifier_ctpps_2017_cff import ctpps_2017
+from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
+from Configuration.Eras.Modifier_ctpps_2022_cff import ctpps_2022
+
+(ctpps_2017 | ctpps).toModify(
     ctppsLocalTrackLiteProducer,
     includeStrips = True,
+    includeDiamonds = True,
+    includePixels = True
+)
+
+ctpps_2016.toModify(
+    ctppsLocalTrackLiteProducer,
+    includeStrips = True,
+    includeDiamonds = False,
+    includePixels = False
+)
+
+(ctpps_2018 | ctpps_2022).toModify(
+    ctppsLocalTrackLiteProducer,
+    includeStrips = False,
     includeDiamonds = True,
     includePixels = True
 )
