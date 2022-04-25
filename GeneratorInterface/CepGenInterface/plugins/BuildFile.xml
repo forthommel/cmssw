@@ -1,0 +1,4 @@
+<use name="GeneratorInterface/CepGenInterface"/>
+<library file="CepGenEventGenerator.cc" name="GeneratorInterfaceCepGenGenerator">
+  <flags EDM_PLUGIN="1"/>
+</library>
