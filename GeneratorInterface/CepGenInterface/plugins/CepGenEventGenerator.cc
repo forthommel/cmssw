@@ -10,10 +10,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
-class test : public edm::stream::EDProducer<> {
+#include "CepGen/Generator.h"
+
+class CepGenEventGenerator : public edm::stream::EDProducer<> {
 public:
-  explicit test(const edm::ParameterSet&);
-  ~test() override;
+  explicit CepGenEventGenerator(const edm::ParameterSet&);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -22,9 +23,11 @@ private:
 
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override;
+
+  std::unique_ptr<cepgen::Generator> gen_;
 };
 
-CepGenEventGenerator::CepGenEventGenerator(const edm::ParameterSet& iConfig) {
+CepGenEventGenerator::CepGenEventGenerator(const edm::ParameterSet& iConfig) : gen_(new cepgen::Generator) {
   //produces<ExampleData2>();
 }
 

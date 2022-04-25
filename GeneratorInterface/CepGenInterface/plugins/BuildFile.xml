@@ -1,4 +1,10 @@
-<use name="GeneratorInterface/CepGenInterface"/>
+<include_path path="/afs/cern.ch/work/l/lforthom/private/dev/cepgen-dev"/>
+<!--<flags LDFLAGS="-L/afs/cern.ch/work/l/lforthom/private/dev/cepgen-dev/build -lCepGen"/>-->
+<flags LDFLAGS="-L/afs/cern.ch/work/l/lforthom/private/dev/cepgen-dev/build"/>
+<flags LD_LIBRARY_PATH="/afs/cern.ch/work/l/lforthom/private/dev/cepgen-dev/build"/>
+<lib name="CepGen"/>
+<use name="FWCore/Framework"/>
+<!--<use name="GeneratorInterface/CepGenInterface"/>-->
 <library file="CepGenEventGenerator.cc" name="GeneratorInterfaceCepGenGenerator">
   <flags EDM_PLUGIN="1"/>
 </library>
