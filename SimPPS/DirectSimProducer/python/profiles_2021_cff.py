@@ -4,9 +4,6 @@ from CalibPPS.ESProducers.ctppsOpticalFunctions_non_DB_cff import optics_2021 as
 
 # base profile settings for 2021
 _base_2021 = _base.clone(
-    ctppsLHCInfo = _base.ctppsLHCInfo.clone(
-        beamEnergy = cms.double(7000.)
-    ),
     ctppsOpticalFunctions = _base.ctppsOpticalFunctions.clone(
         opticalFunctions = _optics.opticalFunctions,
         scoringPlanes = _optics.scoringPlanes,

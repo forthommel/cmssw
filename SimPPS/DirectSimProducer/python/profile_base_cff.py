@@ -2,11 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 profile_base = cms.PSet(
     L_int = cms.double(1.),
-    # LHCInfo
+    # LHCInfo (default Run 3 values)
     ctppsLHCInfo = cms.PSet(
         xangle = cms.double(-1.),
         betaStar = cms.double(-1.),
-        beamEnergy = cms.double(0.),
+        beamEnergy = cms.double(6.8e3),
         xangleBetaStarHistogramFile = cms.string("CalibPPS/ESProducers/data/xangle_beta_distributions/version1.root"),
         xangleBetaStarHistogramObject = cms.string("")
     ),
