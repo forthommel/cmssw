@@ -10,6 +10,7 @@ from SimGeneral.MixingModule.castorDigitizer_cfi import *
 from SimGeneral.MixingModule.pileupVtxDigitizer_cfi import *
 from SimGeneral.MixingModule.trackingTruthProducerSelection_cfi import *
 from SimGeneral.MixingModule.caloTruthProducer_cfi import *
+from SimGeneral.MixingModule.totemDigitizer_cfi import *
 from FastSimulation.Tracking.recoTrackAccumulator_cfi import *
 
 theDigitizers = cms.PSet(
@@ -33,6 +34,9 @@ theDigitizers = cms.PSet(
   ),
   mergedtruth = cms.PSet(
     trackingParticles
+  ),
+  totem = cms.PSet(
+    totemT2Digitizer
   )
 )
 
