@@ -64,6 +64,13 @@ void TotemT2DQMSource::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
   //ibooker.setCurrentFolder(stnd);
 }
 
-void TotemT2DQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
+void TotemT2DQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  for (const auto& ds_digis : iEvent.get(digiToken_)) {
+    const TotemT2DetId detid(ds_digis.detId());
+    for (const auto& digi : ds_digis) {
+      TotemT2Segmentation(m_digis_mult_[detid.plane()]->getTH2D()).fill(detid);
+    }
+  }
+}
 
 DEFINE_FWK_MODULE(TotemT2DQMSource);

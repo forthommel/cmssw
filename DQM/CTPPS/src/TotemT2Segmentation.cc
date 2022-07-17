@@ -10,7 +10,7 @@
 #include "DQM/CTPPS/interface/TotemT2Segmentation.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-TotemT2Segmentation::TotemT2Segmentation(TH2D&& base_hist) : TH2D(base_hist) {
+TotemT2Segmentation::TotemT2Segmentation(TH2D* base_hist) : TH2D(*base_hist) {
   const auto nx = TH2D::GetXaxis()->GetNbins(), ny = TH2D::GetYaxis()->GetNbins();
   for (unsigned short arm = 0; arm <= CTPPSDetId::maxArm; ++arm)
     for (unsigned short plane = 0; plane <= TotemT2DetId::maxPlane; ++plane)

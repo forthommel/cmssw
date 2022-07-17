@@ -17,7 +17,7 @@
 
 class TotemT2Segmentation : public TH2D {
 public:
-  TotemT2Segmentation(TH2D&&);
+  TotemT2Segmentation(TH2D*);
 
   void fill(const TotemT2DetId&, double value = 1.);
 
