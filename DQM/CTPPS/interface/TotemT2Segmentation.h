@@ -22,6 +22,7 @@ public:
   void fill(const TotemT2DetId&, double value = 1.);
 
 private:
+  std::vector<std::pair<short, short> > computeBins(int nbinsx, int nbinsy, const TotemT2DetId& detid) const;
   std::unordered_map<TotemT2DetId, std::vector<std::pair<short, short> > > bins_map_;
 };
 
