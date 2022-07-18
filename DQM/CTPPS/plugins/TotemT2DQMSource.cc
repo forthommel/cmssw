@@ -49,7 +49,7 @@ private:
 };
 
 TotemT2DQMSource::TotemT2DQMSource(const edm::ParameterSet& iConfig)
-    : geometryToken_(esConsumes<TotemGeometry, TotemGeometryRcd>()),
+    : geometryToken_(esConsumes<TotemGeometry, TotemGeometryRcd, edm::Transition::BeginRun>()),
       digiToken_(consumes<edm::DetSetVector<TotemT2Digi>>(iConfig.getParameter<edm::InputTag>("digisTag"))),
       rechitToken_(consumes<edmNew::DetSetVector<TotemT2RecHit>>(iConfig.getParameter<edm::InputTag>("rechitsTag"))) {}
 
