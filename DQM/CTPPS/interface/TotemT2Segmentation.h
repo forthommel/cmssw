@@ -10,18 +10,22 @@
 #define DQM_CTPPS_TotemT2Segmentation_h
 
 #include "DataFormats/CTPPSDetId/interface/TotemT2DetId.h"
+#include "Geometry/ForwardGeometry/interface/TotemGeometry.h"
 
 #include <unordered_map>
+#include <vector>
 
-#include "TH2.h"
+class TotemGeometry;
+class TH2D;
 
-class TotemT2Segmentation : public TH2D {
+class TotemT2Segmentation {
 public:
-  TotemT2Segmentation(TH2D*);
+  explicit TotemT2Segmentation(const TotemGeometry&, size_t, size_t);
 
-  void fill(const TotemT2DetId&, double value = 1.);
+  void fill(TH2D*, const TotemT2DetId&, double value = 1.);
 
 private:
+  const TotemGeometry geom_;
   std::vector<std::pair<short, short> > computeBins(int nbinsx, int nbinsy, const TotemT2DetId& detid) const;
   std::unordered_map<TotemT2DetId, std::vector<std::pair<short, short> > > bins_map_;
 };
