@@ -45,6 +45,7 @@ private:
 
   std::unique_ptr<TotemT2Segmentation> segm_;
   MonitorElement* m_digis_mult_[TotemT2DetId::maxPlane / 2];
+  MonitorElement* m_rechits_mult_[TotemT2DetId::maxPlane / 2];
 };
 
 TotemT2DQMSource::TotemT2DQMSource(const edm::ParameterSet& iConfig)
@@ -73,6 +74,14 @@ void TotemT2DQMSource::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
                                        summary_nbinsy,
                                        0.,
                                        summary_nbinsy);
+    m_rechits_mult_[pl] = ibooker.book2D("rechits multiplicity (plane " + std::to_string(pl) + ")",
+                                         "x;y",
+                                         summary_nbinsx,
+                                         0.,
+                                         summary_nbinsx,
+                                         summary_nbinsy,
+                                         0.,
+                                         summary_nbinsy);
   }
 
   // build a segmentation helper for the size of histograms previously booked
@@ -86,6 +95,14 @@ void TotemT2DQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     for (const auto& digi : ds_digis) {
       segm_->fill(m_digis_mult_[detid.plane()]->getTH2D(), detid);
       (void)digi;  //FIXME make use of them
+    }
+  }
+  // fill rechits information
+  for (const auto& ds_rechits : iEvent.get(rechitToken_)) {
+    const TotemT2DetId detid(ds_rechits.detId());
+    for (const auto& rechit : ds_rechits) {
+      segm_->fill(m_rechits_mult_[detid.plane()]->getTH2D(), detid);
+      (void)rechit;  //FIXME make use of them
     }
   }
 }
