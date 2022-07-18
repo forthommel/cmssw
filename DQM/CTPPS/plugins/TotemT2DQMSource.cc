@@ -44,8 +44,8 @@ private:
   edm::EDGetTokenT<edmNew::DetSetVector<TotemT2RecHit>> rechitToken_;
 
   std::unique_ptr<TotemT2Segmentation> segm_;
-  MonitorElement* m_digis_mult_[TotemT2DetId::maxPlane / 2];
-  MonitorElement* m_rechits_mult_[TotemT2DetId::maxPlane / 2];
+  MonitorElement* m_digis_mult_[(TotemT2DetId::maxPlane + 1) / 2];
+  MonitorElement* m_rechits_mult_[(TotemT2DetId::maxPlane + 1) / 2];
 };
 
 TotemT2DQMSource::TotemT2DQMSource(const edm::ParameterSet& iConfig)
@@ -63,7 +63,7 @@ void TotemT2DQMSource::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
 
   const size_t summary_nbinsx = 50, summary_nbinsy = 50;
 
-  for (unsigned int pl = 0; pl < TotemT2DetId::maxPlane / 2; ++pl) {
+  for (unsigned int pl = 0; pl < (TotemT2DetId::maxPlane + 1) / 2; ++pl) {
     m_digis_mult_[pl] = ibooker.book2DD("digis multiplicity (plane " + std::to_string(pl) + ")",
                                         "x;y",
                                         summary_nbinsx,
@@ -91,7 +91,7 @@ void TotemT2DQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   for (const auto& ds_digis : iEvent.get(digiToken_)) {
     const TotemT2DetId detid(ds_digis.detId());
     for (const auto& digi : ds_digis) {
-      segm_->fill(m_digis_mult_[detid.plane()]->getTH2D(), detid);
+      segm_->fill(m_digis_mult_[detid.plane() / 2]->getTH2D(), detid);
       (void)digi;  //FIXME make use of them
     }
   }
@@ -99,7 +99,7 @@ void TotemT2DQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   for (const auto& ds_rechits : iEvent.get(rechitToken_)) {
     const TotemT2DetId detid(ds_rechits.detId());
     for (const auto& rechit : ds_rechits) {
-      segm_->fill(m_rechits_mult_[detid.plane()]->getTH2D(), detid);
+      segm_->fill(m_rechits_mult_[detid.plane() / 2]->getTH2D(), detid);
       (void)rechit;  //FIXME make use of them
     }
   }
