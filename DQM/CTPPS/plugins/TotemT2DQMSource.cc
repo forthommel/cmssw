@@ -64,22 +64,22 @@ void TotemT2DQMSource::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
   const size_t summary_nbinsx = 50, summary_nbinsy = 50;
 
   for (unsigned int pl = 0; pl < TotemT2DetId::maxPlane / 2; ++pl) {
-    m_digis_mult_[pl] = ibooker.book2D("digis multiplicity (plane " + std::to_string(pl) + ")",
-                                       "x;y",
-                                       summary_nbinsx,
-                                       0.,
-                                       summary_nbinsx,
-                                       summary_nbinsy,
-                                       0.,
-                                       summary_nbinsy);
-    m_rechits_mult_[pl] = ibooker.book2D("rechits multiplicity (plane " + std::to_string(pl) + ")",
-                                         "x;y",
-                                         summary_nbinsx,
-                                         0.,
-                                         summary_nbinsx,
-                                         summary_nbinsy,
-                                         0.,
-                                         summary_nbinsy);
+    m_digis_mult_[pl] = ibooker.book2DD("digis multiplicity (plane " + std::to_string(pl) + ")",
+                                        "x;y",
+                                        summary_nbinsx,
+                                        0.,
+                                        summary_nbinsx,
+                                        summary_nbinsy,
+                                        0.,
+                                        summary_nbinsy);
+    m_rechits_mult_[pl] = ibooker.book2DD("rechits multiplicity (plane " + std::to_string(pl) + ")",
+                                          "x;y",
+                                          summary_nbinsx,
+                                          0.,
+                                          summary_nbinsx,
+                                          summary_nbinsy,
+                                          0.,
+                                          summary_nbinsy);
   }
 
   // build a segmentation helper for the size of histograms previously booked

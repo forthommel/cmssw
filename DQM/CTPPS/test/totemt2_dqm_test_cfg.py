@@ -37,12 +37,8 @@ process.source = cms.Source('PoolSource',
 #from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_relval', '')
 
-# raw-to-digi conversion
-process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
-
-# local RP reconstruction chain with standard settings
-process.load("RecoPPS.Configuration.recoCTPPS_cff")
-
+process.load('CalibPPS.ESProducers.totemT2DAQMapping_cff')
+process.load('EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff')
 process.load('Geometry.ForwardCommonData.totemT22021V2XML_cfi')
 process.load('Geometry.ForwardGeometry.totemGeometryESModule_cfi')
 process.load('RecoPPS.Local.totemT2RecHits_cfi')
