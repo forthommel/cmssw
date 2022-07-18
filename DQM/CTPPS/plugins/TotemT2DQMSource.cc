@@ -58,8 +58,6 @@ TotemT2DQMSource::~TotemT2DQMSource() {}
 void TotemT2DQMSource::dqmBeginRun(const edm::Run&, const edm::EventSetup&) {}
 
 void TotemT2DQMSource::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup& iSetup) {
-  edm::ESHandle<TotemGeometry> geometry = iSetup.getHandle(geometryToken_);
-
   ibooker.cd();
   ibooker.setCurrentFolder("CTPPS/TotemT2");
 
@@ -85,7 +83,7 @@ void TotemT2DQMSource::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
   }
 
   // build a segmentation helper for the size of histograms previously booked
-  segm_ = std::make_unique<TotemT2Segmentation>(*geometry, summary_nbinsx, summary_nbinsy);
+  segm_ = std::make_unique<TotemT2Segmentation>(iSetup.getData(geometryToken_), summary_nbinsx, summary_nbinsy);
 }
 
 void TotemT2DQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
