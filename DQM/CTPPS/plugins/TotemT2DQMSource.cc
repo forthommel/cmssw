@@ -44,8 +44,8 @@ private:
   edm::EDGetTokenT<edmNew::DetSetVector<TotemT2RecHit>> rechitToken_;
 
   std::unique_ptr<TotemT2Segmentation> segm_;
-  MonitorElement* m_digis_mult_[(TotemT2DetId::maxPlane + 1) / 2];
-  MonitorElement* m_rechits_mult_[(TotemT2DetId::maxPlane + 1) / 2];
+  MonitorElement* m_digis_mult_[2][TotemT2DetId::maxPlane + 1];
+  MonitorElement* m_rechits_mult_[2][TotemT2DetId::maxPlane + 1];
 };
 
 TotemT2DQMSource::TotemT2DQMSource(const edm::ParameterSet& iConfig)
@@ -61,26 +61,29 @@ void TotemT2DQMSource::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
   ibooker.cd();
   ibooker.setCurrentFolder("CTPPS/TotemT2");
 
-  const size_t summary_nbinsx = 50, summary_nbinsy = 50;
+  const size_t summary_nbinsx = 25, summary_nbinsy = 25;
 
-  for (unsigned int pl = 0; pl < (TotemT2DetId::maxPlane + 1) / 2; ++pl) {
-    m_digis_mult_[pl] = ibooker.book2DD("digis multiplicity (plane " + std::to_string(pl) + ")",
-                                        "x;y",
-                                        summary_nbinsx,
-                                        0.,
-                                        summary_nbinsx,
-                                        summary_nbinsy,
-                                        0.,
-                                        summary_nbinsy);
-    m_rechits_mult_[pl] = ibooker.book2DD("rechits multiplicity (plane " + std::to_string(pl) + ")",
-                                          "x;y",
-                                          summary_nbinsx,
-                                          0.,
-                                          summary_nbinsx,
-                                          summary_nbinsy,
-                                          0.,
-                                          summary_nbinsy);
-  }
+  for (unsigned int arm = 0; arm <= CTPPSDetId::maxArm; ++arm)
+    for (unsigned int pl = 0; pl <= TotemT2DetId::maxPlane; ++pl) {
+      m_digis_mult_[arm][pl] =
+          ibooker.book2DD("digis multiplicity (arm " + std::to_string(arm) + ", plane " + std::to_string(pl) + ")",
+                          "x;y",
+                          summary_nbinsx,
+                          0.,
+                          summary_nbinsx,
+                          summary_nbinsy,
+                          0.,
+                          summary_nbinsy);
+      m_rechits_mult_[arm][pl] =
+          ibooker.book2DD("rechits multiplicity (arm " + std::to_string(arm) + ", plane " + std::to_string(pl) + ")",
+                          "x;y",
+                          summary_nbinsx,
+                          0.,
+                          summary_nbinsx,
+                          summary_nbinsy,
+                          0.,
+                          summary_nbinsy);
+    }
 
   // build a segmentation helper for the size of histograms previously booked
   segm_ = std::make_unique<TotemT2Segmentation>(iSetup.getData(geometryToken_), summary_nbinsx, summary_nbinsy);
@@ -91,7 +94,7 @@ void TotemT2DQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   for (const auto& ds_digis : iEvent.get(digiToken_)) {
     const TotemT2DetId detid(ds_digis.detId());
     for (const auto& digi : ds_digis) {
-      segm_->fill(m_digis_mult_[detid.plane() / 2]->getTH2D(), detid);
+      segm_->fill(m_digis_mult_[detid.arm()][detid.plane()]->getTH2D(), detid);
       (void)digi;  //FIXME make use of them
     }
   }
@@ -99,7 +102,7 @@ void TotemT2DQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   for (const auto& ds_rechits : iEvent.get(rechitToken_)) {
     const TotemT2DetId detid(ds_rechits.detId());
     for (const auto& rechit : ds_rechits) {
-      segm_->fill(m_rechits_mult_[detid.plane() / 2]->getTH2D(), detid);
+      segm_->fill(m_rechits_mult_[detid.arm()][detid.plane()]->getTH2D(), detid);
       (void)rechit;  //FIXME make use of them
     }
   }
