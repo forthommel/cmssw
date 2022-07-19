@@ -51,15 +51,21 @@ std::vector<std::pair<short, short> > TotemT2Segmentation::computeBins(const Tot
   // NOTE: the geometry object (geom_) can potentially be used as a helper
 
   if (detid.plane() % 2 == 0) {  // even planes => XXX
-    for (size_t ix = 0; ix < nbinsx_; ++ix)
-      for (size_t iy = 0; iy < nbinsy_; ++iy)
-        //if (ix ... iy ...)
-        bins.emplace_back(ix, iy);
+    for (size_t ix = 0; ix < nbinsx_ / 2; ++ix)
+      for (size_t iy = 0; iy < nbinsy_; ++iy) {
+        const auto ell_rad_norm = std::pow((ix - ox) / ax, 2) + std::pow((iy - oy) / by, 2);
+        if (ell_rad_norm < 1. && ell_rad_norm >= 0.1)
+          //if (ix ... iy ...)
+          bins.emplace_back(ix, iy);
+      }
   } else {  // odd planes => XXX
-    for (size_t ix = 0; ix < nbinsx_; ++ix)
-      for (size_t iy = 0; iy < nbinsy_; ++iy)
-        //if (ix ... iy ...)
-        bins.emplace_back(ix, iy);
+    for (size_t ix = nbinsx_ / 2; ix < nbinsx_; ++ix)
+      for (size_t iy = 0; iy < nbinsy_; ++iy) {
+        const auto ell_rad_norm = std::pow((ix - ox) / ax, 2) + std::pow((iy - oy) / by, 2);
+        if (ell_rad_norm < 1. && ell_rad_norm >= 0.1)
+          //if (ix ... iy ...)
+          bins.emplace_back(ix, iy);
+      }
   }
 
   return bins;
