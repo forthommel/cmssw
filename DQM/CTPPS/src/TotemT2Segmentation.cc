@@ -39,34 +39,25 @@ void TotemT2Segmentation::fill(TH2D* hist, const TotemT2DetId& detid, double val
 std::vector<std::pair<short, short> > TotemT2Segmentation::computeBins(const TotemT2DetId& detid) const {
   std::vector<std::pair<short, short> > bins;
   // find the histogram centre
-  const auto ox = ceil(nbinsx_ * 0.5), oy = ceil(nbinsy_ * 0.5);
+  const auto ox = floor(nbinsx_ * 0.5), oy = floor(nbinsy_ * 0.5);
   // compute the ellipse parameters
-  const auto ax = floor(nbinsx_ * 0.5), by = floor(nbinsy_ * 0.5);
+  const auto ax = ceil(nbinsx_ * 0.5), by = ceil(nbinsy_ * 0.5);
 
-  //FIXME this is where magic happens...
-  //
-  // One should find a (geometric) way of associating a DetId to a vector<ix, iy> of bins
-  // given the size (nx_, ny_) of the TH2D('s) to be filled
+  const float max_half_angle_rad = 0.4;
+  // find the coordinates of the tile centre to extract its angle
+  const auto tile_centre = geom_.tile(detid).centre();
+  const auto tile_angle_rad = std::atan2(tile_centre.y(), tile_centre.x()) *
+                              (detid.arm() == 1 ? 1. : -1.);  //FIXME ensure convention is correct
 
-  // NOTE: the geometry object (geom_) can potentially be used as a helper
-
-  if (detid.plane() % 2 == 0) {  // even planes => XXX
-    for (size_t ix = 0; ix < nbinsx_ / 2; ++ix)
-      for (size_t iy = 0; iy < nbinsy_; ++iy) {
-        const auto ell_rad_norm = std::pow((ix - ox) / ax, 2) + std::pow((iy - oy) / by, 2);
-        if (ell_rad_norm < 1. && ell_rad_norm >= 0.1)
-          //if (ix ... iy ...)
-          bins.emplace_back(ix, iy);
-      }
-  } else {  // odd planes => XXX
-    for (size_t ix = nbinsx_ / 2; ix < nbinsx_; ++ix)
-      for (size_t iy = 0; iy < nbinsy_; ++iy) {
-        const auto ell_rad_norm = std::pow((ix - ox) / ax, 2) + std::pow((iy - oy) / by, 2);
-        if (ell_rad_norm < 1. && ell_rad_norm >= 0.1)
-          //if (ix ... iy ...)
-          bins.emplace_back(ix, iy);
-      }
-  }
+  // Geometric way of associating a DetId to a vector<ix, iy> of bins given the size (nx_, ny_) of
+  // the TH2D('s) to be filled
+  for (size_t ix = 0; ix < nbinsx_; ++ix)
+    for (size_t iy = 0; iy < nbinsy_; ++iy) {
+      const auto ell_rad_norm = std::pow((ix - ox) / ax, 2) + std::pow((iy - oy) / by, 2);
+      if (ell_rad_norm < 1. && ell_rad_norm >= 0.1 &&
+          fabs(std::atan2(iy - oy, ix - ox) - tile_angle_rad) < max_half_angle_rad)
+        bins.emplace_back(ix, iy);
+    }
 
   return bins;
 }
