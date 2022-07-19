@@ -65,24 +65,27 @@ void TotemT2DQMSource::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
 
   for (unsigned int arm = 0; arm <= CTPPSDetId::maxArm; ++arm)
     for (unsigned int pl = 0; pl <= TotemT2DetId::maxPlane; ++pl) {
-      m_digis_mult_[arm][pl] =
-          ibooker.book2DD("digis multiplicity (arm " + std::to_string(arm) + ", plane " + std::to_string(pl) + ")",
-                          "x;y",
-                          summary_nbinsx,
-                          0.,
-                          summary_nbinsx,
-                          summary_nbinsy,
-                          0.,
-                          summary_nbinsy);
-      m_rechits_mult_[arm][pl] =
-          ibooker.book2DD("rechits multiplicity (arm " + std::to_string(arm) + ", plane " + std::to_string(pl) + ")",
-                          "x;y",
-                          summary_nbinsx,
-                          0.,
-                          summary_nbinsx,
-                          summary_nbinsy,
-                          0.,
-                          summary_nbinsy);
+      std::string title, path;
+      const TotemT2DetId detid(arm, pl, 0);
+      detid.planeName(title, TotemT2DetId::nFull);
+      detid.planeName(path, TotemT2DetId::nPath);
+      ibooker.setCurrentFolder(path);
+      m_digis_mult_[arm][pl] = ibooker.book2DD("digis multiplicity",
+                                               title + " digis multiplicity;x;y",
+                                               summary_nbinsx,
+                                               0.,
+                                               summary_nbinsx,
+                                               summary_nbinsy,
+                                               0.,
+                                               summary_nbinsy);
+      m_rechits_mult_[arm][pl] = ibooker.book2DD("rechits multiplicity",
+                                                 title + " rechits multiplicity;x;y",
+                                                 summary_nbinsx,
+                                                 0.,
+                                                 summary_nbinsx,
+                                                 summary_nbinsy,
+                                                 0.,
+                                                 summary_nbinsy);
     }
 
   // build a segmentation helper for the size of histograms previously booked
