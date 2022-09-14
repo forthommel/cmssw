@@ -14,7 +14,7 @@
 
 #include "CepGenAddOns/HepMC2Wrapper/HepMC2EventInterface.h"
 
-cepgen::ParametersList fromCMSSWParameters(const edm::ParameterSet& iConfig) {
+cepgen::ParametersList fromParameterSet(const edm::ParameterSet& iConfig) {
   cepgen::ParametersList params;
   for (const auto& param : iConfig.getParameterNames()) {
     if (iConfig.existsAs<bool>(param))
@@ -30,7 +30,7 @@ cepgen::ParametersList fromCMSSWParameters(const edm::ParameterSet& iConfig) {
     if (iConfig.existsAs<std::vector<double> >(param))
       params.set(param, iConfig.getUntrackedParameter<std::vector<double> >(param));
     if (iConfig.existsAs<edm::ParameterSet>(param))
-      params.set(param, fromCMSSWParameters(iConfig.getUntrackedParameter<edm::ParameterSet>(param)));
+      params.set(param, fromParameterSet(iConfig.getUntrackedParameter<edm::ParameterSet>(param)));
   }
   return params;
 }
@@ -38,7 +38,7 @@ cepgen::ParametersList fromCMSSWParameters(const edm::ParameterSet& iConfig) {
 CepGenEventGenerator::CepGenEventGenerator(const edm::ParameterSet& iConfig)
     : gen::BaseHadronizer(iConfig),
       gen_(new cepgen::Generator(true /* "safe" mode: start without plugins */)),
-      proc_params_(fromCMSSWParameters(iConfig.getUntrackedParameter<edm::ParameterSet>("process"))) {
+      proc_params_(fromParameterSet(iConfig.getUntrackedParameter<edm::ParameterSet>("process"))) {
   //produces<ExampleData2>();
   cepgen::utils::Logger::get().level = (cepgen::utils::Logger::Level)iConfig.getUntrackedParameter<int>("verbosity");
   cepgen::loadLibrary("CepGenHepMC2");
