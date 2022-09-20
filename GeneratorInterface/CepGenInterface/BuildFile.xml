@@ -1,9 +1,5 @@
-<include_path path="/afs/cern.ch/work/l/lforthom/private/dev/cepgen-dev"/>
-<!--<flags LDFLAGS="-L/afs/cern.ch/work/l/lforthom/private/dev/cepgen-dev/build -lCepGen"/>-->
-<flags LDFLAGS="-L/afs/cern.ch/work/l/lforthom/private/dev/cepgen-dev/build"/>
-<flags LDFLAGS="-lCepGen -lCepGenHepMC2"/>
-<flags LD_LIBRARY_PATH="/afs/cern.ch/work/l/lforthom/private/dev/cepgen-dev/build"/>
-<!--<lib name="CepGen"/>-->
+<use name="CepGen"/>
+<lib name="CepGenHepMC2"/>
 <use name="FWCore/Framework"/>
 <use name="GeneratorInterface/Core"/>
 <use name="clhep"/>
