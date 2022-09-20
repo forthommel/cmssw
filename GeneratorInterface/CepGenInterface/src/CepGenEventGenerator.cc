@@ -12,7 +12,7 @@
 #include "CepGen/Parameters.h"
 #include "CepGen/Process/Process.h"
 
-#include "CepGenAddOns/HepMC2Wrapper/HepMC2EventInterface.h"
+#include "CepGenHepMC2/HepMC2EventInterface.h"
 
 cepgen::ParametersList fromParameterSet(const edm::ParameterSet& iConfig) {
   cepgen::ParametersList params;
