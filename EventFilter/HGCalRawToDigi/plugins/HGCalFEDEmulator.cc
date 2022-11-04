@@ -59,8 +59,11 @@ HGCalFEDEmulator::HGCalFEDEmulator(const edm::ParameterSet& iConfig)
 }
 
 void HGCalFEDEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  if (it_data_ == data_.end())
+    throw cms::Exception("HGCalFEDEmulator") << "Insufficient number of events were retrieved from input tree to "
+                                                "proceed with the generation of emulated events.";
   auto raw_data = std::make_unique<FEDRawDataCollection>();
-  std::vector<uint32_t> newEvent;
+  std::vector<uint32_t> econ_event;
   for (const auto& jt : it_data_->second) {
     std::vector<bool> chmap(num_channels_, true);
     //for (size_t i = 0; i < chmap.size(); i++)
@@ -84,10 +87,10 @@ void HGCalFEDEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       erxData.insert(erxData.end(), chData.begin(), chData.end());
     }
 
-    newEvent.insert(newEvent.end(), erxData.begin(), erxData.end());
+    econ_event.insert(econ_event.end(), erxData.begin(), erxData.end());
   }
   auto econdH = hgcal::econd::eventPacketHeader(header_marker_,
-                                                newEvent.size() + 1,
+                                                econ_event.size() + 1,
                                                 true,
                                                 false,
                                                 0,
@@ -101,20 +104,19 @@ void HGCalFEDEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                                                 false,
                                                 0,
                                                 0);
-  newEvent.insert(newEvent.begin(), econdH.begin(), econdH.end());
-  newEvent.push_back(0);  //CRC is fake
-  newEvent.push_back(idle_marker_);
+  econ_event.insert(econ_event.begin(), econdH.begin(), econdH.end());
+  econ_event.push_back(0);  //CRC is fake
+  econ_event.push_back(idle_marker_);
 
-  for (size_t i = 0; i < newEvent.size(); i++)
-    newEvent[i] = htobe32(newEvent[i]);
-  size_t event_size = newEvent.size() * sizeof(newEvent[0]);
+  size_t event_size = econ_event.size() * sizeof(econ_event[0]);
 
   // fill the output FED raw data collection
   auto& fed_data = raw_data->FEDData(fed_id_);
-  fed_data.resize(event_size);
-  memcpy(fed_data.data(), &newEvent[0], event_size);
-  iEvent.put(std::move(raw_data));
 
+  fed_data.resize(event_size);
+  memcpy(fed_data.data(), &econ_event[0], event_size);
+
+  iEvent.put(std::move(raw_data));
   ++it_data_;
 }
 
