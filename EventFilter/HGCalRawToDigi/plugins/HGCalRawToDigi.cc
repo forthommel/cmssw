@@ -23,6 +23,7 @@ private:
 
 HGCalRawToDigi::HGCalRawToDigi(const edm::ParameterSet& iConfig)
     : fedDataToken_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("rawDataTag"))) {
+  produces<HGCalDigiCollection>();
   const auto algo_name = iConfig.getParameter<std::string>("algo");
   if (algo_name == "TestBeam")
     algo_ = std::make_unique<hgcal::TestBeamUnpackerAlgo>(iConfig);
@@ -37,6 +38,7 @@ void HGCalRawToDigi::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
   const auto& fed_data = raw_data.FEDData(0);        // FEDRawData
   if (fed_data.size() > 0)
     algo_->run(fed_data, *digis);
+
   iEvent.put(std::move(digis));
 }
 
