@@ -8,6 +8,9 @@ process.MessageLogger = cms.Service("MessageLogger",
     cerr = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG'))
 )
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
+process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+    hgcalEmulatedFEDRawData = cms.PSet(initialSeed = cms.untracked.uint32(42))
+)
 
 #process.source = cms.Source("NewEventStreamFileReader",
 #    fileNames = cms.untracked.vstring()

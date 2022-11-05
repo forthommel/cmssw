@@ -2,17 +2,18 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include "EventFilter/HGCalRawToDigi/interface/RawDataPackingTools.h"
 
+#include "CLHEP/Random/RandFlat.h"
 #include "TChain.h"
 
 class HGCalFEDEmulator : public edm::stream::EDProducer<> {
@@ -30,6 +31,7 @@ private:
   const unsigned int header_marker_;
   const unsigned int idle_marker_;
   const unsigned int fed_id_;
+  const double chan_surv_prob_;
 
   std::unique_ptr<TChain> chain_;
 
@@ -47,6 +49,7 @@ private:
   ECONDInputs_t data_;
   ECONDInputs_t::const_iterator it_data_;
 
+  edm::Service<edm::RandomNumberGenerator> rng_;
   edm::EDPutTokenT<FEDRawDataCollection> fedRawToken_;
 };
 
@@ -56,8 +59,14 @@ HGCalFEDEmulator::HGCalFEDEmulator(const edm::ParameterSet& iConfig)
       header_marker_(iConfig.getParameter<unsigned int>("headerMarker")),
       idle_marker_(iConfig.getParameter<unsigned int>("idleMarker")),
       fed_id_(iConfig.getParameter<unsigned int>("fedId")),
+      chan_surv_prob_(iConfig.getParameter<double>("channelSurvProb")),
       chain_(new TChain(iConfig.getParameter<std::string>("treeName").data())) {
   fedRawToken_ = produces<FEDRawDataCollection>();
+  if (!rng_.isAvailable())
+    throw cms::Exception("HGCalFEDEmulator")
+        << "The HGCalFEDEmulator module requires the RandomNumberGeneratorService,\n"
+           "which appears to be absent. Please add that service to your configuration\n"
+           "or remove the modules that require it.";
 }
 
 void HGCalFEDEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -65,11 +74,12 @@ void HGCalFEDEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     throw cms::Exception("HGCalFEDEmulator") << "Insufficient number of events were retrieved from input tree to "
                                                 "proceed with the generation of emulated events.";
   FEDRawDataCollection raw_data;
+  auto* rng_engine = &rng_->getEngine(iEvent.streamID());
   std::vector<uint32_t> econ_event;
   for (const auto& jt : it_data_->second) {
     std::vector<bool> chmap(num_channels_, true);
-    //for (size_t i = 0; i < chmap.size(); i++)
-    //  chmap[i] = (gRandom->Uniform() < pchsurvival);
+    for (size_t i = 0; i < chmap.size(); i++)
+      chmap[i] = CLHEP::RandFlat::shoot(rng_engine) < chan_surv_prob_;
 
     auto erxData = hgcal::econd::eRxSubPacketHeader(0, 0, 0, jt.second.cm0, jt.second.cm1, chmap);
     for (size_t i = 0; i < num_channels_; i++) {
@@ -174,6 +184,7 @@ void HGCalFEDEmulator::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<unsigned int>("headerMarker", (0xaa000000 >> 23) & 0x1ff);
   desc.add<unsigned int>("idleMarker", 0x55550000);
   desc.add<unsigned int>("fedId", 0);
+  desc.add<double>("channelSurvProb", 999.);
   descriptions.add("hgcalEmulatedFEDRawData", desc);
 }
 
