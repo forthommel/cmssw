@@ -4,4 +4,5 @@
 <use name="DataFormats/FEDRawData"/>
 <use name="DataFormats/HGCDigi"/>
 <use name="EventFilter/HGCalRawToDigi"/>
+<use name="clhep"/>
 <flags EDM_PLUGIN="1"/>
