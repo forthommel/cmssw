@@ -1,5 +1,9 @@
 #include "EventFilter/HGCalRawToDigi/interface/TestBeamUnpackerAlgo.h"
+#include "EventFilter/HGCalRawToDigi/interface/RawDataUnpackingTools.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <bitset>
 #include <cstring>
 
 namespace hgcal {
@@ -8,10 +12,29 @@ namespace hgcal {
         idle_pattern_(iConfig.getUntrackedParameter<unsigned int>("idlePattern", 0x555500)),
         header_marker_(iConfig.getUntrackedParameter<unsigned int>("headerMarker", 0x154)) {}
 
-  static uint32_t get_bits(uint32_t word, char start, char length) {
-    // this function get [n, n + length] bits of word
-    uint32_t temp = (1 << length) - 1;
-    return word >> start & temp;
+  static std::string read_poi(const std::vector<bool>& poi) {
+    std::ostringstream log;
+    std::vector<unsigned short> in, out;
+    for (size_t i = 0; i < poi.size(); ++i) {
+      if (poi.at(i))
+        in.emplace_back(i);
+      else
+        out.emplace_back(i);
+    }
+    log << "channels: IN:";
+    if (in.empty())
+      log << " none";
+    else
+      for (const auto& ch : in)
+        log << " " << ch;
+    log << ",\n"
+        << "         OUT:";
+    if (out.empty())
+      log << " none";
+    else
+      for (const auto& ch : out)
+        log << " " << ch;
+    return log.str();
   }
 
   void TestBeamUnpackerAlgo::run(const FEDRawData& input, HGCalDigiCollection& digis) {
@@ -20,40 +43,40 @@ namespace hgcal {
     memcpy(input_uint32.data(), input.data(), input.size() / sizeof(unsigned int));
 
     // parse the FED frame into ECON-D format
-    ECOND econd;
     for (auto it = input_uint32.begin(); it != input_uint32.end(); ++it) {
-      const auto word = *it;
-      if (word >> 8 == idle_pattern_)
+      if (*it >> 8 == idle_pattern_)
         continue;  // skip idle parts
-      if (word >> 23 == header_marker_) {
-        // use payload length to get body info of ECON-D
-        econd.payload_length = get_bits(word, 14, 9);
-        econd.header = ((uint64_t)word) << 32;
-        econd.header = econd.header | (uint64_t)(*(it++));
-        for (size_t j = 0; j < econd.payload_length; ++j)
-          econd.body[j] = *(it++);
-        // convert the ECON-D to ERX
-        ERX erx;
-        unsigned int index = 0;
-        if (!convertECONDtoERX(econd, erx, index))
-          break;
-        printf("===== header ===== 0x%lx\n", erx.header);
-        for (uint8_t j = 0; j < erx.channel_number; j++) {
-          if (erx.type[j] == 1)
-            printf("%04x\n", erx.body[j]);
-          else if (erx.type[j] >= 4)
-            printf("%08x\n", erx.body[j]);
-          else
-            printf("%06x\n", erx.body[j]);
-        }
-        break;
-      } else
-        throw cms::Exception("TestBeamUnpackerAlgo")
-            << "Reading the word '0x" << std::hex << word << std::dec << "' that is neither idle nor event header!";
+      if (((*it >> ECOND_FRAME::HEADER_POS) & ECOND_FRAME::HEADER_MASK) != header_marker_)
+        continue;  // find the header
+
+      auto event_header = econd::eventPacketHeader({*it, *(it + 1)});
+      edm::LogPrint("TestBeamUnpackerAlgo") << "ECON-D content: "
+                                            << "payload: " << std::dec << event_header.payload << ", "
+                                            << "passthrough mode: " << event_header.bitP << ", "
+                                            << "L1A: 0x" << std::hex << event_header.l1a << ", orbit # 0x"
+                                            << event_header.orb << ", BX # 0x" << event_header.bx << std::dec;
+
+      it += 2;  // skip the event packet header words
+
+      auto erx_header = econd::eRxSubPacketHeader({*it, *(it + 1)});
+      edm::LogPrint("TestBeamUnpackerAlgo").log([&](auto& log) {
+        log << "eRx subpacket: common mode words: 0x" << std::hex << erx_header.cm0 << " - 0x" << erx_header.cm1
+            << std::dec << "\n"
+            << read_poi(erx_header.chmap);
+      });
+
+      it += 2;  // skip the eRx subpacket header words
+
+      for (size_t i = 0; i < event_header.payload / 8; ++i) {  // unpack all channels
+        it += 8;
+      }
+
+      //else throw cms::Exception("TestBeamUnpackerAlgo")
+      //    << "Reading the word '0x" << std::hex << word << std::dec << "' that is neither idle nor event header!";
     }
   }
 
-  bool TestBeamUnpackerAlgo::convertECONDtoERX(const ECOND& econd, ERX& erx, unsigned int& index) const {
+  /*bool TestBeamUnpackerAlgo::convertECONDtoERX(const ECOND& econd, ERX& erx, unsigned int& index) const {
     static const std::vector<uint8_t> map_code2type = {0, 1, 2, 3, 4, 4, 4, 4, 6, 6, 6, 6, 5, 5, 5, 5};
     static const std::vector<uint8_t> map_code2length = {
         24, 16, 24, 24, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32};
@@ -91,5 +114,5 @@ namespace hgcal {
         index += 1;
       return true;
     }
-  }
+  }*/
 }  // namespace hgcal

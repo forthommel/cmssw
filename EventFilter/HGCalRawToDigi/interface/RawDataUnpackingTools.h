@@ -8,7 +8,7 @@ namespace hgcal {
   namespace econd {
     struct ChannelData {
       uint16_t tctp, adc, tot, adcm, toa;
-      bool passZS, passZSm1, hasToA, charmode;
+      bool passZS, passZSm1, hasToA;
     };
     /**
      \short Unpacks the ROC data from the ECON-D format dependending on
@@ -16,12 +16,13 @@ namespace hgcal {
        - normal mode : size and fields depend on the TcTb flags
      \note based on Fig. 20 of ECON-D specifications
      \param[in] cd a vector of channel data words (up to 2)
+     \param[in] charmode use characterisation mode?
     */
-    ChannelData channelData(const std::vector<uint32_t>& cd);
+    ChannelData channelData(const std::vector<uint32_t>& cd, bool charmode);
 
     struct ERxSubPacketHeader {
       uint16_t stat, ham;
-      bool bitE;
+      bool format, bitE;
       uint16_t cm0, cm1;
       std::vector<bool> chmap;
     };
