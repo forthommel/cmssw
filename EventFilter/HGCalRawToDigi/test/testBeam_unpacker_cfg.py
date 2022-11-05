@@ -1,21 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
+
 process.load('EventFilter.HGCalRawToDigi.hgcalEmulatedFEDRawData_cfi')
 process.load('EventFilter.HGCalRawToDigi.hgcalDigis_cfi')
 
-# minimum of logs
 process.MessageLogger = cms.Service("MessageLogger",
     cerr = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG'))
 )
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
 
-# raw data source
 #process.source = cms.Source("NewEventStreamFileReader",
-#process.source = cms.Source("FedRawDataInputSource",
-#    fileNames = cms.untracked.vstring(
-#        'file:EventFilter/HGCalRawToDigi/data/ECOND_little_endian.bin',
-#    )
+#    fileNames = cms.untracked.vstring()
 #)
 process.source = cms.Source("EmptySource")
 
@@ -29,7 +25,6 @@ process.p = cms.Path(
     * process.hgcalDigis
 )
 
-# output configuration
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string("hgcal_digi.root"),
     outputCommands = cms.untracked.vstring(

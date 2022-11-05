@@ -2,6 +2,7 @@
 #define EventFilter_HGCalRawToDigi_TestBeamUnpackerAlgo_h
 
 #include "EventFilter/HGCalRawToDigi/interface/HGCalUnpackerAlgo.h"
+#include <array>
 
 namespace hgcal {
   class TestBeamUnpackerAlgo final : public UnpackerAlgo {
@@ -14,21 +15,23 @@ namespace hgcal {
     static constexpr size_t PAYLOAD_LENGTH_MAX = 469;  ///< maximum payload length in a ECON-D
     static constexpr size_t ERX_MAX = 37;              ///< maximum number of eRx channels
 
-    const unsigned int idle_pattern_;
-    const unsigned int header_marker_;
-
     struct ECOND {
-      uint64_t header;
-      uint32_t body[PAYLOAD_LENGTH_MAX];
-      uint16_t payload_length;
+      uint64_t header{0};
+      std::array<uint32_t, PAYLOAD_LENGTH_MAX> body;
+      uint16_t payload_length{0};
     };
     struct ERX {
-      uint64_t header;
-      uint8_t channels[ERX_MAX];
-      uint8_t type[ERX_MAX];
-      uint32_t body[ERX_MAX];
-      uint8_t channel_number;
+      uint64_t header{0};
+      std::array<uint8_t, ERX_MAX> channels;
+      std::array<uint8_t, ERX_MAX> type;
+      std::array<uint32_t, ERX_MAX> body;
+      uint8_t channel_number{0};
     };
+
+    bool convertECONDtoERX(const ECOND&, ERX&, unsigned int&) const;
+
+    const unsigned int idle_pattern_;
+    const unsigned int header_marker_;
   };
 }  // namespace hgcal
 

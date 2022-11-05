@@ -46,6 +46,8 @@ private:
   typedef std::map<Event_t, std::map<ERx_t, ERxData_t>> ECONDInputs_t;
   ECONDInputs_t data_;
   ECONDInputs_t::const_iterator it_data_;
+
+  edm::EDPutTokenT<FEDRawDataCollection> fedRawToken_;
 };
 
 HGCalFEDEmulator::HGCalFEDEmulator(const edm::ParameterSet& iConfig)
@@ -55,14 +57,14 @@ HGCalFEDEmulator::HGCalFEDEmulator(const edm::ParameterSet& iConfig)
       idle_marker_(iConfig.getParameter<unsigned int>("idleMarker")),
       fed_id_(iConfig.getParameter<unsigned int>("fedId")),
       chain_(new TChain(iConfig.getParameter<std::string>("treeName").data())) {
-  produces<FEDRawDataCollection>();
+  fedRawToken_ = produces<FEDRawDataCollection>();
 }
 
 void HGCalFEDEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if (it_data_ == data_.end())
     throw cms::Exception("HGCalFEDEmulator") << "Insufficient number of events were retrieved from input tree to "
                                                 "proceed with the generation of emulated events.";
-  auto raw_data = std::make_unique<FEDRawDataCollection>();
+  FEDRawDataCollection raw_data;
   std::vector<uint32_t> econ_event;
   for (const auto& jt : it_data_->second) {
     std::vector<bool> chmap(num_channels_, true);
@@ -108,15 +110,15 @@ void HGCalFEDEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   econ_event.push_back(0);  //CRC is fake
   econ_event.push_back(idle_marker_);
 
-  size_t event_size = econ_event.size() * sizeof(econ_event[0]);
+  size_t event_size = econ_event.size() * sizeof(econ_event.at(0));
 
   // fill the output FED raw data collection
-  auto& fed_data = raw_data->FEDData(fed_id_);
+  auto& fed_data = raw_data.FEDData(fed_id_);
 
   fed_data.resize(event_size);
-  memcpy(fed_data.data(), &econ_event[0], event_size);
+  memcpy(fed_data.data(), econ_event.data(), event_size);
 
-  iEvent.put(std::move(raw_data));
+  iEvent.emplace(fedRawToken_, std::move(raw_data));
   ++it_data_;
 }
 
