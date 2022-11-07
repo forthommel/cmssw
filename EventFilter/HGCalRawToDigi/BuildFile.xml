@@ -1,6 +1,6 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="DataFormats/Common"/>
+<use name="DataFormats/Common"/> <!--FIXME move to a SimDataFormats/XXX subpackage? -->
 <use name="DataFormats/FEDRawData"/>
 <export>
   <lib name="1"/>
