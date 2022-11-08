@@ -30,7 +30,7 @@ private:
   struct HeaderBits_t {
     bool bitO, bitB, bitE, bitT, bitH, bitS;
   };
-  std::vector<uint32_t> produceECONEvent(const edm::Event&, uint64_t&, HeaderBits_t&) const;
+  std::vector<uint32_t> produceECONEvent(const edm::Event&, std::vector<uint64_t>&, HeaderBits_t&) const;
 
   const std::vector<std::string> input_files_;
   const std::vector<unsigned int> enabled_channels_;
@@ -90,7 +90,7 @@ void HGCalFEDEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                                                 "proceed with the generation of emulated events.";
   //auto* rng_engine = &rng_->getEngine(iEvent.streamID());
 
-  uint64_t enabled_channels;
+  std::vector<uint64_t> enabled_channels;
   HeaderBits_t header_bits;
   auto econ_event = produceECONEvent(iEvent, enabled_channels, header_bits);
   size_t event_size = econ_event.size() * sizeof(econ_event.at(0));
@@ -106,40 +106,41 @@ void HGCalFEDEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   // store the emulation information if requested
   if (store_emul_info_) {
-    HGCalFEDEmulatorInfo emul_info(enabled_channels,
-                                   header_bits.bitO,
+    HGCalFEDEmulatorInfo emul_info(header_bits.bitO,
                                    header_bits.bitB,
                                    header_bits.bitE,
                                    header_bits.bitT,
                                    header_bits.bitH,
-                                   header_bits.bitS);
+                                   header_bits.bitS,
+                                   enabled_channels);
     iEvent.emplace(fedEmulInfoToken_, std::move(emul_info));
   }
   ++it_data_;
 }
 
 std::vector<uint32_t> HGCalFEDEmulator::produceECONEvent(const edm::Event& iEvent,
-                                                         uint64_t& enabled_channels,
+                                                         std::vector<uint64_t>& enabled_channels,
                                                          HeaderBits_t& header_bits) const {
-  enum HGCROCEventRecoStatus { PerfectReco = 0, GoodReco = 1, FailedReco = 2, AmbiguousReco = 3 };
+  auto* rng_engine = &rng_->getEngine(iEvent.streamID());
 
   //FIXME to be parameterised
   uint8_t ht = HGCROCEventRecoStatus::PerfectReco, ebo = 0;
   bool bitS = false;
   uint32_t crc = 0;  //FIXME CRC is fake
 
-  auto* rng_engine = &rng_->getEngine(iEvent.streamID());
+  enabled_channels.clear();  // reset the list of channels enabled
   std::vector<uint32_t> econ_event;
-  enabled_channels = 0ul;  // reset the list of channels enabled
   for (const auto& jt : it_data_->second) {
     std::vector<bool> chmap(num_channels_, true);
+    uint64_t ch_en = 0ul;  // reset the list of channels enabled
     for (size_t i = 0; i < chmap.size(); i++) {
       // randomly choosing the channels to be shot at
-      chmap[i] = (!enabled_channels_.empty() &&
-                  std::find(enabled_channels_.begin(), enabled_channels_.end(), i) != enabled_channels_.end()) &&
-                 (CLHEP::RandFlat::shoot(rng_engine) < chan_surv_prob_);
-      enabled_channels |= (chmap[i] << i);
+      chmap[i] = (enabled_channels_.empty() ||
+                  (std::find(enabled_channels_.begin(), enabled_channels_.end(), i) != enabled_channels_.end())) &&
+                 CLHEP::RandFlat::shoot(rng_engine, 0., 1.) <= chan_surv_prob_;
+      ch_en |= (chmap[i] << i);
     }
+    enabled_channels.emplace_back(ch_en);
 
     auto erxData = hgcal::econd::eRxSubPacketHeader(0, 0, false, jt.second.cm0, jt.second.cm1, chmap);
     for (size_t i = 0; i < num_channels_; i++) {
@@ -158,40 +159,35 @@ std::vector<uint32_t> HGCalFEDEmulator::produceECONEvent(const edm::Event& iEven
                                                  true);
       erxData.insert(erxData.end(), chData.begin(), chData.end());
     }
+    std::cout << "after erxdata channels" << std::endl;
 
     econ_event.insert(econ_event.end(), erxData.begin(), erxData.end());
   }
 
-  auto econdH = hgcal::econd::eventPacketHeader(header_marker_,
-                                                econ_event.size() + 1,
-                                                true,
-                                                false,
-                                                // HGCROC Event reco status across all active eRxE-B-O:
-                                                ht,   // HDR/TRL numbers
-                                                ebo,  // Event/BX/Orbit numbers
-                                                false,
-                                                false,
-                                                0,
-                                                std::get<0>(it_data_->first),
-                                                std::get<1>(it_data_->first),
-                                                std::get<2>(it_data_->first),
-                                                bitS,  // OR of "Stat" bits for all active eRx
-                                                0,
-                                                0);
+  auto econdH = hgcal::econd::eventPacketHeader(
+      header_marker_,
+      econ_event.size() + 1,
+      true,
+      false,
+      // HGCROC Event reco status across all active eRxE-B-O:
+      //FIXME check endianness of these two numbers
+      (header_bits.bitH << 1) | header_bits.bitT,                            // HDR/TRL numbers
+      (header_bits.bitE << 2) | (header_bits.bitB << 1) | header_bits.bitO,  // Event/BX/Orbit numbers
+      false,
+      false,
+      0,
+      std::get<0>(it_data_->first),
+      std::get<1>(it_data_->first),
+      std::get<2>(it_data_->first),
+      header_bits.bitS,  // OR of "Stat" bits for all active eRx
+      0,
+      0);
   econ_event.insert(econ_event.begin(), econdH.begin(), econdH.end());
   econ_event.push_back(crc);
   econ_event.push_back(idle_marker_);
 
   //for (size_t i = 0; i < econ_event.size(); i++)
   //  econ_event[i] = htobe32(econ_event[i]);
-
-  //FIXME check endianness of these two
-  header_bits.bitH = (ht >> 1) & 0x1;
-  header_bits.bitT = ht & 0x1;
-  header_bits.bitE = (ebo >> 2) & 0x1;
-  header_bits.bitB = (ebo >> 1) & 0x1;
-  header_bits.bitO = ebo & 0x1;
-  header_bits.bitS = bitS;
 
   return econ_event;
 }

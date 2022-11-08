@@ -2,32 +2,45 @@
 #define EventFilter_HGCalRawToDigi_HGCalFEDEmulatorInfo_h
 
 #include <bitset>
+#include <vector>
 
 class HGCalFEDEmulatorInfo {
 public:
   HGCalFEDEmulatorInfo() = default;
-  explicit HGCalFEDEmulatorInfo(uint64_t poi, bool obit, bool bbit, bool ebit, bool tbit, bool hbit, bool sbit)
-      : poi_(poi) {
+  explicit HGCalFEDEmulatorInfo(
+      bool obit, bool bbit, bool ebit, bool tbit, bool hbit, bool sbit, std::vector<uint64_t> enabled_channels = {}) {
     header_bits_[StatusBits::O] = obit;
     header_bits_[StatusBits::B] = bbit;
     header_bits_[StatusBits::E] = ebit;
     header_bits_[StatusBits::T] = tbit;
     header_bits_[StatusBits::H] = hbit;
     header_bits_[StatusBits::S] = sbit;
+    for (const auto& ch_en : enabled_channels)
+      pois_.emplace_back(ch_en);
   }
 
-  bool channelEnabled(size_t ch_id) const { return poi_.test(ch_id); }
-  bool oBit() const { return header_bits_.test(StatusBits::O); }
-  bool bBit() const { return header_bits_.test(StatusBits::B); }
-  bool eBit() const { return header_bits_.test(StatusBits::E); }
-  bool tBit() const { return header_bits_.test(StatusBits::T); }
-  bool hBit() const { return header_bits_.test(StatusBits::H); }
-  bool sBit() const { return header_bits_.test(StatusBits::S); }
+  void addChannelsEnable(uint64_t poi) { pois_.emplace_back(poi); }
+  std::vector<bool> channelsEnabled(size_t ch_id) const {
+    std::vector<bool> ch_en;
+    for (const auto& poi : pois_)
+      ch_en.emplace_back(poi.test(ch_id));
+    return ch_en;
+  }
+
+  enum HGCROCEventRecoStatus { PerfectReco = 0, GoodReco = 1, FailedReco = 2, AmbiguousReco = 3 };
+  HGCROCEventRecoStatus eventRecoStatus() const { return static_cast<HGCROCEventRecoStatus>(bitH() << 1 | bitT()); }
+
+  bool bitO() const { return header_bits_.test(StatusBits::O); }
+  bool bitB() const { return header_bits_.test(StatusBits::B); }
+  bool bitE() const { return header_bits_.test(StatusBits::E); }
+  bool bitT() const { return header_bits_.test(StatusBits::T); }
+  bool bitH() const { return header_bits_.test(StatusBits::H); }
+  bool bitS() const { return header_bits_.test(StatusBits::S); }
 
 private:
   enum StatusBits { O = 0, B, E, T, H, S };
-  std::bitset<37> poi_;
   std::bitset<6> header_bits_;
+  std::vector<std::bitset<37> > pois_;
 };
 
 #endif
