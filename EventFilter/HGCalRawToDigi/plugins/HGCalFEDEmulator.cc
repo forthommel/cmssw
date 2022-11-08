@@ -38,7 +38,8 @@ private:
   const unsigned int header_marker_;
   const unsigned int idle_marker_;
   const unsigned int fed_id_;
-  const double chan_surv_prob_;
+  double chan_surv_prob_;
+  double bitO_error_prob_, bitB_error_prob_, bitE_error_prob_, bitT_error_prob_, bitH_error_prob_, bitS_error_prob_;
   const bool store_emul_info_;
 
   std::unique_ptr<TChain> chain_;
@@ -70,7 +71,6 @@ HGCalFEDEmulator::HGCalFEDEmulator(const edm::ParameterSet& iConfig)
       header_marker_(iConfig.getParameter<unsigned int>("headerMarker")),
       idle_marker_(iConfig.getParameter<unsigned int>("idleMarker")),
       fed_id_(iConfig.getParameter<unsigned int>("fedId")),
-      chan_surv_prob_(iConfig.getParameter<double>("channelSurvProb")),
       store_emul_info_(iConfig.getParameter<bool>("storeEmulatorInfo")),
       chain_(new TChain(iConfig.getParameter<std::string>("treeName").data())) {
   if (!rng_.isAvailable())
@@ -80,6 +80,14 @@ HGCalFEDEmulator::HGCalFEDEmulator(const edm::ParameterSet& iConfig)
            "or remove the modules that require it.";
 
   fedRawToken_ = produces<FEDRawDataCollection>();
+  const auto pmaps = iConfig.getParameter<edm::ParameterSet>("probabilityMaps");
+  bitO_error_prob_ = pmaps.getParameter<double>("bitOError");
+  bitB_error_prob_ = pmaps.getParameter<double>("bitBError");
+  bitE_error_prob_ = pmaps.getParameter<double>("bitEError");
+  bitT_error_prob_ = pmaps.getParameter<double>("bitTError");
+  bitH_error_prob_ = pmaps.getParameter<double>("bitHError");
+  bitS_error_prob_ = pmaps.getParameter<double>("bitSError");
+  chan_surv_prob_ = pmaps.getParameter<double>("channelSurv");
   if (store_emul_info_)
     fedEmulInfoToken_ = produces<HGCalFEDEmulatorInfo>();
 }
@@ -123,9 +131,13 @@ std::vector<uint32_t> HGCalFEDEmulator::produceECONEvent(const edm::Event& iEven
                                                          HeaderBits_t& header_bits) const {
   auto* rng_engine = &rng_->getEngine(iEvent.streamID());
 
-  //FIXME to be parameterised
-  uint8_t ht = HGCROCEventRecoStatus::PerfectReco, ebo = 0;
-  bool bitS = false;
+  // first sample on header status bits
+  header_bits.bitO = CLHEP::RandFlat::shoot(rng_engine, 0., 1.) >= bitO_error_prob_;
+  header_bits.bitB = CLHEP::RandFlat::shoot(rng_engine, 0., 1.) >= bitB_error_prob_;
+  header_bits.bitE = CLHEP::RandFlat::shoot(rng_engine, 0., 1.) >= bitE_error_prob_;
+  header_bits.bitT = CLHEP::RandFlat::shoot(rng_engine, 0., 1.) >= bitT_error_prob_;
+  header_bits.bitH = CLHEP::RandFlat::shoot(rng_engine, 0., 1.) >= bitH_error_prob_;
+  header_bits.bitS = CLHEP::RandFlat::shoot(rng_engine, 0., 1.) >= bitS_error_prob_;
   uint32_t crc = 0;  //FIXME CRC is fake
 
   enabled_channels.clear();  // reset the list of channels enabled
@@ -159,7 +171,6 @@ std::vector<uint32_t> HGCalFEDEmulator::produceECONEvent(const edm::Event& iEven
                                                  true);
       erxData.insert(erxData.end(), chData.begin(), chData.end());
     }
-    std::cout << "after erxdata channels" << std::endl;
 
     econ_event.insert(econ_event.end(), erxData.begin(), erxData.end());
   }
@@ -247,7 +258,17 @@ void HGCalFEDEmulator::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<unsigned int>("headerMarker", (0xaa000000 >> 23) & 0x1ff);
   desc.add<unsigned int>("idleMarker", 0x55550000);
   desc.add<unsigned int>("fedId", 0)->setComment("FED number delivering the emulated frames");
-  desc.add<double>("channelSurvProb", 999.);
+
+  edm::ParameterSetDescription prob_desc;
+  prob_desc.add<double>("channelSurv", 1.);
+  prob_desc.add<double>("bitOError", 0.);
+  prob_desc.add<double>("bitBError", 0.);
+  prob_desc.add<double>("bitEError", 0.);
+  prob_desc.add<double>("bitTError", 0.);
+  prob_desc.add<double>("bitHError", 0.);
+  prob_desc.add<double>("bitSError", 0.);
+  desc.add<edm::ParameterSetDescription>("probabilityMaps", prob_desc);
+
   desc.add<bool>("storeEmulatorInfo", true)
       ->setComment("also append a 'truth' auxiliary info to the output event content");
   descriptions.add("hgcalEmulatedFEDRawData", desc);
