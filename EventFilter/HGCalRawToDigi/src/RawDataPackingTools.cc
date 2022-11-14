@@ -145,6 +145,10 @@ std::vector<uint32_t> hgcal::econd::eventPacketHeader(uint16_t header,
   return words;
 }
 
+uint32_t hgcal::econd::buildIdleWord(uint8_t bufStat, uint8_t err, uint8_t rr, uint32_t progPattern) {
+  return (progPattern & 0xffffff) << 8 | (rr & 0x3) << 6 | (err & 0x7) << 3 | (bufStat & 0x7) << 0;
+}
+
 //
 std::vector<uint32_t> hgcal::backend::buildCaptureBlockHeader(uint32_t bc,
                                                               uint32_t ec,
