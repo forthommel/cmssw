@@ -1,13 +1,13 @@
-#ifndef EventFilter_HGCalRawToDigi_HGCalFEDEmulatorInfo_h
-#define EventFilter_HGCalRawToDigi_HGCalFEDEmulatorInfo_h
+#ifndef EventFilter_HGCalRawToDigi_HGCalECONDEmulatorInfo_h
+#define EventFilter_HGCalRawToDigi_HGCalECONDEmulatorInfo_h
 
 #include <bitset>
 #include <vector>
 
-class HGCalFEDEmulatorInfo {
+class HGCalECONDEmulatorInfo {
 public:
-  HGCalFEDEmulatorInfo() = default;
-  explicit HGCalFEDEmulatorInfo(
+  HGCalECONDEmulatorInfo() = default;
+  explicit HGCalECONDEmulatorInfo(
       bool obit, bool bbit, bool ebit, bool tbit, bool hbit, bool sbit, std::vector<uint64_t> enabled_channels = {}) {
     header_bits_[StatusBits::O] = obit;
     header_bits_[StatusBits::B] = bbit;
