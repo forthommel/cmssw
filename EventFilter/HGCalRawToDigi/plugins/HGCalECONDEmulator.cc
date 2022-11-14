@@ -107,8 +107,9 @@ void HGCalECONDEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   auto gen_event = produceECONEvent(iEvent, enabled_channels, header_bits);
 
   // convert 32-bit event into 64-bit payloads
-  std::vector<uint64_t> packed_event(ceil(gen_event.size() / 2.));
-  std::memcpy(packed_event.data(), gen_event.data(), gen_event.size() * sizeof(gen_event.at(0)));
+  std::vector<uint64_t> packed_event;
+  for (size_t i = 0; i < gen_event.size(); i += 2)
+    packed_event.emplace_back((uint64_t(gen_event.at(i)) << 32) | gen_event.at(i + 1));
   size_t event_size = packed_event.size() * sizeof(packed_event.at(0)) * sizeof(unsigned char);
 
   // fill the output FED raw data collection
