@@ -5,6 +5,7 @@
 <use name="FWCore/PluginManager"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/VeryForwardGeometryBuilder"/>
+<use name="SimPPS/PPSTimingDigiProducer"/>
 <use name="clhep"/>
 <use name="hepmc"/>
 <flags EDM_PLUGIN="1"/>

@@ -26,6 +26,8 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
+#include "SimPPS/PPSTimingDigiProducer/interface/HPTDCErrorsGenerator.h"
+
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 
@@ -50,7 +52,10 @@ private:
   const edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geometryToken_;
   const edm::EDGetTokenT<CrossingFrame<PSimHit> > crossingFrameToken_;
   const double base_time_offset_, time_to_digi_time_;
-  const double mh_prob_;
+  const double failed_packing_prob_;
+
+  HPTDCErrorsGenerator hptdc_err_gen_;
+
   edm::EDPutTokenT<edm::DetSetVector<CTPPSDiamondDigi> > diamondDigiToken_;
 
   std::unordered_map<unsigned int, double> time_offsets_;
@@ -61,7 +66,8 @@ PPSDiamondDigiProducer::PPSDiamondDigiProducer(const edm::ParameterSet& iConfig)
       crossingFrameToken_(consumes<CrossingFrame<PSimHit> >(iConfig.getParameter<edm::InputTag>("inputs"))),
       base_time_offset_(iConfig.getParameter<double>("baseTimeOffset")),
       time_to_digi_time_(iConfig.getParameter<double>("timeToDigiTime")),
-      mh_prob_(iConfig.getParameter<double>("multiHitProb")),
+      failed_packing_prob_(iConfig.getParameter<double>("packingFailureProb")),
+      hptdc_err_gen_(iConfig.getParameter<edm::ParameterSet>("hptdcErrors")),
       diamondDigiToken_(produces<edm::DetSetVector<CTPPSDiamondDigi> >()) {
   edm::Service<edm::RandomNumberGenerator> rng;
   if (!rng.isAvailable())
@@ -92,15 +98,17 @@ void PPSDiamondDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   for (const auto& rh_vs_detid : simhits) {
     auto& ds = digis.find_or_insert(CTPPSDiamondDetId(rh_vs_detid.first));
     const auto time_offset = time_offsets_.at(rh_vs_detid.first);
-    for (const auto& simhit : rh_vs_detid.second) {
+    const bool multi_hits = rh_vs_detid.second.size() > 1;
+    const unsigned int thr_voltage = 0;              //FIXME
+    for (const auto& simhit : rh_vs_detid.second) {  //FIXME use one single simhit? and which one?
+      if (CLHEP::RandFlat::shoot(rnd) < failed_packing_prob_)
+        continue;  // packing failed ; discard sim-hit
       const auto tof = (simhit.timeOfFlight() * CLHEP::ns / CLHEP::s) - time_offset;
       unsigned int leading_edge = tof * time_to_digi_time_;  // in HPTDC bins
-      unsigned int tot = 0;                                  // in HPTDC bins
+      unsigned int tot = 0. * time_to_digi_time_;            //FIXME in HPTDC bins
       unsigned int trailing_edge = leading_edge + tot;       // in HPTDC bins
-      unsigned int thr_voltage = 0;
-      bool multi_hits = CLHEP::RandFlat::shoot(rnd) < mh_prob_;  // no kinematics-dependence so far
-      unsigned short hptdc_err = 0;
-      ds.emplace_back(leading_edge, trailing_edge, thr_voltage, multi_hits, hptdc_err);
+      auto hptdc_err = hptdc_err_gen_.generate(rnd);         // no kinematics-dependence so far
+      ds.emplace_back(leading_edge, trailing_edge, thr_voltage, multi_hits, hptdc_err.errorFlag());
     }
   }
   iEvent.emplace(diamondDigiToken_, std::move(digis));  // store output collection to event
@@ -121,7 +129,11 @@ void PPSDiamondDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& de
       ->setComment("fixed offset for the time of arrival computation");
   desc.add<double>("timeToDigiTime", 1024 / 25.e-9)
       ->setComment("conversion factor between hit time of arrival (in seconds) and HPTDC bin size");
-  desc.add<double>("multiHitProb", 0.1)->setComment("probability of encountering multiple hits in sensor");
+  desc.add<double>("packingFailureProb", 0.01)->setComment("probability for the FW to pack the frame wrongly");
+
+  auto hptdc_err_desc = HPTDCErrorsGenerator::description();  // individual probabilities of all HPTDC errors
+  desc.add<edm::ParameterSetDescription>("hptdcErrors", hptdc_err_desc);
+
   descriptions.add("PPSDiamondDigitizer", desc);
 }
 
