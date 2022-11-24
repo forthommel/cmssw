@@ -308,8 +308,10 @@ phase2_timing_layer.toModify( theMixObjects,
 from Configuration.Eras.Modifier_ctpps_2022_cff import ctpps_2022
 ctpps_2022.toModify( theMixObjects,
     mixSH = dict(
-        input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","TotemHitsRP"),cms.InputTag("g4SimHits","CTPPSPixelHits") ],
-        subdets = theMixObjects.mixSH.subdets + [ 'TotemHitsRP', 'CTPPSPixelHits' ],
-        crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'TotemHitsRP' , 'CTPPSPixelHits']
+        input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","TotemHitsRP"),
+                                              cms.InputTag("g4SimHits","CTPPSPixelHits"),
+                                              cms.InputTag("g4SimHits","CTPPSTimingHits") ],
+        subdets = theMixObjects.mixSH.subdets + [ 'TotemHitsRP', 'CTPPSPixelHits', 'CTPPSTimingHits' ],
+        crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'TotemHitsRP' , 'CTPPSPixelHits', 'CTPPSTimingHits' ]
     )
 )
