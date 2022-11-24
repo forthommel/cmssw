@@ -154,9 +154,12 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
         initialSeed = cms.untracked.uint32(137137),
         engineName = FullSimEngine
     ),
-
     RPSiDetDigitizer = cms.PSet(
         initialSeed = cms.untracked.uint32(137137),
+        engineName = FullSimEngine
+    ),
+    PPSDiamondDigitizer = cms.PSet(
+        initialSeed = cms.untracked.uint32(424242),
         engineName = FullSimEngine
     )
     # to save the status of the last event (useful for crashes)

@@ -3,9 +3,13 @@ import FWCore.ParameterSet.Config as cms
 # PPS Digitization
 from SimPPS.PPSPixelDigiProducer.RPixDetDigitizer_cfi import *
 from SimPPS.RPDigiProducer.RPSiDetDigitizer_cfi import *
+from SimPPS.PPSTimingDigiProducer.PPSDiamondDigitizer_cfi import PPSDiamondDigitizer
+
 from CalibPPS.ESProducers.ppsTopology_cff import *
+
 RPixDetDigitizerTask=cms.Task(RPixDetDigitizer)
 RPSiDetDigitizerTask=cms.Task(RPSiDetDigitizer)
+PPSDiamondDigitizerTask = cms.Task(PPSDiamondDigitizer)
 
 ctppsDigiTask = cms.Task()
 
@@ -24,4 +28,8 @@ ctppsDigiTask = cms.Task()
 #ctpps_2018.toReplaceWith(ctppsDigiTask, RPixDetDigitizerTask)
 
 from Configuration.Eras.Modifier_ctpps_2022_cff import ctpps_2022
-ctpps_2022.toReplaceWith(ctppsDigiTask, RPixDetDigitizerTask)
+ctpps_2022.toReplaceWith(ctppsDigiTask, cms.Task(
+        RPixDetDigitizerTask,
+        PPSDiamondDigitizerTask
+    )
+)
