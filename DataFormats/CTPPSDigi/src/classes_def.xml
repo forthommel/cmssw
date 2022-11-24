@@ -81,10 +81,6 @@
   <class name="edm::Wrapper<edm::DetSet<TotemTimingEventInfo> >"/>
   <class name="edm::Wrapper<edm::DetSetVector<TotemTimingEventInfo> >"/>
 
-  <class name="HPTDCErrorFlags" ClassVersion="3">
-    <version ClassVersion="3" checksum="508529379"/>
-  </class>
-
   <class name="CTPPSPixelDigi" ClassVersion="3">
     <version ClassVersion="3" checksum="125589380"/>
   </class>
