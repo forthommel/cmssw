@@ -53,21 +53,40 @@ public:
     }
   }
 
-  bool internalFatalChipError() const { return error_flags & 0x1; }
-  bool eventLost() const { return (error_flags >> 1) & 0x1; }
-  bool hitRejectedByEventSizeLimit() const { return (error_flags >> 2) & 0x1; }
-  bool hitErrorGroup3() const { return (error_flags >> 3) & 0x1; }
-  bool hitLostL1OverflowGroup3() const { return (error_flags >> 4) & 0x1; }
-  bool hitLostROFifoOverflowGroup3() const { return (error_flags >> 5) & 0x1; }
-  bool hitErrorGroup2() const { return (error_flags >> 6) & 0x1; }
-  bool hitLostL1OverflowGroup2() const { return (error_flags >> 7) & 0x1; }
-  bool hitLostROFifoOverflowGroup2() const { return (error_flags >> 8) & 0x1; }
-  bool hitErrorGroup1() const { return (error_flags >> 9) & 0x1; }
-  bool hitLostL1OverflowGroup1() const { return (error_flags >> 10) & 0x1; }
-  bool hitLostROFifoOverflowGroup1() const { return (error_flags >> 11) & 0x1; }
-  bool hitErrorGroup0() const { return (error_flags >> 12) & 0x1; }
-  bool hitLostL1OverflowGroup0() const { return (error_flags >> 13) & 0x1; }
-  bool hitLostROFifoOverflowGroup0() const { return (error_flags >> 14) & 0x1; }
+  bool internalFatalChipError() const { return bit(0); }
+  void setInternalFatalChipError(bool bit) { setBit(0, bit); }
+  bool eventLost() const { return bit(1); }
+  void setEventLost(bool bit) { setBit(1, bit); }
+  bool hitRejectedByEventSizeLimit() const { return bit(2); }
+  void setHitRejectedByEventSizeLimit(bool bit) { setBit(2, bit); }
+
+  bool hitErrorGroup3() const { return bit(3); }
+  void setHitErrorGroup3(bool bit) { setBit(3, bit); }
+  bool hitLostL1OverflowGroup3() const { return bit(4); }
+  void setHitLostL1OverflowGroup3(bool bit) { setBit(4, bit); }
+  bool hitLostROFifoOverflowGroup3() const { return bit(5); }
+  void setHitLostROFifoOverflowGroup3(bool bit) { setBit(5, bit); }
+
+  bool hitErrorGroup2() const { return bit(6); }
+  void setHitErrorGroup2(bool bit) { setBit(6, bit); }
+  bool hitLostL1OverflowGroup2() const { return bit(7); }
+  void setHitLostL1OverflowGroup2(bool bit) { setBit(7, bit); }
+  bool hitLostROFifoOverflowGroup2() const { return bit(8); }
+  void setHitLostROFifoOverflowGroup2(bool bit) { setBit(8, bit); }
+
+  bool hitErrorGroup1() const { return bit(9); }
+  void setHitErrorGroup1(bool bit) { setBit(9, bit); }
+  bool hitLostL1OverflowGroup1() const { return bit(10); }
+  void setHitLostL1OverflowGroup1(bool bit) { setBit(10, bit); }
+  bool hitLostROFifoOverflowGroup1() const { return bit(11); }
+  void setHitLostROFifoOverflowGroup1(bool bit) { setBit(11, bit); }
+
+  bool hitErrorGroup0() const { return bit(12); }
+  void setHitErrorGroup0(bool bit) { setBit(12, bit); }
+  bool hitLostL1OverflowGroup0() const { return bit(13); }
+  void setHitLostL1OverflowGroup0(bool bit) { setBit(13, bit); }
+  bool hitLostROFifoOverflowGroup0() const { return bit(14); }
+  void setHitLostROFifoOverflowGroup0(bool bit) { setBit(14, bit); }
 
   inline unsigned short errorFlag() const { return error_flags; }
 
@@ -109,6 +128,8 @@ public:
   }
 
 private:
+  bool bit(unsigned short pos) const { return (error_flags >> pos) & 0x1; }
+  void setBit(unsigned short pos, bool value) { error_flags ^= (-value ^ error_flags) & (1UL << pos); }
   unsigned short error_flags;
 };
 
