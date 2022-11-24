@@ -33,6 +33,7 @@
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "DataFormats/CTPPSDigi/interface/CTPPSDiamondDigi.h"
 
+#include <CLHEP/Random/RandFlat.h>
 #include <CLHEP/Units/PhysicalConstants.h>
 
 class PPSDiamondDigiProducer : public edm::stream::EDProducer<> {
@@ -49,6 +50,7 @@ private:
   const edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geometryToken_;
   const edm::EDGetTokenT<CrossingFrame<PSimHit> > crossingFrameToken_;
   const double base_time_offset_, time_to_digi_time_;
+  const double mh_prob_;
   edm::EDPutTokenT<edm::DetSetVector<CTPPSDiamondDigi> > diamondDigiToken_;
 
   std::unordered_map<unsigned int, double> time_offsets_;
@@ -59,6 +61,7 @@ PPSDiamondDigiProducer::PPSDiamondDigiProducer(const edm::ParameterSet& iConfig)
       crossingFrameToken_(consumes<CrossingFrame<PSimHit> >(iConfig.getParameter<edm::InputTag>("inputs"))),
       base_time_offset_(iConfig.getParameter<double>("baseTimeOffset")),
       time_to_digi_time_(iConfig.getParameter<double>("timeToDigiTime")),
+      mh_prob_(iConfig.getParameter<double>("multiHitProb")),
       diamondDigiToken_(produces<edm::DetSetVector<CTPPSDiamondDigi> >()) {
   edm::Service<edm::RandomNumberGenerator> rng;
   if (!rng.isAvailable())
@@ -95,7 +98,7 @@ void PPSDiamondDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
       unsigned int tot = 0;                                  // in HPTDC bins
       unsigned int trailing_edge = leading_edge + tot;       // in HPTDC bins
       unsigned int thr_voltage = 0;
-      bool multi_hits = false;
+      bool multi_hits = CLHEP::RandFlat::shoot(rnd) < mh_prob_;  // no kinematics-dependence so far
       unsigned short hptdc_err = 0;
       ds.emplace_back(leading_edge, trailing_edge, thr_voltage, multi_hits, hptdc_err);
     }
@@ -118,6 +121,7 @@ void PPSDiamondDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& de
       ->setComment("fixed offset for the time of arrival computation");
   desc.add<double>("timeToDigiTime", 1024 / 25.e-9)
       ->setComment("conversion factor between hit time of arrival (in seconds) and HPTDC bin size");
+  desc.add<double>("multiHitProb", 0.1)->setComment("probability of encountering multiple hits in sensor");
   descriptions.add("PPSDiamondDigitizer", desc);
 }
 
