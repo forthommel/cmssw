@@ -6,6 +6,7 @@ from SimPPS.RPDigiProducer.RPSiDetDigitizer_cfi import *
 from SimPPS.PPSTimingDigiProducer.PPSDiamondDigitizer_cfi import PPSDiamondDigitizer
 
 from CalibPPS.ESProducers.ppsTopology_cff import *
+from Geometry.VeryForwardGeometry.geometryRPFromDB_cfi import ctppsGeometryESModule
 
 RPixDetDigitizerTask=cms.Task(RPixDetDigitizer)
 RPSiDetDigitizerTask=cms.Task(RPSiDetDigitizer)
