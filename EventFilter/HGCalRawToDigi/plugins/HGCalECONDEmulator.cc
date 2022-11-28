@@ -53,7 +53,7 @@ private:
   const bool store_fed_header_trailer_;
 
   std::unique_ptr<hgcal::econd::TBTreeReader> reader_;
-  hgcal::econd::TBTreeReader::ECONDEvent reader_evt_;
+  hgcal::econd::ECONDEvent reader_evt_;
 
   edm::Service<edm::RandomNumberGenerator> rng_;
   edm::EDPutTokenT<FEDRawDataCollection> fedRawToken_;

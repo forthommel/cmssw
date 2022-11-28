@@ -27,11 +27,11 @@ namespace hgcal::econd {
       // check if event already exists
       EventId key((uint32_t)event.eventcounter, (uint32_t)event.bxcounter, (uint32_t)event.orbitcounter);
       if (data_.count(key) == 0)
-        data_[key] = std::map<ERx_t, ERxData_t>();
+        data_[key] = ERxEvent();
       // check if chip already exists
       ERx_t erxKey((uint8_t)event.chip, (uint8_t)event.half);
       if (data_[key].count(erxKey) == 0)
-        data_[key][erxKey] = ERxData_t();
+        data_[key][erxKey] = ERxData();
       // add channel data
       if (event.channel == (int)num_channels_)
         data_[key][erxKey].cm0 = event.adc;
@@ -48,7 +48,7 @@ namespace hgcal::econd {
     it_data_ = data_.begin();
   }
 
-  std::pair<TBTreeReader::EventId, std::map<TBTreeReader::ERx_t, TBTreeReader::ERxData_t> > TBTreeReader::next() {
+  ECONDEvent TBTreeReader::next() {
     if (it_data_ == data_.end())
       throw cms::Exception("TBTreeReader") << "Insufficient number of events were retrieved from input tree to "
                                               "proceed with the generation of emulated events.";

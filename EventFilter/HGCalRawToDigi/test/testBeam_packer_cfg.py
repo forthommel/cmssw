@@ -2,14 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 
-process.load('EventFilter.HGCalRawToDigi.hgcalEmulatedECONDRawData_cfi')
+process.load('EventFilter.HGCalRawToDigi.hgcalEmulatedSlinkRawData_cfi')
 
 process.MessageLogger = cms.Service("MessageLogger",
     cerr = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG'))
 )
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    hgcalEmulatedECONDRawData = cms.PSet(initialSeed = cms.untracked.uint32(42))
+    hgcalEmulatedSlinkRawData = cms.PSet(initialSeed = cms.untracked.uint32(42))
 )
 
 #process.source = cms.Source("NewEventStreamFileReader",
@@ -17,26 +17,26 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 #)
 process.source = cms.Source("EmptySource")
 
-process.hgcalEmulatedECONDRawData.inputs = cms.vstring(
+process.hgcalEmulatedSlinkRawData.inputs = cms.vstring(
     'file:/eos/cms/store/group/dpg_hgcal/tb_hgcal/2022/sps_oct2022/electron_beam_100_160fC/beam_run/run_20221009_222828/beam_run0.root',
 )
-process.hgcalEmulatedECONDRawData.probabilityMaps.channelSurv = 0.5
+process.hgcalEmulatedSlinkRawData.channelSurv = 0.5
 
 process.dump = cms.EDAnalyzer("DumpFEDRawDataProduct",
-    label = cms.untracked.InputTag('hgcalEmulatedECONDRawData'),
+    label = cms.untracked.InputTag('hgcalEmulatedSlinkRawData'),
     feds = cms.untracked.vint32(0),
     dumpPayload = cms.untracked.bool(True)
 )
 
 process.p = cms.Path(
-    process.hgcalEmulatedECONDRawData * process.dump
+    process.hgcalEmulatedSlinkRawData * process.dump
 )
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string("hgcal_raw.root"),
     outputCommands = cms.untracked.vstring(
         'drop *',
-        'keep *_hgcalEmulatedECONDRawData_*_*',
+        'keep *_hgcalEmulatedSlinkRawData_*_*',
     )
 )
 

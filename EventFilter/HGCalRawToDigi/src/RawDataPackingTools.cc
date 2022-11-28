@@ -1,7 +1,7 @@
 #include "EventFilter/HGCalRawToDigi/interface/RawDataPackingTools.h"
 #include "EventFilter/HGCalRawToDigi/interface/RawDataDefinitions.h"
 
-std::vector<uint32_t> hgcal::econd::addChannelData(uint8_t &msb,
+std::vector<uint32_t> hgcal::econd::addChannelData(uint8_t& msb,
                                                    uint16_t tctp,
                                                    uint16_t adc,
                                                    uint16_t tot,
@@ -153,7 +153,7 @@ uint32_t hgcal::econd::buildIdleWord(uint8_t bufStat, uint8_t err, uint8_t rr, u
 std::vector<uint32_t> hgcal::backend::buildCaptureBlockHeader(uint32_t bc,
                                                               uint32_t ec,
                                                               uint32_t oc,
-                                                              std::vector<uint8_t> &econdStatus) {
+                                                              std::vector<uint8_t>& econdStatus) {
   std::vector<uint32_t> header(2, 0);
   header[0] = (bc & hgcal::BACKEND_FRAME::CAPTUREBLOCK_BC_MASK) << hgcal::BACKEND_FRAME::CAPTUREBLOCK_BC_POS |
               (ec & hgcal::BACKEND_FRAME::CAPTUREBLOCK_EC_MASK) << hgcal::BACKEND_FRAME::CAPTUREBLOCK_EC_POS |
