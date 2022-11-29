@@ -9,30 +9,45 @@
 #include "CLHEP/Random/RandFlat.h"
 
 namespace hgcal {
-  HGCalFrameGenerator::HGCalFrameGenerator(const edm::ParameterSet& iConfig)
-      : chan_surv_prob_(iConfig.getParameter<double>("channelSurv")),
-        enabled_channels_(iConfig.getParameter<std::vector<unsigned int>>("enabledChannels")),
-        header_marker_(iConfig.getParameter<unsigned int>("headerMarker")),
-        num_channels_(iConfig.getParameter<unsigned int>("numChannels")),
-        bitO_error_prob_(iConfig.getParameter<double>("bitOError")),
-        bitB_error_prob_(iConfig.getParameter<double>("bitBError")),
-        bitE_error_prob_(iConfig.getParameter<double>("bitEError")),
-        bitT_error_prob_(iConfig.getParameter<double>("bitTError")),
-        bitH_error_prob_(iConfig.getParameter<double>("bitHError")),
-        bitS_error_prob_(iConfig.getParameter<double>("bitSError")) {}
+  HGCalFrameGenerator::HGCalFrameGenerator(const edm::ParameterSet& iConfig) {
+    const auto econd_params = iConfig.getParameter<edm::ParameterSet>("econdParams");
+    econd_.chan_surv_prob = econd_params.getParameter<double>("channelSurv");
+    econd_.enabled_channels = econd_params.getParameter<std::vector<unsigned int> >("enabledChannels");
+    econd_.header_marker = econd_params.getParameter<unsigned int>("headerMarker");
+    econd_.num_channels = econd_params.getParameter<unsigned int>("numChannels");
+    econd_.bitO_error_prob = econd_params.getParameter<double>("bitOError");
+    econd_.bitB_error_prob = econd_params.getParameter<double>("bitBError");
+    econd_.bitE_error_prob = econd_params.getParameter<double>("bitEError");
+    econd_.bitT_error_prob = econd_params.getParameter<double>("bitTError");
+    econd_.bitH_error_prob = econd_params.getParameter<double>("bitHError");
+    econd_.bitS_error_prob = econd_params.getParameter<double>("bitSError");
+
+    const auto slink_params = iConfig.getParameter<edm::ParameterSet>("slinkParams");
+    slink_.num_econds = slink_params.getParameter<unsigned int>("numECONDs");
+  }
 
   edm::ParameterSetDescription HGCalFrameGenerator::description() {
     edm::ParameterSetDescription desc;
-    desc.add<double>("channelSurv", 1.);
-    desc.add<std::vector<unsigned int>>("enabledChannels", {})->setComment("list of channels to be enabled in readout");
-    desc.add<unsigned int>("headerMarker", 0x154)->setComment("9b programmable pattern; default is '0xAA' + '0b0'");
-    desc.add<unsigned int>("numChannels", 37)->setComment("number of channels managed in ECON-D");
-    desc.add<double>("bitOError", 0.);
-    desc.add<double>("bitBError", 0.);
-    desc.add<double>("bitEError", 0.);
-    desc.add<double>("bitTError", 0.);
-    desc.add<double>("bitHError", 0.);
-    desc.add<double>("bitSError", 0.);
+
+    edm::ParameterSetDescription econd_desc;
+    econd_desc.add<double>("channelSurv", 1.);
+    econd_desc.add<std::vector<unsigned int> >("enabledChannels", {})
+        ->setComment("list of channels to be enabled in readout");
+    econd_desc.add<unsigned int>("headerMarker", 0x154)
+        ->setComment("9b programmable pattern; default is '0xAA' + '0b0'");
+    econd_desc.add<unsigned int>("numChannels", 37)->setComment("number of channels managed in ECON-D");
+    econd_desc.add<double>("bitOError", 0.);
+    econd_desc.add<double>("bitBError", 0.);
+    econd_desc.add<double>("bitEError", 0.);
+    econd_desc.add<double>("bitTError", 0.);
+    econd_desc.add<double>("bitHError", 0.);
+    econd_desc.add<double>("bitSError", 0.);
+    desc.add<edm::ParameterSetDescription>("econdParams", econd_desc);
+
+    edm::ParameterSetDescription slink_desc;
+    slink_desc.add<unsigned int>("numECONDs", 7);
+    desc.add<edm::ParameterSetDescription>("slinkParams", slink_desc);
+
     return desc;
   }
 
@@ -41,26 +56,27 @@ namespace hgcal {
   HGCalFrameGenerator::HeaderBits HGCalFrameGenerator::generateStatusBits() const {
     HeaderBits header_bits;
     // first sample on header status bits
-    header_bits.bitO = CLHEP::RandFlat::shoot(rng_) >= bitO_error_prob_;
-    header_bits.bitB = CLHEP::RandFlat::shoot(rng_) >= bitB_error_prob_;
-    header_bits.bitE = CLHEP::RandFlat::shoot(rng_) >= bitE_error_prob_;
-    header_bits.bitT = CLHEP::RandFlat::shoot(rng_) >= bitT_error_prob_;
-    header_bits.bitH = CLHEP::RandFlat::shoot(rng_) >= bitH_error_prob_;
-    header_bits.bitS = CLHEP::RandFlat::shoot(rng_) >= bitS_error_prob_;
+    header_bits.bitO = CLHEP::RandFlat::shoot(rng_) >= econd_.bitO_error_prob;
+    header_bits.bitB = CLHEP::RandFlat::shoot(rng_) >= econd_.bitB_error_prob;
+    header_bits.bitE = CLHEP::RandFlat::shoot(rng_) >= econd_.bitE_error_prob;
+    header_bits.bitT = CLHEP::RandFlat::shoot(rng_) >= econd_.bitT_error_prob;
+    header_bits.bitH = CLHEP::RandFlat::shoot(rng_) >= econd_.bitH_error_prob;
+    header_bits.bitS = CLHEP::RandFlat::shoot(rng_) >= econd_.bitS_error_prob;
     return header_bits;
   }
 
   std::vector<bool> HGCalFrameGenerator::generateEnabledChannels(uint64_t& ch_en) const {
-    std::vector<bool> chmap(num_channels_, false);
+    std::vector<bool> chmap(econd_.num_channels, false);
     ch_en = 0ull;  // reset the list of channels enabled
     for (size_t i = 0; i < chmap.size(); i++) {
       // randomly choosing the channels to be shot at
-      chmap[i] = (enabled_channels_.empty() ||
-                  (std::find(enabled_channels_.begin(), enabled_channels_.end(), i) != enabled_channels_.end())) &&
-                 CLHEP::RandFlat::shoot(rng_) <= chan_surv_prob_;
+      chmap[i] = (econd_.enabled_channels.empty() ||
+                  (std::find(econd_.enabled_channels.begin(), econd_.enabled_channels.end(), i) !=
+                   econd_.enabled_channels.end())) &&
+                 CLHEP::RandFlat::shoot(rng_) <= econd_.chan_surv_prob;
       ch_en += (chmap[i] << i);
     }
-    ch_en &= ((1 << (num_channels_ + 1)) - 1);  // mask only (num_channels_) LSBs
+    ch_en &= ((1 << (econd_.num_channels + 1)) - 1);  // mask only (econd_.num_channels) LSBs
     return chmap;
   }
 
@@ -76,7 +92,7 @@ namespace hgcal {
 
       auto erxHeader = econd::eRxSubPacketHeader(0, 0, false, jt.second.cm0, jt.second.cm1, chmap);
       erxData.insert(erxData.end(), erxHeader.begin(), erxHeader.end());
-      for (size_t i = 0; i < num_channels_; i++) {
+      for (size_t i = 0; i < econd_.num_channels; i++) {
         if (!chmap.at(i))
           continue;
         uint8_t msb = 32;
@@ -99,14 +115,14 @@ namespace hgcal {
   std::vector<uint32_t> HGCalFrameGenerator::produceECONEvent(const econd::ECONDEvent& event) const {
     std::vector<uint64_t> enabled_channels;
     auto header_bits = generateStatusBits();
-    auto slink_event = generateERxData(event.second, enabled_channels);
-    LogDebug("HGCalFrameGenerator") << slink_event.size() << " word(s) of eRx payloads inserted.";
+    auto econd_event = generateERxData(event.second, enabled_channels);
+    LogDebug("HGCalFrameGenerator") << econd_event.size() << " word(s) of eRx payloads inserted.";
 
     // as ECON-D event content was just created, only prepend packet header at
     // this stage
     auto econdH = hgcal::econd::eventPacketHeader(
-        header_marker_,
-        slink_event.size() + 1,
+        econd_.header_marker,
+        econd_event.size() + 1,
         true,
         false,
         // HGCROC Event reco status across all active eRxE-B-O:
@@ -122,12 +138,41 @@ namespace hgcal {
         header_bits.bitS,  // OR of "Stat" bits for all active eRx
         0,
         0);
-    slink_event.insert(slink_event.begin(), econdH.begin(), econdH.end());
+    econd_event.insert(econd_event.begin(), econdH.begin(), econdH.end());
     LogDebug("HGCalFrameGenerator") << econdH.size()
                                     << " word(s) of event packet header prepend. New size of ECON frame: "
-                                    << slink_event.size();
+                                    << econd_event.size();
 
-    slink_event.push_back(computeCRC(econdH));
+    econd_event.push_back(computeCRC(econdH));
+
+    return econd_event;
+  }
+
+  std::vector<uint64_t> HGCalFrameGenerator::produceSlinkEvent(const econd::ECONDEvent& econd_event) const {
+    std::vector<uint64_t> slink_event;
+
+    const auto& event_id = econd_event.first;
+    uint64_t oc = std::get<2>(event_id), ec = std::get<0>(event_id), bc = std::get<1>(event_id);
+
+    uint64_t l1a_header{0ul};
+    l1a_header |= ((oc & 0xf) << 36);
+    l1a_header |= ((ec & 0x3f) << 40);
+    l1a_header |= ((bc & 0xfff) << 46);
+
+    for (size_t i = 0; i < max_num_econds_; ++i) {
+      if (i < slink_.num_econds) {
+        auto econd_evt = produceECONEvent(econd_event);
+        for (size_t j = 0; j < econd_evt.size(); j += 2) {
+          uint64_t word1 = econd_evt.at(j), word2 = (j + 1 < econd_evt.size()) ? econd_evt.at(j + 1) : 0ul;
+          slink_event.emplace_back(((word1 & 0xffffffff) << 32) | (word2 & 0xffffffff));
+        }
+        uint8_t econd_packet_status = ECONDPacketStatus::Normal;  //FIXME
+        l1a_header |= ((econd_packet_status & 0x7) << (3 * i));
+      } else {
+        l1a_header |= (ECONDPacketStatus::InactiveECOND << (3 * i));
+      }
+    }
+    slink_event.insert(slink_event.begin(), l1a_header);  // prepend L1A header
 
     return slink_event;
   }

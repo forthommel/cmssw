@@ -50,7 +50,7 @@ HGCalSlinkEmulator::HGCalSlinkEmulator(const edm::ParameterSet& iConfig)
       emul_(iConfig) {
   reader_ = std::make_unique<hgcal::econd::TBTreeReader>(iConfig.getParameter<std::string>("treeName"),
                                                          iConfig.getParameter<std::vector<std::string>>("inputs"),
-                                                         iConfig.getParameter<unsigned int>("numChannels"));
+                                                         emul_.econdParams().num_channels);
   if (!rng_.isAvailable())
     throw cms::Exception("HGCalSlinkEmulator") << "The HGCalSlinkEmulator module requires the "
                                                   "RandomNumberGeneratorService,\n"
@@ -67,7 +67,7 @@ void HGCalSlinkEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   reader_evt_ = reader_->next();
 
   emul_.setRandomEngine(rng_->getEngine(iEvent.streamID()));
-  auto gen_event = emul_.produceECONEvent(reader_evt_);
+  auto gen_event = emul_.produceSlinkEvent(reader_evt_);
 
   // convert 32-bit event into 64-bit payloads
   std::vector<uint64_t> packed_event;
@@ -145,10 +145,6 @@ void HGCalSlinkEmulator::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<unsigned int>("idleMarker", 0x555500);
   desc.add<unsigned int>("fedId", 0)->setComment("FED number delivering the emulated frames");
   desc.add<bool>("fedHeaderTrailer", true)->setComment("also add FED header/trailer info");
-
-  edm::ParameterSetDescription prob_desc;
-  desc.add<edm::ParameterSetDescription>("probabilityMaps", prob_desc);
-
   desc.add<bool>("storeEmulatorInfo", true)
       ->setComment("also append a 'truth' auxiliary info to the output event content");
   descriptions.add("hgcalEmulatedSlinkRawData", desc);
