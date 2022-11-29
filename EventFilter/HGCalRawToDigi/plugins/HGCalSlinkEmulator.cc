@@ -67,14 +67,8 @@ void HGCalSlinkEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   reader_evt_ = reader_->next();
 
   emul_.setRandomEngine(rng_->getEngine(iEvent.streamID()));
-  auto gen_event = emul_.produceSlinkEvent(reader_evt_);
-
-  // convert 32-bit event into 64-bit payloads
-  std::vector<uint64_t> packed_event;
-  for (size_t i = 0; i < gen_event.size(); i += 2)
-    packed_event.emplace_back((uint64_t(gen_event.at(i)) << 32) |
-                              (i < gen_event.size() - 1 ? gen_event.at(i + 1) : 0ul));
-  size_t event_size = packed_event.size() * sizeof(packed_event.at(0)) * sizeof(unsigned char),
+  auto slink_event = emul_.produceSlinkEvent(reader_evt_);
+  size_t event_size = slink_event.size() * sizeof(slink_event.at(0)) * sizeof(unsigned char),
          total_event_size = event_size;
 
   // fill the output FED raw data collection
@@ -102,18 +96,15 @@ void HGCalSlinkEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   }
 
   // insert ECON-D payload
-  LogDebug("HGCalSlinkEmulator") << "Will write " << packed_event.size() << " 64-bit words = " << event_size
+  LogDebug("HGCalSlinkEmulator") << "Will write " << slink_event.size() << " 64-bit words = " << event_size
                                  << " 8-bit words.";
-  std::memcpy(ptr, packed_event.data(), event_size);
+  std::memcpy(ptr, slink_event.data(), event_size);
   ptr += event_size;
 
   if (store_fed_header_trailer_) {
     // compose 2*32-bit FED trailer word
-    FEDTrailer::set(ptr,
-                    packed_event.size() + 2,
-                    evf::compute_crc(reinterpret_cast<uint8_t*>(packed_event.data()), event_size),
-                    0,
-                    0);
+    FEDTrailer::set(
+        ptr, slink_event.size() + 2, evf::compute_crc(reinterpret_cast<uint8_t*>(slink_event.data()), event_size), 0, 0);
     LogDebug("HGCalSlinkEmulator").log([&](auto& log) {
       const FEDTrailer trl(ptr);
       log << "FED trailer: fragment length: " << trl.fragmentLength() << ", CRC=0x" << std::hex << trl.crc() << std::dec
