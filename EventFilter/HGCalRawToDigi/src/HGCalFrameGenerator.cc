@@ -9,7 +9,11 @@
 #include "CLHEP/Random/RandFlat.h"
 
 namespace hgcal {
-  HGCalFrameGenerator::HGCalFrameGenerator(const edm::ParameterSet& iConfig) {
+  HGCalFrameGenerator::HGCalFrameGenerator(const edm::ParameterSet& iConfig)
+      : pass_through_(iConfig.getParameter<bool>("passThroughMode")),
+        expected_mode_(iConfig.getParameter<bool>("expectedMode")),
+        matching_ebo_numbers_(iConfig.getParameter<bool>("matchingEBOnumbers")),
+        bo_truncated_(iConfig.getParameter<bool>("bufferOverflowTruncated")) {
     const auto econd_params = iConfig.getParameter<edm::ParameterSet>("econdParams");
     econd_.chan_surv_prob = econd_params.getParameter<double>("channelSurv");
     econd_.enabled_channels = econd_params.getParameter<std::vector<unsigned int> >("enabledChannels");
@@ -28,6 +32,14 @@ namespace hgcal {
 
   edm::ParameterSetDescription HGCalFrameGenerator::description() {
     edm::ParameterSetDescription desc;
+
+    desc.add<bool>("passThroughMode", true)->setComment("ECON-D in pass-through mode?");
+    desc.add<bool>("expectedMode", false)->setComment("is an Event HDR/TRL expected to be received from the HGCROCs?");
+    desc.add<bool>("matchingEBOnumbers", false)
+        ->setComment(
+            "is the transmitted E/B/O (according to mode selected by user) matching the E/B/O value in the ECON-D L1A "
+            "FIFO?");
+    desc.add<bool>("bufferOverflowTruncated", false)->setComment("is the packet truncated for buffer overflow?");
 
     edm::ParameterSetDescription econd_desc;
     econd_desc.add<double>("channelSurv", 1.);
@@ -123,14 +135,14 @@ namespace hgcal {
     auto econdH = hgcal::econd::eventPacketHeader(
         econd_.header_marker,
         econd_event.size() + 1,
-        true,
-        false,
+        pass_through_,
+        expected_mode_,
         // HGCROC Event reco status across all active eRxE-B-O:
         // FIXME check endianness of these two numbers
         (header_bits.bitH << 1) | header_bits.bitT,                            // HDR/TRL numbers
         (header_bits.bitE << 2) | (header_bits.bitB << 1) | header_bits.bitO,  // Event/BX/Orbit numbers
-        false,
-        false,
+        matching_ebo_numbers_,
+        bo_truncated_,
         0,
         std::get<0>(event.first),
         std::get<1>(event.first),

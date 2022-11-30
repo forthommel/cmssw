@@ -46,6 +46,10 @@ namespace hgcal {
     std::vector<uint32_t> generateERxData(const econd::ERxEvent&, std::vector<uint64_t>&) const;
 
     static constexpr size_t max_num_econds_ = 12;
+    const bool pass_through_;
+    const bool expected_mode_;
+    const bool matching_ebo_numbers_;
+    const bool bo_truncated_;
 
     struct HeaderBits {
       bool bitO, bitB, bitE, bitT, bitH, bitS;
