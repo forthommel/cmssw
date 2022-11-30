@@ -14,7 +14,7 @@
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
-#include "EventFilter/HGCalRawToDigi/interface/HGCalECONDEmulatorInfo.h"
+#include "EventFilter/HGCalRawToDigi/interface/HGCalEmulatorInfo.h"
 #include "EventFilter/HGCalRawToDigi/interface/HGCalFrameGenerator.h"
 #include "EventFilter/HGCalRawToDigi/interface/TBTreeReader.h"
 
@@ -27,7 +27,6 @@ public:
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  const unsigned int idle_marker_;
   const unsigned int fed_id_;
 
   const bool store_emul_info_;
@@ -38,13 +37,12 @@ private:
 
   edm::Service<edm::RandomNumberGenerator> rng_;
   edm::EDPutTokenT<FEDRawDataCollection> fedRawToken_;
-  edm::EDPutTokenT<HGCalECONDEmulatorInfo> fedEmulInfoToken_;
+  edm::EDPutTokenT<HGCalSlinkEmulatorInfo> fedEmulInfoToken_;
   hgcal::HGCalFrameGenerator emul_;
 };
 
 HGCalSlinkEmulator::HGCalSlinkEmulator(const edm::ParameterSet& iConfig)
-    : idle_marker_(iConfig.getParameter<unsigned int>("idleMarker")),
-      fed_id_(iConfig.getParameter<unsigned int>("fedId")),
+    : fed_id_(iConfig.getParameter<unsigned int>("fedId")),
       store_emul_info_(iConfig.getParameter<bool>("storeEmulatorInfo")),
       store_fed_header_trailer_(iConfig.getParameter<bool>("fedHeaderTrailer")),
       emul_(iConfig) {
@@ -60,7 +58,7 @@ HGCalSlinkEmulator::HGCalSlinkEmulator(const edm::ParameterSet& iConfig)
 
   fedRawToken_ = produces<FEDRawDataCollection>();
   if (store_emul_info_)
-    fedEmulInfoToken_ = produces<HGCalECONDEmulatorInfo>();
+    fedEmulInfoToken_ = produces<HGCalSlinkEmulatorInfo>();
 }
 
 void HGCalSlinkEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -117,14 +115,8 @@ void HGCalSlinkEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   // store the emulation information if requested
   if (store_emul_info_) {
-    /*HGCalECONDEmulatorInfo emul_info(header_bits.bitO,
-                                     header_bits.bitB,
-                                     header_bits.bitE,
-                                     header_bits.bitT,
-                                     header_bits.bitH,
-                                     header_bits.bitS,
-                                     enabled_channels);
-    iEvent.emplace(fedEmulInfoToken_, std::move(emul_info));*/
+    HGCalSlinkEmulatorInfo emul_info;  //FIXME
+    iEvent.emplace(fedEmulInfoToken_, std::move(emul_info));
   }
 }
 
@@ -133,7 +125,6 @@ void HGCalSlinkEmulator::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<std::string>("treeName", "unpacker_data/hgcroc");
   desc.add<std::vector<std::string>>("inputs", {})
       ->setComment("list of input files containing HGCROC emulated/test beam frames");
-  desc.add<unsigned int>("idleMarker", 0x555500);
   desc.add<unsigned int>("fedId", 0)->setComment("FED number delivering the emulated frames");
   desc.add<bool>("fedHeaderTrailer", true)->setComment("also add FED header/trailer info");
   desc.add<bool>("storeEmulatorInfo", true)

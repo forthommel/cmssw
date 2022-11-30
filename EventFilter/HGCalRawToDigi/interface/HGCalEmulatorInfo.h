@@ -1,5 +1,5 @@
-#ifndef EventFilter_HGCalRawToDigi_HGCalECONDEmulatorInfo_h
-#define EventFilter_HGCalRawToDigi_HGCalECONDEmulatorInfo_h
+#ifndef EventFilter_HGCalRawToDigi_HGCalEmulatorInfo_h
+#define EventFilter_HGCalRawToDigi_HGCalEmulatorInfo_h
 
 #include <bitset>
 #include <vector>
@@ -41,6 +41,14 @@ private:
   enum StatusBits { O = 0, B, E, T, H, S };
   std::bitset<6> header_bits_;
   std::vector<std::bitset<37> > pois_;
+};
+
+class HGCalSlinkEmulatorInfo {
+public:
+  HGCalSlinkEmulatorInfo() = default;
+
+private:
+  std::vector<HGCalECONDEmulatorInfo> econd_info_;
 };
 
 #endif

@@ -3,4 +3,8 @@
   <class name="edm::Wrapper<HGCalECONDEmulatorInfo>"/>
   <class name="std::bitset<37>"/>
   <class name="std::vector<std::bitset<37>>"/>
+  <class name="std::vector<HGCalECONDEmulatorInfo>"/>
+
+  <class name="HGCalSlinkEmulatorInfo"/>
+  <class name="edm::Wrapper<HGCalSlinkEmulatorInfo>"/>
 </lcgdict>
