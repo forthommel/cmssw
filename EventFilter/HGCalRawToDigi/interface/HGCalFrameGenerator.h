@@ -74,7 +74,7 @@ namespace hgcal {
 
     ECONDParameters econd_;
     SlinkParameters slink_;
-    CLHEP::HepRandomEngine* rng_{nullptr};
+    CLHEP::HepRandomEngine* rng_{nullptr};  // NOT owning
 
     mutable HGCalECONDEmulatorInfo last_econd_emul_info_;
     mutable HGCalSlinkEmulatorInfo last_slink_emul_info_;
