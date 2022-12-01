@@ -1,6 +1,7 @@
 #ifndef EventFilter_HGCalRawToDigi_HGCalFrameGenerator_h
 #define EventFilter_HGCalRawToDigi_HGCalFrameGenerator_h
 
+#include "EventFilter/HGCalRawToDigi/interface/HGCalEmulatorInfo.h"
 #include "EventFilter/HGCalRawToDigi/interface/SlinkTypes.h"
 
 #include <cstdint>
@@ -24,7 +25,10 @@ namespace hgcal {
     void setRandomEngine(CLHEP::HepRandomEngine& rng);
 
     std::vector<uint32_t> produceECONEvent(const econd::ECONDEvent&) const;
+    const HGCalECONDEmulatorInfo& lastECONDEmulatedInfo() const { return last_econd_emul_info_; }
+
     std::vector<uint64_t> produceSlinkEvent(const econd::ECONDEvent&) const;
+    const HGCalSlinkEmulatorInfo& lastSlinkEmulatedInfo() const { return last_slink_emul_info_; }
 
     struct ECONDParameters {
       double chan_surv_prob{1.};
@@ -71,6 +75,9 @@ namespace hgcal {
     ECONDParameters econd_;
     SlinkParameters slink_;
     CLHEP::HepRandomEngine* rng_{nullptr};
+
+    mutable HGCalECONDEmulatorInfo last_econd_emul_info_;
+    mutable HGCalSlinkEmulatorInfo last_slink_emul_info_;
   };
 }  // namespace hgcal
 

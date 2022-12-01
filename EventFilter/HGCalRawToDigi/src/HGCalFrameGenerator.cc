@@ -130,6 +130,7 @@ namespace hgcal {
     auto econd_event = generateERxData(event.second, enabled_channels);
     LogDebug("HGCalFrameGenerator") << econd_event.size() << " word(s) of eRx payloads inserted.";
 
+    last_econd_emul_info_.clear();
     // as ECON-D event content was just created, only prepend packet header at
     // this stage
     auto econdH = hgcal::econd::eventPacketHeader(
@@ -171,15 +172,18 @@ namespace hgcal {
     l1a_header |= ((ec & 0x3f) << 40);
     l1a_header |= ((bc & 0xfff) << 46);
 
+    last_slink_emul_info_.clear();
     for (size_t i = 0; i < max_num_econds_; ++i) {
       if (i < slink_.num_econds) {
         auto econd_evt = produceECONEvent(econd_event);
+        const auto& econd_evt_info = lastECONDEmulatedInfo();
         for (size_t j = 0; j < econd_evt.size(); j += 2) {
           uint64_t word1 = econd_evt.at(j), word2 = (j + 1 < econd_evt.size()) ? econd_evt.at(j + 1) : 0ul;
           slink_event.emplace_back(((word1 & 0xffffffff) << 32) | (word2 & 0xffffffff));
         }
         uint8_t econd_packet_status = ECONDPacketStatus::Normal;  //FIXME
         l1a_header |= ((econd_packet_status & 0x7) << (3 * i));
+        last_slink_emul_info_.addECONDEmulatedInfo(econd_evt_info);
       } else {
         l1a_header |= (ECONDPacketStatus::InactiveECOND << (3 * i));
       }

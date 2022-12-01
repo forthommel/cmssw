@@ -115,7 +115,7 @@ void HGCalSlinkEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   // store the emulation information if requested
   if (store_emul_info_) {
-    HGCalSlinkEmulatorInfo emul_info;  //FIXME
+    auto emul_info = emul_.lastSlinkEmulatedInfo();
     iEvent.emplace(fedEmulInfoToken_, std::move(emul_info));
   }
 }

@@ -19,7 +19,12 @@ public:
       pois_.emplace_back(ch_en);
   }
 
-  void addChannelsEnable(uint64_t poi) { pois_.emplace_back(poi); }
+  inline void clear() {
+    header_bits_.reset();
+    pois_.clear();
+  }
+
+  inline void addChannelsEnable(uint64_t poi) { pois_.emplace_back(poi); }
   std::vector<bool> channelsEnabled(size_t ch_id) const {
     std::vector<bool> ch_en;
     for (const auto& poi : pois_)
@@ -46,6 +51,10 @@ private:
 class HGCalSlinkEmulatorInfo {
 public:
   HGCalSlinkEmulatorInfo() = default;
+
+  inline void clear() { econd_info_.clear(); }
+
+  inline void addECONDEmulatedInfo(const HGCalECONDEmulatorInfo& econd_info) { econd_info_.emplace_back(econd_info); }
 
 private:
   std::vector<HGCalECONDEmulatorInfo> econd_info_;
