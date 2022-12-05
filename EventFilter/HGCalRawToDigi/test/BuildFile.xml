@@ -1,0 +1,6 @@
+<bin file="HGCECONDEmulatorTest.cc" name="HGCECONDEmulatorTest">
+  <flags TEST_RUNNER_ARGS=" EventFilter/HGCalRawToDigi/test/HGCECONDEmulatorTest_cfi.py passthroughTest"/>
+  <use name="DataFormats/HGCalDigi"/>
+  <use name="EventFilter/HGCalRawToDigi"/>
+  <use name="FWCore/ParameterSetReader"/>
+</bin>
