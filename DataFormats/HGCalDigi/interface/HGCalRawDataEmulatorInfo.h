@@ -4,6 +4,12 @@
 #include <bitset>
 #include <vector>
 
+/**
+   @class HGCalECONDEmulatorInfo
+   @short This class defines a short summary of the truth information when an ECON-D data frame is generated
+   It can be used to check that the unpacking outputs match the main fields.
+   For the moment it stores information on the error bits and channel status
+ */
 class HGCalECONDEmulatorInfo {
 public:
   HGCalECONDEmulatorInfo() = default;
@@ -31,6 +37,11 @@ private:
   std::vector<std::bitset<37> > pois_;
 };
 
+
+/**
+   @class HGCalSlinkEmulatorInfo
+   @short For the moment this class collects a vector of ECON-D emulator truth information
+*/
 class HGCalSlinkEmulatorInfo {
 public:
   HGCalSlinkEmulatorInfo() = default;

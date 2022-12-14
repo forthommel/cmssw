@@ -1,7 +1,8 @@
-#include "EventFilter/HGCalRawToDigi/interface/HGCalEmulatorInfo.h"
+#include "DataFormats/HGCalDigi/interface/HGCalRawDataEmulatorInfo.h"
 
+//
 HGCalECONDEmulatorInfo::HGCalECONDEmulatorInfo(
-    bool obit, bool bbit, bool ebit, bool tbit, bool hbit, bool sbit, std::vector<uint64_t> enabled_channels) {
+                                               bool obit, bool bbit, bool ebit, bool tbit, bool hbit, bool sbit, std::vector<uint64_t> enabled_channels) {
   header_bits_[StatusBits::O] = obit;
   header_bits_[StatusBits::B] = bbit;
   header_bits_[StatusBits::E] = ebit;
@@ -12,13 +13,16 @@ HGCalECONDEmulatorInfo::HGCalECONDEmulatorInfo(
     pois_.emplace_back(ch_en);
 }
 
+//
 void HGCalECONDEmulatorInfo::clear() {
   header_bits_.reset();
   pois_.clear();
 }
 
+//
 void HGCalECONDEmulatorInfo::addChannelsEnable(uint64_t poi) { pois_.emplace_back(poi); }
 
+//
 std::vector<bool> HGCalECONDEmulatorInfo::channelsEnabled(size_t ch_id) const {
   std::vector<bool> ch_en;
   for (const auto& poi : pois_)
@@ -26,12 +30,15 @@ std::vector<bool> HGCalECONDEmulatorInfo::channelsEnabled(size_t ch_id) const {
   return ch_en;
 }
 
+//
 HGCalECONDEmulatorInfo::HGCROCEventRecoStatus HGCalECONDEmulatorInfo::eventRecoStatus() const {
   return static_cast<HGCROCEventRecoStatus>(bitH() << 1 | bitT());
 }
 
+//
 void HGCalSlinkEmulatorInfo::clear() { econd_info_.clear(); }
 
+//
 void HGCalSlinkEmulatorInfo::addECONDEmulatedInfo(const HGCalECONDEmulatorInfo& econd_info) {
   econd_info_.emplace_back(econd_info);
 }

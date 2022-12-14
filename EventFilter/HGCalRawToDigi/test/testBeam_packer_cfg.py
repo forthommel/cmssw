@@ -9,7 +9,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    hgcalEmulatedSlinkRawData = cms.PSet(initialSeed = cms.untracked.uint32(42))
+                                                   hgcalEmulatedSlinkRawData = cms.PSet(initialSeed = cms.untracked.uint32(42))
 )
 
 #process.source = cms.Source("NewEventStreamFileReader",
