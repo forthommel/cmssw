@@ -1,5 +1,5 @@
-#ifndef EventFilter_HGCalRawToDigi_HGCalEmulatorInfo_h
-#define EventFilter_HGCalRawToDigi_HGCalEmulatorInfo_h
+#ifndef DataFormats_HGCalDigi_HGCalEmulatorInfo_h
+#define DataFormats_HGCalDigi_HGCalEmulatorInfo_h
 
 #include <bitset>
 #include <vector>
@@ -36,7 +36,6 @@ private:
   std::bitset<6> header_bits_;
   std::vector<std::bitset<37> > pois_;
 };
-
 
 /**
    @class HGCalSlinkEmulatorInfo
