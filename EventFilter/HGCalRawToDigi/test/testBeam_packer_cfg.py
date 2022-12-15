@@ -33,11 +33,17 @@ process.p = cms.Path(
 )
 
 process.output = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string("hgcal_raw.root"),
+    fileName = cms.untracked.string("output.root"),
     outputCommands = cms.untracked.vstring(
         'drop *',
         'keep *_hgcalEmulatedSlinkRawData_*_*',
     )
 )
+process.outputRAW = cms.OutputModule("FRDOutputModule",
+    source = cms.InputTag('hgcalEmulatedSlinkRawData'),
+    frdVersion = cms.untracked.uint32(6),
+    frdFileVersion = cms.untracked.uint32(1),
+    fileName = cms.untracked.string("output.raw")
+)
 
-process.outpath = cms.EndPath(process.output)
+process.outpath = cms.EndPath(process.output + process.outputRAW)
