@@ -4,3 +4,8 @@
   <use name="EventFilter/HGCalRawToDigi"/>
   <use name="FWCore/ParameterSetReader"/>
 </bin>
+<bin file="HGCalUnpackerTest.cc" name="HGCalUnpacker">
+  <use name="DataFormats/HGCalDigi"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="EventFilter/HGCalRawToDigi"/>
+</bin>
