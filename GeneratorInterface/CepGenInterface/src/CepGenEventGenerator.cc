@@ -12,7 +12,7 @@
 #include "CepGen/Parameters.h"
 #include "CepGen/Process/Process.h"
 
-#include "CepGenHepMC2/HepMC2EventInterface.h"
+#include "CepGenAddOns/HepMC2Wrapper/HepMC2EventInterface.h"
 
 cepgen::ParametersList fromParameterSet(const edm::ParameterSet& iConfig) {
   cepgen::ParametersList params;
@@ -40,10 +40,10 @@ CepGenEventGenerator::CepGenEventGenerator(const edm::ParameterSet& iConfig)
       gen_(new cepgen::Generator(true /* "safe" mode: start without plugins */)),
       proc_params_(fromParameterSet(iConfig.getUntrackedParameter<edm::ParameterSet>("process"))) {
   //produces<ExampleData2>();
-  cepgen::utils::Logger::get().level = (cepgen::utils::Logger::Level)iConfig.getUntrackedParameter<int>("verbosity");
+  cepgen::utils::Logger::get().setLevel((cepgen::utils::Logger::Level)iConfig.getUntrackedParameter<int>("verbosity"));
   cepgen::loadLibrary("CepGenHepMC2");
   cepgen::loadLibrary("CepGenProcesses");
-  gen_->parametersPtr()->setProcess(cepgen::proc::ProcessFactory::get().build(proc_params_));
+  gen_->parametersPtr()->setProcess(cepgen::ProcessFactory::get().build(proc_params_));
   if (!gen_->parameters()->hasProcess())
     throw cms::Exception("CepGenEventGenerator") << "Failed to retrieve a process from the configuration";
 }
