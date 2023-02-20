@@ -1,51 +1,52 @@
 // CepGen-CMSSW interfacing module
-//   2022, Laurent Forthomme
+//   2022-2023, Laurent Forthomme
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+
 #include "GeneratorInterface/CepGenInterface/interface/CepGenEventGenerator.h"
+#include "GeneratorInterface/CepGenInterface/interface/CepGenParametersConverter.h"
 
-#include "CepGen/Core/Exception.h"
-#include "CepGen/Event/Event.h"
-#include "CepGen/Generator.h"
-#include "CepGen/Modules/ProcessFactory.h"
-#include "CepGen/Parameters.h"
-#include "CepGen/Process/Process.h"
+#include <CepGen/Core/Exception.h>
+#include <CepGen/Event/Event.h>
+#include <CepGen/Generator.h>
+#include <CepGen/Modules/ProcessFactory.h>
+#include <CepGen/Parameters.h>
+#include <CepGen/Process/Process.h>
+#include <CepGenAddOns/HepMC2Wrapper/HepMC2EventInterface.h>
 
-#include "CepGenAddOns/HepMC2Wrapper/HepMC2EventInterface.h"
+using namespace gen;
 
-cepgen::ParametersList fromParameterSet(const edm::ParameterSet& iConfig) {
-  cepgen::ParametersList params;
-  for (const auto& param : iConfig.getParameterNames()) {
-    if (iConfig.existsAs<bool>(param))
-      params.set(param, iConfig.getUntrackedParameter<bool>(param));
-    if (iConfig.existsAs<int>(param))
-      params.set(param, iConfig.getUntrackedParameter<int>(param));
-    if (iConfig.existsAs<unsigned>(param))
-      params.set<unsigned long long>(param, iConfig.getUntrackedParameter<unsigned>(param));
-    if (iConfig.existsAs<double>(param))
-      params.set(param, iConfig.getUntrackedParameter<double>(param));
-    if (iConfig.existsAs<std::string>(param))
-      params.set(param, iConfig.getUntrackedParameter<std::string>(param));
-    if (iConfig.existsAs<std::vector<double> >(param))
-      params.set(param, iConfig.getUntrackedParameter<std::vector<double> >(param));
-    if (iConfig.existsAs<edm::ParameterSet>(param))
-      params.set(param, fromParameterSet(iConfig.getUntrackedParameter<edm::ParameterSet>(param)));
-  }
-  return params;
-}
+CepGenEventGenerator::CepGenEventGenerator(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
+    : BaseHadronizer(iConfig),
+      proc_params_(cepgen::fromParameterSet(iConfig.getParameter<edm::ParameterSet>("process"))) {
+  // specify the overall module verbosity
+  cepgen::utils::Logger::get().setLevel(
+      (cepgen::utils::Logger::Level)iConfig.getUntrackedParameter<int>("verbosity", 0));
 
-CepGenEventGenerator::CepGenEventGenerator(const edm::ParameterSet& iConfig)
-    : gen::BaseHadronizer(iConfig),
-      gen_(new cepgen::Generator(true /* "safe" mode: start without plugins */)),
-      proc_params_(fromParameterSet(iConfig.getUntrackedParameter<edm::ParameterSet>("process"))) {
-  //produces<ExampleData2>();
-  cepgen::utils::Logger::get().setLevel((cepgen::utils::Logger::Level)iConfig.getUntrackedParameter<int>("verbosity"));
+  // load all required add-ons
   cepgen::loadLibrary("CepGenHepMC2");
   cepgen::loadLibrary("CepGenProcesses");
+
+  // build the process
+  edm::LogInfo("CepGenEventGenerator") << "Process to be generated: " << proc_params_ << ".";
+
+  const auto output_params = cepgen::fromParameterSet(iConfig.getParameter<edm::ParameterSet>("outputModules"));
+  edm::LogInfo("CepGenEventGenerator") << "Output modules: " << output_params << ".";
+
+  src_ = iC.consumes<CrossingFrame<edm::HepMCProduct> >(
+      iConfig.getUntrackedParameter<edm::InputTag>("backgroundLabel", edm::InputTag("mix", "generatorSmeared")));
+}
+
+CepGenEventGenerator::~CepGenEventGenerator() { edm::LogInfo("CepGenEventGenerator") << "Destructor called."; }
+
+bool CepGenEventGenerator::initializeForInternalPartons() {
+  gen_ = new cepgen::Generator(true /* "safe" mode: start without plugins */);
   gen_->parametersPtr()->setProcess(cepgen::ProcessFactory::get().build(proc_params_));
   if (!gen_->parameters()->hasProcess())
     throw cms::Exception("CepGenEventGenerator") << "Failed to retrieve a process from the configuration";
+  return true;
 }
 
 bool CepGenEventGenerator::generatePartonsAndHadronize() {

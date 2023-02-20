@@ -1,33 +1,43 @@
 // CepGen-CMSSW interfacing module
-//   2022, Laurent Forthomme
+//   2022-2023, Laurent Forthomme
 
-#include <memory>
+#ifndef GeneratorInterface_CepGenInterface_CepGenEventGenerator_h
+#define GeneratorInterface_CepGenInterface_CepGenEventGenerator_h
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
-#include "CepGen/Generator.h"
+#include <CepGen/Generator.h>
 
-class CepGenEventGenerator : public gen::BaseHadronizer {
-public:
-  explicit CepGenEventGenerator(const edm::ParameterSet&);
+namespace gen {
+  class CepGenEventGenerator : public BaseHadronizer {
+  public:
+    explicit CepGenEventGenerator(const edm::ParameterSet&, edm::ConsumesCollector&&);
+    virtual ~CepGenEventGenerator();
 
-  bool readSettings(int) { return true; }
-  bool declareStableParticles(const std::vector<int>&) { return true; }
-  bool declareSpecialSettings(const std::vector<std::string>&) { return true; }
+    bool readSettings(int) { return true; }
+    bool declareStableParticles(const std::vector<int>&) { return true; }
+    bool declareSpecialSettings(const std::vector<std::string>&) { return true; }
 
-  bool initializeForInternalPartons() { return true; }
-  bool generatePartonsAndHadronize();
-  bool decay() { return true; }  // NOT used - let's call it "design imperfection"
-  bool residualDecay() { return true; }
+    bool initializeForInternalPartons();
+    bool generatePartonsAndHadronize();
+    bool decay() { return true; }  // NOT used - let's call it "design imperfection"
+    bool residualDecay() { return true; }
 
-  void finalizeEvent() {}
-  void statistics() {}
+    void finalizeEvent() {}
+    void statistics() {}
 
-  const char* classname() const { return "CepGenEventGenerator"; }
-  std::vector<std::string> sharedResources() const { return {}; }
+    const char* classname() const { return "CepGenEventGenerator"; }
+    const std::vector<std::string>& doSharedResources() const override { return shared_resources_; }
 
-private:
-  std::unique_ptr<cepgen::Generator> gen_;
-  cepgen::ParametersList proc_params_;
-};
+  private:
+    cepgen::Generator* gen_;
+    const cepgen::ParametersList proc_params_;
+    const std::vector<std::string> shared_resources_;
+    edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct> > src_;
+  };
+}  // namespace gen
+
+#endif

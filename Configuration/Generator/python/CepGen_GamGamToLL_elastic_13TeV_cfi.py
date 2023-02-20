@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-generator = cms.EDFilter('CepGenEventGenerator',
+from GeneratorInterface.CepGenInterface.cepgenDefaultParameters_cff import *
+
+generator = cms.EDFilter("CepGenGeneratorFilter",
     process = cms.PSet(
         name = cms.string('lpair'),
         processParameters = cms.PSet(
@@ -14,5 +16,7 @@ generator = cms.EDFilter('CepGenEventGenerator',
             pt = cms.vdouble(25.,),
             eta = cms.vdouble(-2.5, 2.5),
         )
-    )
+    ),
+    outputModules = cepgenOutputModules,
+    maxEventsToPrint = cms.untracked.int32(0),
 )
