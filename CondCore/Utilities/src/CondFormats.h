@@ -235,6 +235,7 @@
 #include "CondFormats/HcalObjects/interface/HcalTPParameters.h"
 #include "CondFormats/HcalObjects/interface/HcalTPChannelParameters.h"
 #include "CondFormats/HcalObjects/interface/HcalZSThresholds.h"
+#include "CondFormats/HGCalObjects/interface/HGCalLabTestConditions.h"
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"

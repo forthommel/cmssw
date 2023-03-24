@@ -177,6 +177,7 @@ namespace cond {
       FETCH_PAYLOAD_CASE(HcalTPParameters)
       FETCH_PAYLOAD_CASE(HcalZSThresholds)
       FETCH_PAYLOAD_CASE(HcalInterpolatedPulseColl)
+      FETCH_PAYLOAD_CASE(HGCalLabTestConditions)
       FETCH_PAYLOAD_CASE(OOTPileupCorrectionBuffer)
       FETCH_PAYLOAD_CASE(StorableDoubleMap<AbsOOTPileupCorrection>)
       FETCH_PAYLOAD_CASE(JetCorrectorParametersCollection)
