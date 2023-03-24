@@ -1,0 +1,3 @@
+<bin file="testSerializationHGCalLabTestConditions.cc">
+  <use name="CondFormats/HGCalObjects"/>
+</bin>
