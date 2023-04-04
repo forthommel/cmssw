@@ -3,23 +3,44 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 
 process = cms.Process("TEST")
 
-options = VarParsing.VarParsing('analysis')
-options.register('mode', 'empty', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, 'type of emulation')
-options.register('fedId', 0, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, 'emulated FED id')
-options.register('debug', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, 'debugging mode')
-options.register('dumpFedRawData', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, 'also dump the FEDRawData content')
-options.register('numChannelsPerERx', 37, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, 'number of channels enabled per ERx')
-options.register('activeECONDs', [], VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.int, 'list of ECON-Ds enabled')
-options.register('storeOutput', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, 'also store the output into an EDM file')
-options.register('storeRAWOutput', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, 'also store the RAW output into a streamer file')
-options.register('storeEmulatorInfo', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, 'also store the emulator metadata')
-options.inputFiles = 'file:/eos/cms/store/group/dpg_hgcal/tb_hgcal/2023/labtest/module822/pedestal_run0.root'
-options.maxEvents = 20
-options.secondaryOutputFile = 'output.raw'
+options = VarParsing.VarParsing('standard')
+options.register('mode', 'empty', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string,
+                 'type of emulation')
+options.register('fedId', 0, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int,
+                 'emulated FED id')
+options.register('debug', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int,
+                 'debugging mode')
+options.register('dumpFedRawData', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int,
+                 'also dump the FEDRawData content')
+options.register('numChannelsPerERx', 37, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int,
+                 'number of channels enabled per ERx')
+options.register('numERxsPerECOND', 12, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int,
+                 'number of ERxs enabled per ECON-D')
+options.register('activeECONDs', [i for i in range(7)], VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.int,
+                 'list of ECON-Ds enabled')
+options.register('ECONDsInPassthrough', [], VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.int,
+                 'list of ECON-Ds in passthrough mode')
+options.register('ECONDsInCharacterisation', [], VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.int,
+                 'list of ECON-Ds in characterisation mode')
+options.register('storeOutput', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int,
+                 'also store the output into an EDM file')
+options.register('storeRAWOutput', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int,
+                 'also store the RAW output into a streamer file')
+options.register('storeEmulatorInfo', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int,
+                 'also store the emulator metadata')
+options.register('inputFiles',
+                 'file:/eos/cms/store/group/dpg_hgcal/tb_hgcal/2023/labtest/module822/pedestal_run0.root',
+                 VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string,
+                 'input TB file')
+options.register('secondaryOutputFile', 'output.raw', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string,
+                 'output streamer file')
+options.maxEvents = 20  # number of events to emulate
 options.parseArguments()
 
 process.load('EventFilter.HGCalRawToDigi.hgcalEmulatedSlinkRawData_cfi')
 process.load('EventFilter.HGCalRawToDigi.hgcalDigis_cfi')
+#process.load('Validation.HGCalValidation.hgcalEmulValidation_cfi')
+process.load('EventFilter.HGCalRawToDigi.hgcalEmulatorTest_cfi')  #FIXME
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 if options.debug:
@@ -32,13 +53,25 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 process.source = cms.Source("EmptySource")
+
 process.hgcalEmulatedSlinkRawData.emulatorType = options.mode
-process.hgcalEmulatedSlinkRawData.econdParams.numChannelsPerERx = options.numChannelsPerERx
-if process.hgcalEmulatedSlinkRawData.emulatorType == 'trivial':
-    process.hgcalEmulatedSlinkRawData.slinkParams.activeECONDs = cms.vuint32(options.activeECONDs)
-elif process.hgcalEmulatedSlinkRawData.emulatorType == 'hgcmodule':
+if process.hgcalEmulatedSlinkRawData.emulatorType == 'hgcmodule':
     process.hgcalEmulatedSlinkRawData.inputs = cms.untracked.vstring(options.inputFiles)
+
 process.hgcalEmulatedSlinkRawData.storeEmulatorInfo = bool(options.storeEmulatorInfo)
+econd_id = 0
+for econd in process.hgcalEmulatedSlinkRawData.slinkParams.ECONDs:
+    # must use 'cms.' python configuration types
+    econd.active = cms.bool((econd_id in options.activeECONDs))
+    econd.passthroughMode = cms.bool((econd_id in options.ECONDsInPassthrough))
+    econd.characterisationMode = cms.bool((econd_id in options.ECONDsInCharacterisation))
+    econd.enabledERxs = cms.vuint32([i for i in range(options.numERxsPerECOND)])
+    econd.numChannelsPerERx = cms.uint32(options.numChannelsPerERx)
+    print('ECON-D {}: active? {}, enabled eRxs: {}, number of channels/eRx: {}, passthrough? {}, characterisation? {}'.format(
+        econd_id, bool(econd.active), [i for i in econd.enabledERxs], econd.numChannelsPerERx.value(),
+        bool(econd.passthroughMode), bool(econd.characterisationMode)))
+    econd_id += 1
+
 process.hgcalDigis.src = cms.InputTag('hgcalEmulatedSlinkRawData')
 process.hgcalDigis.fedIds = cms.vuint32(options.fedId)
 

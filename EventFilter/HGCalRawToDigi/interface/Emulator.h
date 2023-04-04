@@ -15,7 +15,6 @@ namespace hgcal::econd {
   public:
     explicit Emulator(const EmulatorParameters& params) : params_(params) {}
     virtual ~Emulator() = default;
-    
     /// Fetch the next ECON-D event
     virtual ECONDInput next() = 0;
 
@@ -33,9 +32,9 @@ namespace hgcal::econd {
 
     ECONDInput next() override {
       EventId evt_id{event_id_++, bx_id_++, orbit_id_++};
-      ERxData dummy_data{.cm0 = 0, .cm1 = 0, .tctp = {}, .adc = {}, .adcm = {}, .toa = {}, .tot = {}, .meta = {} };
+      ERxData dummy_data{.cm0 = 0, .cm1 = 0, .tctp = {}, .adc = {}, .adcm = {}, .toa = {}, .tot = {}, .meta = {}};
       ERxInput empty_evt = {{ERxId_t{0 /*chip*/, 0 /*half*/}, dummy_data}};  // map<ERx_t, ERxData>
-      return ECONDInput{evt_id,empty_evt};
+      return ECONDInput{evt_id, empty_evt};
     }
 
   private:

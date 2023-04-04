@@ -27,44 +27,47 @@ namespace hgcal {
     return out;
   }
 
-  HGCalFrameGenerator::HGCalFrameGenerator(const edm::ParameterSet& iConfig)
-      : passthrough_mode_(iConfig.getParameter<bool>("passthroughMode")),
-        expected_mode_(iConfig.getParameter<bool>("expectedMode")),
-        characterisation_mode_(iConfig.getParameter<bool>("characterisationMode")),
-        matching_ebo_numbers_(iConfig.getParameter<bool>("matchingEBOnumbers")),
-        bo_truncated_(iConfig.getParameter<bool>("bufferOverflowTruncated")),
-        econd_(econd::EmulatorParameters(iConfig.getParameter<edm::ParameterSet>("econdParams"))) {
+  HGCalFrameGenerator::HGCalFrameGenerator(const edm::ParameterSet& iConfig) {
     const auto slink_params = iConfig.getParameter<edm::ParameterSet>("slinkParams");
-    slink_ = SlinkParameters{.active_econds = slink_params.getParameter<std::vector<unsigned int> >("activeECONDs"),
-                             .boe_marker = slink_params.getParameter<unsigned int>("boeMarker"),
-                             .eoe_marker = slink_params.getParameter<unsigned int>("eoeMarker"),
-                             .format_version = slink_params.getParameter<unsigned int>("formatVersion")};
-    // a bit of user input validation
-    if (slink_.active_econds.size() > max_num_econds_)
-      throw cms::Exception("HGCalFrameGenerator")
-          << "Too many active ECON-D set: " << slink_.active_econds.size() << " > " << max_num_econds_ << ".";
-    for (const auto& econd_id : slink_.active_econds)
+
+    size_t econd_id = 0;
+    std::vector<unsigned int> active_econds;
+    for (const auto& econd : slink_params.getParameter<std::vector<edm::ParameterSet> >("ECONDs")) {
+      // a bit of user input validation
+      if (active_econds.size() > max_num_econds_)
+        throw cms::Exception("HGCalFrameGenerator")
+            << "Too many active ECON-D set: " << slink_.active_econds.size() << " > " << max_num_econds_ << ".";
       if (econd_id >= max_num_econds_)
         throw cms::Exception("HGCalFrameGenerator")
             << "Invalid ECON-D identifier: " << econd_id << " >= " << max_num_econds_ << ".";
+      if (econd.getParameter<bool>("active"))
+        active_econds.emplace_back(econd_id);
+
+      econd_params_.insert(std::make_pair(econd_id, econd::EmulatorParameters(econd)));
+      ++econd_id;
+    }
+
+    slink_ = SlinkParameters{.active_econds = active_econds,
+                             .boe_marker = slink_params.getParameter<unsigned int>("boeMarker"),
+                             .eoe_marker = slink_params.getParameter<unsigned int>("eoeMarker"),
+                             .format_version = slink_params.getParameter<unsigned int>("formatVersion")};
+  }
+
+  const econd::EmulatorParameters& HGCalFrameGenerator::econdParams(unsigned int econd_id) const {
+    if (econd_params_.count(econd_id) == 0)
+      throw cms::Exception("HGCalFrameGenerator") << "ECON-D with id=" << econd_id << " was not configured.";
+    return econd_params_.at(econd_id);
   }
 
   edm::ParameterSetDescription HGCalFrameGenerator::description() {
     edm::ParameterSetDescription desc;
 
-    desc.add<bool>("passthroughMode", true)->setComment("ECON-D in pass-through mode?");
-    desc.add<bool>("expectedMode", false)->setComment("is an Event HDR/TRL expected to be received from the HGCROCs?");
-    desc.add<bool>("characterisationMode", true);
-    desc.add<bool>("matchingEBOnumbers", false)
-        ->setComment(
-            "is the transmitted E/B/O (according to mode selected by user) matching the E/B/O value in the ECON-D L1A "
-            "FIFO?");
-    desc.add<bool>("bufferOverflowTruncated", false)->setComment("is the packet truncated for buffer overflow?");
-
-    desc.add<edm::ParameterSetDescription>("econdParams", econd::EmulatorParameters::description());
+    std::vector<edm::ParameterSet> econds_psets;
+    for (size_t i = 0; i < 7; ++i)
+      econds_psets.emplace_back();
 
     edm::ParameterSetDescription slink_desc;
-    slink_desc.add<std::vector<unsigned int> >("activeECONDs", {0, 1, 2, 3, 4, 5, 6})
+    slink_desc.addVPSet("ECONDs", econd::EmulatorParameters::description(), econds_psets)
         ->setComment("list of active ECON-Ds in S-link");
     slink_desc.add<unsigned int>("boeMarker", 0x55);
     slink_desc.add<unsigned int>("eoeMarker", 0xaa);
@@ -76,46 +79,47 @@ namespace hgcal {
 
   void HGCalFrameGenerator::setRandomEngine(CLHEP::HepRandomEngine& rng) { rng_ = &rng; }
 
-  HGCalFrameGenerator::HeaderBits HGCalFrameGenerator::generateStatusBits() const {
+  HGCalFrameGenerator::HeaderBits HGCalFrameGenerator::generateStatusBits(unsigned int econd_id) const {
+    const auto& econd_params = econdParams(econd_id);
     HeaderBits header_bits;
     // first sample on header status bits
-    header_bits.bitO = CLHEP::RandFlat::shoot(rng_) >= econd_.error_prob.bitO;
-    header_bits.bitB = CLHEP::RandFlat::shoot(rng_) >= econd_.error_prob.bitB;
-    header_bits.bitE = CLHEP::RandFlat::shoot(rng_) >= econd_.error_prob.bitE;
-    header_bits.bitT = CLHEP::RandFlat::shoot(rng_) >= econd_.error_prob.bitT;
-    header_bits.bitH = CLHEP::RandFlat::shoot(rng_) >= econd_.error_prob.bitH;
-    header_bits.bitS = CLHEP::RandFlat::shoot(rng_) >= econd_.error_prob.bitS;
+    header_bits.bitO = CLHEP::RandFlat::shoot(rng_) < econd_params.error_prob.bitO;
+    header_bits.bitB = CLHEP::RandFlat::shoot(rng_) < econd_params.error_prob.bitB;
+    header_bits.bitE = CLHEP::RandFlat::shoot(rng_) < econd_params.error_prob.bitE;
+    header_bits.bitT = CLHEP::RandFlat::shoot(rng_) < econd_params.error_prob.bitT;
+    header_bits.bitH = CLHEP::RandFlat::shoot(rng_) < econd_params.error_prob.bitH;
+    header_bits.bitS = CLHEP::RandFlat::shoot(rng_) < econd_params.error_prob.bitS;
     return header_bits;
   }
 
-  std::vector<bool> HGCalFrameGenerator::generateEnabledChannels() const {
-    std::vector<bool> chmap(econd_.num_channels_per_erx, false);
-    if (econd_.enabled_erxs.empty())
-      return chmap;
+  std::vector<bool> HGCalFrameGenerator::generateEnabledChannels(unsigned int econd_id) const {
+    const auto& econd_params = econdParams(econd_id);
+    std::vector<bool> chmap(econd_params.num_channels_per_erx, false);
     for (size_t i = 0; i < chmap.size(); i++)
       // randomly choosing the channels to be shot at
-      chmap[i] = std::find(econd_.enabled_erxs.begin(), econd_.enabled_erxs.end(), i) != econd_.enabled_erxs.end() &&
-                 CLHEP::RandFlat::shoot(rng_) <= econd_.chan_surv_prob;
+      chmap[i] = CLHEP::RandFlat::shoot(rng_) <= econd_params.chan_surv_prob;
     return chmap;
   }
 
-  std::vector<uint32_t> HGCalFrameGenerator::generateERxData(const econd::ERxInput& event) const {
+  std::vector<uint32_t> HGCalFrameGenerator::generateERxData(unsigned int econd_id,
+                                                             const econd::ERxInput& event) const {
+    const auto& econd_params = econdParams(econd_id);
     std::vector<uint32_t> erx_data;
     for (const auto& jt : event) {  // one per eRx
       auto chmap =
-          generateEnabledChannels();  // generate a list of probable channels to be filled with emulated content
+          generateEnabledChannels(econd_id);  // generate a list of probable channels to be filled with emulated content
 
       // insert eRx header (common mode, channels map, ...)
-      auto erxHeader = econd::eRxSubPacketHeader(0, 0, false, jt.second.cm0, jt.second.cm1, chmap);
-      erx_data.insert(erx_data.end(), erxHeader.begin(), erxHeader.end());
-      if (jt.second.adc.size() < econd_.num_channels_per_erx) {
+      auto erx_header = econd::eRxSubPacketHeader(0, 0, false, jt.second.cm0, jt.second.cm1, chmap);
+      erx_data.insert(erx_data.end(), erx_header.begin(), erx_header.end());
+      if (jt.second.adc.size() < econd_params.num_channels_per_erx) {
         edm::LogVerbatim("HGCalFrameGenerator:generateERxData")
-            << "Data multiplicity to low (" << jt.second.adc.size() << ") to emulate " << econd_.num_channels_per_erx
-            << " ECON-D channel(s).";
+            << "Data multiplicity to low (" << jt.second.adc.size() << ") to emulate "
+            << econd_params.num_channels_per_erx << " ECON-D channel(s).";
         continue;
       }
       // insert eRx payloads (1 per readout channel)
-      for (size_t i = 0; i < econd_.num_channels_per_erx; i++) {
+      for (size_t i = 0; i < econd_params.num_channels_per_erx; i++) {
         if (!chmap.at(i))
           continue;
         uint8_t msb = 32;
@@ -128,8 +132,8 @@ namespace hgcal {
                                                         true /*passZS*/,
                                                         true /*passZSm1*/,
                                                         true /*hasToA*/,
-                                                        characterisation_mode_);
-        if (passthrough_mode_)  // all words in 32-bit in passthrough mode
+                                                        econd_params.characterisation_mode);
+        if (econd_params.passthrough_mode)  // all words in 32-bit in passthrough mode
           erx_data.emplace_back(channel_data.at(0));
         else {
           if (erx_data.empty() || msb == 32)  // if first word, or multiple of 32-bit, just copy all new words directly
@@ -149,26 +153,27 @@ namespace hgcal {
     return erx_data;
   }
 
-  std::vector<uint32_t> HGCalFrameGenerator::produceECONEvent(uint32_t /*econd_id*/,
+  std::vector<uint32_t> HGCalFrameGenerator::produceECONEvent(unsigned int econd_id,
                                                               const econd::ECONDInput& event) const {
-    auto header_bits = generateStatusBits();
-    auto econd_event = generateERxData(event.second);
+    const auto& econd_params = econdParams(econd_id);
+    auto header_bits = generateStatusBits(econd_id);
+    auto econd_event = generateERxData(econd_id, event.second);
     LogDebug("HGCalFrameGenerator") << econd_event.size() << " word(s) of eRx payloads inserted.";
 
     last_econd_emul_info_.clear();
     // as ECON-D event content was just created, only prepend packet header at this stage
-    const auto econd_header =
-        econd::eventPacketHeader(econd_.header_marker,
-                                 econd_event.size() + 1,
-                                 passthrough_mode_,
-                                 expected_mode_,
+    auto econd_header =
+        econd::eventPacketHeader(econd_params.header_marker,
+                                 econd_event.size() + 1 /*CRC*/,
+                                 econd_params.passthrough_mode,
+                                 econd_params.expected_mode,
                                  // HGCROC Event reco status across all active eRxE-B-O:
                                  // FIXME check endianness of these two numbers
                                  (header_bits.bitH & 0x1) << 1 | (header_bits.bitT & 0x1),  // HDR/TRL numbers
                                  (header_bits.bitE & 0x1) << 2 | (header_bits.bitB & 0x1) << 1 |
                                      (header_bits.bitO & 0x1),  // Event/BX/Orbit numbers
-                                 matching_ebo_numbers_,
-                                 bo_truncated_,
+                                 econd_params.matching_ebo_numbers,
+                                 econd_params.bo_truncated,
                                  0,                         // Hamming for event header
                                  std::get<1>(event.first),  // BX
                                  std::get<0>(event.first),  // event id (L1A)
@@ -184,6 +189,9 @@ namespace hgcal {
                                     << econd_event.size();
 
     econd_event.push_back(computeCRC(econd_header));
+    const uint8_t buffer_status = 0, error_status = 0, reset_request = 0;
+    econd_event.push_back(
+        econd::buildIdleWord(buffer_status, error_status, reset_request, econd_params.programmable_pattern));
 
     return econd_event;
   }
@@ -205,12 +213,20 @@ namespace hgcal {
     last_slink_emul_info_.clear();
 
     std::vector<backend::ECONDPacketStatus> econd_statuses(max_num_econds_, backend::ECONDPacketStatus::InactiveECOND);
-    for (const auto& econd_id : slink_.active_econds) {  // active ECON-D
-      auto econd_evt = to64bit(produceECONEvent(econd_id, econd_event));
-      slink_event.insert(slink_event.end(), econd_evt.begin(), econd_evt.end());
-      econd_statuses[econd_id] = backend::ECONDPacketStatus::Normal;  //FIXME
-      last_slink_emul_info_.addECONDEmulatedInfo(econd_id, lastECONDEmulatedInfo());
+    std::vector<uint32_t> econd_payload;
+    for (const auto& econd : econd_params_) {
+      if (!econd.second.active) {
+        econd_statuses[econd.first] = backend::ECONDPacketStatus::InactiveECOND;
+        continue;
+      }
+      econd_statuses[econd.first] =
+          backend::ECONDPacketStatus::Normal;  //TODO: also implement other ECON-D packet issues
+      const auto econd_evt = produceECONEvent(econd.first, econd_event);
+      econd_payload.insert(econd_payload.end(), econd_evt.begin(), econd_evt.end());
+      last_slink_emul_info_.addECONDEmulatedInfo(econd.first, lastECONDEmulatedInfo());
     }
+    const auto all_econd_evts = to64bit(econd_payload);
+    slink_event.insert(slink_event.end(), all_econd_evts.begin(), all_econd_evts.end());
     const auto l1a_header = to64bit(backend::buildCaptureBlockHeader(bx_id, event_id, orbit_id, econd_statuses));
     LogDebug("HGCalFrameGenerator").log([&l1a_header](auto& log) { printWords(log, "l1a", l1a_header); });
     slink_event.insert(slink_event.begin(), l1a_header.begin(), l1a_header.end());      // prepend capture block header
@@ -228,7 +244,7 @@ namespace hgcal {
   }
 
   uint8_t HGCalFrameGenerator::computeCRC(const std::vector<uint32_t>& event_header) const {
-    uint8_t crc = 0;  //FIXME 8-bit Bluetooth CRC
+    uint8_t crc = 0;  //TODO: implement 8-bit Bluetooth CRC
     return crc;
   }
 }  // namespace hgcal

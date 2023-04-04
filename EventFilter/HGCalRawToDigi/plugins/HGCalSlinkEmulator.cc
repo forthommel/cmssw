@@ -58,13 +58,14 @@ HGCalSlinkEmulator::HGCalSlinkEmulator(const edm::ParameterSet& iConfig)
       frame_gen_(iConfig) {
   // figure out which emulator is to be used
   const auto& emul_type = iConfig.getParameter<std::string>("emulatorType");
+  const auto& econd_params = frame_gen_.econdParams(0);  //FIXME may throw
   if (emul_type == "empty")
-    emulator_ = std::make_unique<hgcal::econd::EmptyEmulator>(frame_gen_.econdParams());
+    emulator_ = std::make_unique<hgcal::econd::EmptyEmulator>(econd_params);
   else if (emul_type == "trivial")
-    emulator_ = std::make_unique<hgcal::econd::TrivialEmulator>(frame_gen_.econdParams());
+    emulator_ = std::make_unique<hgcal::econd::TrivialEmulator>(econd_params);
   else if (emul_type == "hgcmodule")
     emulator_ = std::make_unique<hgcal::econd::HGCalModuleTreeReader>(
-        frame_gen_.econdParams(),
+        econd_params,
         iConfig.getUntrackedParameter<std::string>("treeName"),
         iConfig.getUntrackedParameter<std::vector<std::string>>("inputs"));
   else
