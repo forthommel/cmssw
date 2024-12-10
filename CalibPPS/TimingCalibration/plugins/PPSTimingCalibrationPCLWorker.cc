@@ -52,6 +52,9 @@ private:
   const edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geomEsToken_;
 
   const std::string dqmDir_;
+  const bool shiftLeadingEdge_;
+
+  mutable std::unordered_map<uint32_t, double> previousLeadingEdgeTimeOffsets_;
 };
 
 //------------------------------------------------------------------------------
@@ -59,7 +62,8 @@ private:
 PPSTimingCalibrationPCLWorker::PPSTimingCalibrationPCLWorker(const edm::ParameterSet& iConfig)
     : RecHitTags_(iConfig.getParameter<std::vector<edm::InputTag>>("diamondRecHitTags")),
       geomEsToken_(esConsumes<edm::Transition::BeginRun>()),
-      dqmDir_(iConfig.getParameter<std::string>("dqmDir")) {
+      dqmDir_(iConfig.getParameter<std::string>("dqmDir")),
+      shiftLeadingEdge_(iConfig.getParameter<bool>("shiftLeadingEdge")) {
   for (auto& tag : RecHitTags_)
     diamondRecHitTokens_.push_back(consumes<edm::DetSetVector<CTPPSDiamondRecHit>>(tag));
 }
@@ -84,7 +88,7 @@ void PPSTimingCalibrationPCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
     iHists.leadingTime[detid.rawId()] = iBooker.book1D("t_" + ch_name, ch_name + ";t (ns);Entries", 1200, -60., 60.);
     iHists.toT[detid.rawId()] = iBooker.book1D("tot_" + ch_name, ch_name + ";ToT (ns);Entries", 100, -20., 20.);
     iHists.leadingTimeVsToT[detid.rawId()] =
-        iBooker.book2D("tvstot_" + ch_name, ch_name + ";ToT (ns);t (ns)", 240, 0., 60., 450, -20., 25.);
+        iBooker.book2D("tvstot_" + ch_name, ch_name + ";ToT (ns);t (ns)", 240, -30., 30., 450, -20., 25.);
   }
 }
 
@@ -113,11 +117,17 @@ void PPSTimingCalibrationPCLWorker::dqmAnalyze(const edm::Event& iEvent,
       // skip invalid rechits
       if (rechit.time() == 0. || rechit.toT() < 0.)
         continue;
-      iHists.leadingTime.at(detid.rawId())->Fill(rechit.time());
+      const auto time_offset_channel = previousLeadingEdgeTimeOffsets_.contains(detid.rawId())
+                                           ? previousLeadingEdgeTimeOffsets_.at(detid.rawId())
+                                           : 0.;
+
+      iHists.leadingTime.at(detid.rawId())->Fill(rechit.time() - time_offset_channel);
       iHists.toT.at(detid.rawId())->Fill(rechit.toT());
-      iHists.leadingTimeVsToT.at(detid.rawId())->Fill(rechit.toT(), rechit.time());
+      iHists.leadingTimeVsToT.at(detid.rawId())->Fill(rechit.toT(), rechit.time() - time_offset_channel);
     }
   }
+  for (auto& [detid, leading_time_hist] : iHists.leadingTime)
+    previousLeadingEdgeTimeOffsets_[detid] = leading_time_hist->getTH1()->GetMean();
 }
 
 //------------------------------------------------------------------------------
@@ -128,6 +138,7 @@ void PPSTimingCalibrationPCLWorker::fillDescriptions(edm::ConfigurationDescripti
       ->setComment("input tag for the PPS diamond detectors rechits");
   desc.add<std::string>("dqmDir", "AlCaReco/PPSTimingCalibrationPCL")
       ->setComment("output path for the various DQM plots");
+  desc.add<bool>("shiftLeadingEdge", true)->setComment("shift the leading edge time to 0 (based on the previous LS)");
 
   descriptions.addWithDefaultLabel(desc);
 }
