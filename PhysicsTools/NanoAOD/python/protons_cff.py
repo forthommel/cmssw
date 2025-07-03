@@ -14,7 +14,7 @@ protonTable = cms.EDProducer("ProtonProducer",
 
 multiRPTable = simpleProtonTrackFlatTableProducer.clone(
     src = cms.InputTag("ctppsProtons","multiRP"),
-    name = cms.string("Proton_multiRP"),
+    name = cms.string("Proton_MultiRP"),
     doc  = cms.string("bon"),
     skipNonExistingSrc = cms.bool(True),#is this safe?
     variables = cms.PSet(
@@ -32,7 +32,7 @@ multiRPTable = simpleProtonTrackFlatTableProducer.clone(
 
 singleRPTable = simpleProtonTrackFlatTableProducer.clone(
     src = cms.InputTag("ctppsProtons","singleRP"),
-    name = cms.string("Proton_singleRP"),
+    name = cms.string("Proton_SingleRP"),
     doc  = cms.string("bon"),
     skipNonExistingSrc = cms.bool(True),#is this safe?
     variables = cms.PSet(
