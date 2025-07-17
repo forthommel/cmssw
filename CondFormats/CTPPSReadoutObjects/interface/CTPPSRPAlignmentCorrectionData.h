@@ -61,22 +61,23 @@ class CTPPSRPAlignmentCorrectionData
   protected:
     /// shift in mm; in global XYZ frame, which is not affected by (alignment) rotations!
     /// "_unc" denotes the shift uncertainties
-    double sh_x, sh_y, sh_z;
-    double sh_x_unc, sh_y_unc, sh_z_unc;
+    double sh_x{0.}, sh_y{0.}, sh_z{0.};
+    double sh_x_unc{0.}, sh_y_unc{0.}, sh_z_unc{0.};
   
     /// the three rotation angles
     /// in rad
-    double rot_x, rot_y, rot_z;
-    double rot_x_unc, rot_y_unc, rot_z_unc;
+    double rot_x{0.}, rot_y{0.}, rot_z{0.};
+    double rot_x_unc{0.}, rot_y_unc{0.}, rot_z_unc{0.};
 
   public:
+    CTPPSRPAlignmentCorrectionData() = default;
+
     /// full constructor, shifts in mm, rotations in rad
     CTPPSRPAlignmentCorrectionData(double _sh_x, double _sh_x_u, double _sh_y, double _sh_y_u, double _sh_z, double _sh_z_u,
       double _rot_x, double _rot_x_u, double _rot_y, double _rot_y_u, double _rot_z, double _rot_z_u);
 
     /// no uncertainty constructor, shifts in mm, rotation in rad
-    CTPPSRPAlignmentCorrectionData(double _sh_x = 0., double _sh_y = 0., double _sh_z = 0.,
-      double _rot_x = 0., double _rot_y = 0., double rot_z = 0.);
+    CTPPSRPAlignmentCorrectionData(double _sh_x, double _sh_y, double _sh_z, double _rot_x, double _rot_y, double rot_z);
 
 
     inline double getShX() const { return sh_x; }
