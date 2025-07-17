@@ -656,8 +656,8 @@ void PPSDirectProtonSimulation::processProton(
           continue;
 
         if (roundToPitch_) {
-          h_loc.SetX(pitchPixelsHor_ * floor(h_loc.x() / pitchPixelsHor_ + 0.5));
-          h_loc.SetY(pitchPixelsVer_ * floor(h_loc.y() / pitchPixelsVer_ + 0.5));
+          h_loc.setX(pitchPixelsHor_ * floor(h_loc.x() / pitchPixelsHor_ + 0.5));
+          h_loc.setY(pitchPixelsVer_ * floor(h_loc.y() / pitchPixelsVer_ + 0.5));
         }
 
         if (verbosity_ > 5)

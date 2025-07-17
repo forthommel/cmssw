@@ -1,4 +1,5 @@
 <use name="CondFormats/DataRecord"/>
+<use name="CondFormats/PPSObjects"/>
 <use name="CondFormats/RunInfo"/>
 <use name="Geometry/VeryForwardGeometryBuilder"/>
 <use name="Geometry/VeryForwardRPTopology"/>
