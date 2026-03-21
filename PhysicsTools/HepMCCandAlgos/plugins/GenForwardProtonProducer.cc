@@ -20,9 +20,9 @@
 #include <algorithm>
 #include <memory>
 
-class GenProtonsProducer : public edm::stream::EDProducer<> {
+class GenForwardProtonProducer : public edm::stream::EDProducer<> {
 public:
-  explicit GenProtonsProducer(const edm::ParameterSet& iConfig)
+  explicit GenForwardProtonProducer(const edm::ParameterSet& iConfig)
       : genParticlesToken_(
             mayConsume<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticlesTag"))),
         hepMCToken_(mayConsume<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("hepMCTag"))),
@@ -35,13 +35,21 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add("genParticlesTag", edm::InputTag("genParticles"));
-    desc.add("hepMCTag", edm::InputTag("generator", "unsmeared"));
-    desc.add("protonsStatusCodes", std::vector{1, 83});
-    desc.add("extrapolateFromPartons", true);
-    desc.add("incomingPartons", std::vector{22});
-    desc.add("incomingPartonsStatusCodes", std::vector{-1, 21});
-    descriptions.add("genProtons", desc);
+    desc.add("genParticlesTag", edm::InputTag("genParticles"))
+        ->setComment("label for the GenParticleCollection retrieval");
+    desc.add("hepMCTag", edm::InputTag("generator", "unsmeared"))
+        ->setComment("label for the alternative HepMCProduct retrieval");
+    desc.add("protonsStatusCodes", std::vector{1, 83})
+        ->setComment("list of (process- and generator-dependent) integer status codes characterising forward protons");
+    desc.add("extrapolateFromPartons", true)
+        ->setComment(
+            "allow populating the forward protons collection momentum balance after partons emission? (may result in "
+            "double-counting if the retrieval from status codes is successful!))");
+    desc.add("incomingPartons", std::vector{22})
+        ->setComment("list of PDG ids accepted as partons candidates in case the extrapolation is enabled");
+    desc.add("incomingPartonsStatusCodes", std::vector{-1, 21})
+        ->setComment("list of (process- and generator-dependent) integer status codes characterising incoming partons");
+    descriptions.add("genForwardProtons", desc);
   }
 
 private:
@@ -55,7 +63,7 @@ private:
     else if (iEvent.getByToken(hepMCToken_, hepmc_product_handle); hepmc_product_handle.isValid())
       extractFromHepMCProduct(*hepmc_product_handle, *generator_protons);
     else
-      throw cms::Exception("GenProtonsProducer")
+      throw cms::Exception("GenForwardProtonProducer")
           << "Neither a reco::GenParticleCollection, nor a edm::HepMCProduct was found in the event content. Failed to "
              "reconstruct the forward protons kinematics.";
     iEvent.put(std::move(generator_protons));
@@ -90,7 +98,7 @@ private:
   void extractFromHepMCProduct(const edm::HepMCProduct& hepmc_product, reco::GenParticleCollection& protons) const {
     const auto* event = hepmc_product.GetEvent();
     if (!event)
-      throw cms::Exception("GenProtonsProducer") << "Invalid HepMC event content.";
+      throw cms::Exception("GenForwardProtonProducer") << "Invalid HepMC event content.";
     // first pass: identify forward protons from particles content (works for a certain class of generators)
     for (auto it_vtx = event->vertices_begin(); it_vtx != event->vertices_end(); ++it_vtx) {  // event vertices
       const auto* vtx = *it_vtx;
@@ -149,4 +157,4 @@ private:
 };
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(GenProtonsProducer);
+DEFINE_FWK_MODULE(GenForwardProtonProducer);
