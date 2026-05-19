@@ -41,10 +41,10 @@ public:
         ->setComment("label for the alternative HepMCProduct retrieval");
     desc.add("protonsStatusCodes", std::vector{1, 83})
         ->setComment("list of (process- and generator-dependent) integer status codes characterising forward protons");
-    desc.add("extrapolateFromPartons", true)
+    desc.add("extrapolateFromPartons", false)
         ->setComment(
-            "allow populating the forward protons collection momentum balance after partons emission? (may result in "
-            "double-counting if the retrieval from status codes is successful!))");
+            "populate the forward protons collection with scattered particle from momentum balance after partons "
+            "emission?");
     desc.add("incomingPartons", std::vector{22})
         ->setComment("list of PDG ids accepted as partons candidates in case the extrapolation is enabled");
     desc.add("incomingPartonsStatusCodes", std::vector{-1, 21})
@@ -72,13 +72,7 @@ private:
   void extractFromGenParticles(const reco::GenParticleCollection& gen_particles,
                                reco::GenParticleCollection& protons) const {
     // first pass: identify forward protons from particles content (works for a certain class of generators)
-    for (const auto& gen_particle : gen_particles)
-      if (gen_particle.pdgId() == 2212  // accept protons
-          && std::find(protons_status_codes_.begin(), protons_status_codes_.end(), gen_particle.status()) !=
-                 protons_status_codes_.end())  // in a given set of status codes
-        protons.emplace_back(gen_particle);
-    // second pass: compute forward protons kinematics from incoming partons kinematics
-    if (protons.empty() && extrapolate_from_partons_)
+    if (extrapolate_from_partons_) {
       for (const auto& gen_particle : gen_particles)
         if (std::find(incoming_partons_.begin(), incoming_partons_.end(), gen_particle.pdgId()) !=
                 incoming_partons_.end()  // incoming parton
@@ -93,44 +87,51 @@ private:
                                1,
                                false);
         }
+    } else  // compute forward protons kinematics from incoming partons kinematics
+      for (const auto& gen_particle : gen_particles)
+        if (gen_particle.pdgId() == 2212  // accept protons
+            && std::find(protons_status_codes_.begin(), protons_status_codes_.end(), gen_particle.status()) !=
+                   protons_status_codes_.end())  // in a given set of status codes
+          protons.emplace_back(gen_particle);
   }
 
   void extractFromHepMCProduct(const edm::HepMCProduct& hepmc_product, reco::GenParticleCollection& protons) const {
     const auto* event = hepmc_product.GetEvent();
     if (!event)
       throw cms::Exception("GenForwardProtonProducer") << "Invalid HepMC event content.";
-    // first pass: identify forward protons from particles content (works for a certain class of generators)
-    for (auto it_vtx = event->vertices_begin(); it_vtx != event->vertices_end(); ++it_vtx) {  // event vertices
-      const auto* vtx = *it_vtx;
-      for (auto it_part = vtx->particles_out_const_begin(); it_part != vtx->particles_out_const_end();
-           ++it_part) {  // outgoing particles
-        const auto* part = *it_part;
-        if (std::abs(part->pdg_id()) == 2212  // accept protons
-            && std::find(protons_status_codes_.begin(), protons_status_codes_.end(), part->status()) !=
-                   protons_status_codes_.end()) {  // in a given set of status codes
-          protons.emplace_back(convertHepMCProton(*part));
-        }
-      }
-    }
-    // second pass: compute forward protons kinematics from incoming partons kinematics
-    if (protons.empty() && extrapolate_from_partons_)
+    if (extrapolate_from_partons_) {  // compute forward protons kinematics from incoming partons kinematics
       for (auto it_part = event->particles_begin(); it_part != event->particles_end();
-           ++it_part) {  // all particles in event
-        const auto* part = *it_part;
-        if (std::find(incoming_partons_.begin(), incoming_partons_.end(), part->pdg_id()) !=
+           ++it_part)  // all particles in event
+        if (const auto* part = *it_part;
+            part &&
+            std::find(incoming_partons_.begin(), incoming_partons_.end(), part->pdg_id()) !=
                 incoming_partons_.end()  // incoming parton
             && std::find(partons_status_codes_.begin(), partons_status_codes_.end(), part->status()) !=
                    partons_status_codes_.end()  // in a given set of PDG identifiers
             && part->production_vertex()) {
           const auto* parton_production_vertex = part->production_vertex();
-          if (parton_production_vertex->particles_in_size() > 0) {  // with at least a parent (incoming beam particle)
+          if (parton_production_vertex->particles_in_size() == 1) {  // with sharply one parent (incoming beam particle)
             const auto* beam_particle = *(parton_production_vertex->particles_in_const_begin());
+            if (std::abs(beam_particle->pdg_id()) != 2212)  // skip non-proton ancestors
+              continue;
             const auto parton = convertHepMCProton(*part);
             auto& outgoing_beam_particle = protons.emplace_back(convertHepMCProton(*beam_particle));
             outgoing_beam_particle.setP4(outgoing_beam_particle.p4() - parton.p4());
             outgoing_beam_particle.setVertex(parton.vertex());
           }
         }
+    } else  // identify forward protons from particles content (works for a certain class of generators)
+      for (auto it_vtx = event->vertices_begin(); it_vtx != event->vertices_end(); ++it_vtx) {  // event vertices
+        if (const auto* vtx = *it_vtx; vtx)
+          for (auto it_part = vtx->particles_out_const_begin(); it_part != vtx->particles_out_const_end();
+               ++it_part) {  // outgoing particles
+            const auto* part = *it_part;
+            if (std::abs(part->pdg_id()) == 2212  // accept protons
+                && std::find(protons_status_codes_.begin(), protons_status_codes_.end(), part->status()) !=
+                       protons_status_codes_.end()) {  // in a given set of status codes
+              protons.emplace_back(convertHepMCProton(*part));
+            }
+          }
       }
   }
 
