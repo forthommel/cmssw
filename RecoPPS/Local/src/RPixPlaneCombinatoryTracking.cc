@@ -207,7 +207,8 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
       LocalPoint pulls(0, 0);
       CTPPSPixelFittedRecHit usedRecHit(hhit.recHit, pOD, res, pulls);
       usedRecHit.setIsRealHit(true);
-      track.addHit(hhit.detId, usedRecHit);
+      usedRecHit.setDetId(hhit.detId);
+      track.addHit(usedRecHit);
     }
 
     // save track in collection
@@ -401,8 +402,8 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
         CTPPSPixelRecHit fakeRecHit(fakePoint, fakeError);
         fittedRecHit = std::make_unique<CTPPSPixelFittedRecHit>(fakeRecHit, pointOnDet, fakePoint, fakePoint);
       }
-
-      bestTrack.addHit(tmpPlaneId, *fittedRecHit);
+      fittedRecHit->setDetId(tmpPlaneId);
+      bestTrack.addHit(*fittedRecHit);
     }
 
     localTrackVector_.push_back(bestTrack);
@@ -411,13 +412,11 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
     int pointOnTrack = 0;
 
     if (verbosity_ >= 1) {
-      for (const auto &planeHits : bestTrack.hits()) {
-        for (const auto &fittedhit : planeHits) {
-          if (fittedhit.isUsedForFit())
-            ++pointForTracking;
-          if (fittedhit.isRealHit())
-            ++pointOnTrack;
-        }
+      for (const auto &fittedhit : bestTrack.hits()) {
+        if (fittedhit.isUsedForFit())
+          ++pointForTracking;
+        if (fittedhit.isRealHit())
+          ++pointOnTrack;
       }
       edm::LogInfo("RPixPlaneCombinatoryTracking")
           << "Best track has " << pointForTracking << " points used for the fit and " << pointOnTrack
@@ -497,18 +496,16 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
     auto const &fittedHits = track.hits();
     auto const &planeFlags = (shiftStatusInitialRun->second).at(romanPotId_);
 
-    for (const auto &planeHits : fittedHits) {
-      unsigned short plane = CTPPSPixelDetId(planeHits.detId()).plane();
-      for (const auto &hit : planeHits) {
-        if (hit.isUsedForFit()) {
-          if (pixelIndices.getROCId(hit.minPixelCol(), hit.minPixelRow()) == shiftedROC)
-            hitInShiftedROC++;  // Count how many hits are in the shifted ROC
-          if (planeFlags.at(plane))
-            bxShiftedPlanesUsed++;  // Count how many bx-shifted planes are used
-          else if (planeFlags != std::vector<bool>(6, false))
-            bxNonShiftedPlanesUsed++;  // Count how many non-bx-shifted planes are used, only if there are shifted planes
-        }
-      }
+    for (const auto &hit : fittedHits) {
+      if (!hit.isUsedForFit())
+        continue;
+      if (pixelIndices.getROCId(hit.minPixelCol(), hit.minPixelRow()) == shiftedROC)
+        hitInShiftedROC++;  // Count how many hits are in the shifted ROC
+      unsigned short plane = CTPPSPixelDetId(hit.detId()).plane();
+      if (planeFlags.at(plane))
+        bxShiftedPlanesUsed++;  // Count how many bx-shifted planes are used
+      else if (planeFlags != std::vector<bool>(6, false))
+        bxNonShiftedPlanesUsed++;  // Count how many non-bx-shifted planes are used, only if there are shifted planes
     }
 
     // Set recoInfo_ value
@@ -635,7 +632,8 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
 
     CTPPSPixelFittedRecHit fittedRecHit(hit.recHit, pointOnDet, residuals, pulls);
     fittedRecHit.setIsUsedForFit(true);
-    goodTrack.addHit(hit.detId, fittedRecHit);
+    fittedRecHit.setDetId(hit.detId);
+    goodTrack.addHit(fittedRecHit);
   }
 
   return goodTrack;
