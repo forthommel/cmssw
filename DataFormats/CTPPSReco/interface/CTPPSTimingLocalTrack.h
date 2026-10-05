@@ -11,8 +11,9 @@
 #ifndef DataFormats_CTPPSReco_CTPPSTimingLocalTrack
 #define DataFormats_CTPPSReco_CTPPSTimingLocalTrack
 
-#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSTimingRecHit.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 //----------------------------------------------------------------------------------------------------
 
@@ -26,6 +27,9 @@ namespace io_v1 {
     bool containsHit(const CTPPSTimingRecHit& recHit,
                      float tolerance = 0.1f,
                      CheckDimension check = CheckDimension::all) const;
+
+    inline void setDetId(CTPPSDetId detid) { detid_ = detid; }
+    inline CTPPSDetId detId() const { return detid_; }
 
     //--- spatial get'ters
 
@@ -65,6 +69,8 @@ namespace io_v1 {
     inline void setTimeSigma(float t_sigma) { t_sigma_ = t_sigma; }
 
   private:
+    CTPPSDetId detid_{CTPPSDetId(CTPPSDetId::sdTimingDiamond, 0, 0)};  ///< Identifier of the station for this track
+
     //--- spatial information
 
     /// initial track position

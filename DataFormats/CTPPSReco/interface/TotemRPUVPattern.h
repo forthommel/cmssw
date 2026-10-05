@@ -11,6 +11,7 @@
 
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPRecHit.h"
 
 /**
@@ -23,10 +24,9 @@
 namespace io_v1 {
   class TotemRPUVPattern {
   public:
+    TotemRPUVPattern() = default;
+
     enum ProjectionType { projInvalid, projU, projV };
-
-    TotemRPUVPattern() : projection_(projInvalid), a_(0.), b_(0.), w_(0.), fittable_(false) {}
-
     ProjectionType projection() const { return projection_; }
     void setProjection(ProjectionType type) { projection_ = type; }
 
@@ -46,14 +46,18 @@ namespace io_v1 {
 
     const edm::DetSetVector<TotemRPRecHit> &hits() const { return hits_; }
 
+    inline const TotemRPDetId &detId() const { return detid_; }
+    inline void setDetId(const TotemRPDetId &detid) { detid_ = detid; }
+
     friend bool operator<(const TotemRPUVPattern &l, const TotemRPUVPattern &r);
 
   private:
-    ProjectionType projection_;  ///< projection
-    double a_;                   ///< slope in rad
-    double b_;                   ///< intercept in mm
-    double w_;                   ///< weight
-    bool fittable_;              ///< whether this pattern is worth including in track fits
+    TotemRPDetId detid_{TotemRPDetId(0, 0)};                  ///< strips-local DetId for the hit
+    ProjectionType projection_{ProjectionType::projInvalid};  ///< projection
+    double a_{0.};                                            ///< slope in rad
+    double b_{0.};                                            ///< intercept in mm
+    double w_{0.};                                            ///< weight
+    bool fittable_{false};                                    ///< whether this pattern is worth including in track fits
 
     edm::DetSetVector<TotemRPRecHit> hits_;  ///< hits associated with the pattern
   };

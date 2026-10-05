@@ -207,6 +207,7 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
       LocalPoint pulls(0, 0);
       CTPPSPixelFittedRecHit usedRecHit(hhit.recHit, pOD, res, pulls);
       usedRecHit.setIsRealHit(true);
+      usedRecHit.setDetId(hhit.detId);
       track.addHit(hhit.detId, usedRecHit);
     }
 
@@ -401,7 +402,7 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
         CTPPSPixelRecHit fakeRecHit(fakePoint, fakeError);
         fittedRecHit = std::make_unique<CTPPSPixelFittedRecHit>(fakeRecHit, pointOnDet, fakePoint, fakePoint);
       }
-
+      fittedRecHit->setDetId(tmpPlaneId);
       bestTrack.addHit(tmpPlaneId, *fittedRecHit);
     }
 
@@ -635,6 +636,7 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
 
     CTPPSPixelFittedRecHit fittedRecHit(hit.recHit, pointOnDet, residuals, pulls);
     fittedRecHit.setIsUsedForFit(true);
+    fittedRecHit.setDetId(hit.detId);
     goodTrack.addHit(hit.detId, fittedRecHit);
   }
 

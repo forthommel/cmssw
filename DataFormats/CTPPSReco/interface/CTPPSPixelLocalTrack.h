@@ -108,6 +108,9 @@ namespace io_v1 {
 
     ~CTPPSPixelLocalTrack() {}
 
+    inline CTPPSPixelDetId detId() const { return detid_; }
+    inline void setDetId(CTPPSPixelDetId detid) { detid_ = detid; }
+
     inline const edm::DetSetVector<CTPPSPixelFittedRecHit>& hits() const { return track_hits_vector_; }
     inline void addHit(unsigned int detId, const CTPPSPixelFittedRecHit& hit) {
       track_hits_vector_.find_or_insert(detId).push_back(hit);
@@ -192,6 +195,7 @@ namespace io_v1 {
     inline unsigned short numberOfPointsUsedForFit() const { return numberOfPointsUsedForFit_; }
 
   private:
+    CTPPSPixelDetId detid_{CTPPSPixelDetId(0, 0)};
     edm::DetSetVector<CTPPSPixelFittedRecHit> track_hits_vector_;
 
     /// track parameters: (x0, y0, tx, ty); x = x0 + tx*(z-z0) ...

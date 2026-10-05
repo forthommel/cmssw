@@ -11,6 +11,7 @@
 
 #include <cassert>
 
+#include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "FWCore/Utilities/interface/isFinite.h"
@@ -41,6 +42,9 @@ namespace io_v1 {
           clusterSizeRow_(rowsize),
           clusterSizeCol_(colsize) {}
 
+    inline void setDetId(CTPPSPixelDetId detid) { detid_ = detid; }
+    inline CTPPSPixelDetId detId() const { return detid_; }
+
     LocalPoint point() const { return thePoint_; }
     LocalError error() const { return theError_; }
 
@@ -58,6 +62,7 @@ namespace io_v1 {
     float sort_key() const { return thePoint_.mag2(); }
 
   private:
+    CTPPSPixelDetId detid_{CTPPSPixelDetId(0, 0)};
     LocalPoint thePoint_;
     LocalError theError_;
 

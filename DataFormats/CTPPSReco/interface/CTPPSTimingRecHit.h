@@ -10,6 +10,8 @@
 #ifndef DataFormats_CTPPSReco_CTPPSTimingRecHit
 #define DataFormats_CTPPSReco_CTPPSTimingRecHit
 
+#include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
+
 /// Reconstructed hit in timing detectors.
 namespace io_v1 {
   class CTPPSTimingRecHit {
@@ -17,6 +19,9 @@ namespace io_v1 {
     CTPPSTimingRecHit() : x_(0.), xWidth_(0.), y_(0.), yWidth_(0.), z_(0.), zWidth_(0.), t_(0.) {}
     CTPPSTimingRecHit(float x, float xWidth, float y, float yWidth, float z, float zWidth, float t)
         : x_(x), xWidth_(xWidth), y_(y), yWidth_(yWidth), z_(z), zWidth_(zWidth), t_(t) {}
+
+    inline void setDetId(CTPPSDetId detid) { detid_ = detid; }
+    inline CTPPSDetId detId() const { return detid_; }
 
     inline void setX(float x) { x_ = x; }
     inline float x() const { return x_; }
@@ -40,6 +45,7 @@ namespace io_v1 {
     inline float time() const { return t_; }
 
   protected:
+    CTPPSDetId detid_{CTPPSDetId(CTPPSDetId::sdTimingDiamond, 0, 0)};
     float x_, xWidth_;
     float y_, yWidth_;
     float z_, zWidth_;

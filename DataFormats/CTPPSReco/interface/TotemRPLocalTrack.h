@@ -129,6 +129,9 @@ namespace io_v1 {
 
     inline void setValid(bool valid) { valid_ = valid; }
 
+    inline const TotemRPDetId &detId() const { return detid_; }
+    inline void setDetId(const TotemRPDetId &detid) { detid_ = detid; }
+
     friend bool operator<(const TotemRPLocalTrack &l, const TotemRPLocalTrack &r);
 
   private:
@@ -138,6 +141,7 @@ namespace io_v1 {
 
     inline double &CovarianceMatrixElement(int i, int j) { return par_covariance_matrix_[i * dimension + j]; }
 
+    TotemRPDetId detid_{TotemRPDetId(0, 0)};  ///< strips-local DetId for the local track
     edm::DetSetVector<FittedRecHit> track_hits_vector_;
 
     /// track parameters: (x0, y0, tx, ty); x = x0 + tx*(z-z0) ...
