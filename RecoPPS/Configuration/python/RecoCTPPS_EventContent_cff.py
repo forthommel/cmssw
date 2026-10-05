@@ -42,6 +42,9 @@ RecoCTPPSAOD = cms.PSet(
     'keep CTPPSPixelLocalTrackedmDetSetVector_ctppsPixelLocalTracks_*_*',
 
     # flat vectors of RECO
+    'keep TotemRPRecHits_*_*_*',
+    'keep TotemRPUVPatterns_*_*_*',
+    'keep TotemRPLocalTracks_*_*_*',
     'keep CTPPSDiamondRecHits_*_*_*',
     'keep CTPPSDiamondLocalTracks_*_*_*',
     'keep CTPPSPixelRecHits_*_*_*',

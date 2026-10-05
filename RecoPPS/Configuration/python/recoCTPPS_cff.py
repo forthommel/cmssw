@@ -4,8 +4,9 @@ from RecoPPS.Local.totemRPLocalReconstruction_cff import *
 from RecoPPS.Local.ctppsDiamondLocalReconstruction_cff import *
 from RecoPPS.Local.totemTimingLocalReconstruction_cff import *
 from RecoPPS.Local.ctppsPixelLocalReconstruction_cff import *
-
 from RecoPPS.Local.ctppsLocalTrackLiteProducer_cff import ctppsLocalTrackLiteProducer
+
+from RecoPPS.Configuration.ctppsFlattener_cff import *
 
 from RecoPPS.ProtonReconstruction.ctppsProtons_cff import *
 
@@ -17,6 +18,7 @@ recoCTPPSTask = cms.Task(
     ctppsDiamondLocalReconstructionTask ,
     diamondSampicLocalReconstructionTask ,
     ctppsPixelLocalReconstructionTask ,
+    ctppsFlattenerTask,
     ctppsLocalTrackLiteProducer ,
     ctppsProtons
 )
@@ -29,6 +31,7 @@ ctpps_2018.toReplaceWith(
         ctppsDiamondLocalReconstructionTask ,
         totemTimingLocalReconstructionTask ,
         ctppsPixelLocalReconstructionTask ,
+        ctppsFlattenerTask,
         ctppsLocalTrackLiteProducer ,
         ctppsProtons
     )
@@ -46,6 +49,7 @@ recoDirectSimPPSTask = cms.Task(
     totemRPFromRHLocalReconstructionTask,
     ctppsDiamondFromRHLocalReconstructionTask,
     ctppsPixelFromRHLocalReconstructionTask,
+    ctppsFlattenerTask,
     ctppsLocalTrackLiteProducer,
     ctppsProtons
 )
