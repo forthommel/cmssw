@@ -52,8 +52,9 @@
 
 <!-- timing objects -->
 
-  <class name="io_v1::CTPPSTimingRecHit" ClassVersion="3">
+  <class name="io_v1::CTPPSTimingRecHit" ClassVersion="4">
     <version ClassVersion="3" checksum="3231082068"/>
+    <version ClassVersion="4" checksum="3152373657"/>
   </class>
   <class name="edm::Ptr<io_v1::CTPPSTimingRecHit>"/>
   <class name="edm::Wrapper<io_v1::CTPPSTimingRecHit>"/>
@@ -66,8 +67,9 @@
   <class name="std::map<int, edm::DetSetVector<io_v1::CTPPSTimingRecHit>>"/>
   <class name="edm::Wrapper<std::map<int, edm::DetSetVector<io_v1::CTPPSTimingRecHit>>>"/>
 
-  <class name="io_v1::TotemTimingRecHit" ClassVersion="3">
+  <class name="io_v1::TotemTimingRecHit" ClassVersion="4">
     <version ClassVersion="3" checksum="2944994214"/>
+    <version ClassVersion="4" checksum="2197084875"/>
   </class>
   <class name="edm::Ptr<io_v1::TotemTimingRecHit>"/>
   <class name="edm::Wrapper<io_v1::TotemTimingRecHit>"/>
@@ -78,8 +80,9 @@
   <class name="edm::Wrapper<edm::DetSetVector<io_v1::TotemTimingRecHit> >"/>
   <class name="edm::Wrapper<std::vector<io_v1::TotemTimingRecHit> >"/>
 
-  <class name="io_v1::CTPPSDiamondRecHit" ClassVersion="3">
+  <class name="io_v1::CTPPSDiamondRecHit" ClassVersion="4">
     <version ClassVersion="3" checksum="1805648527"/>
+    <version ClassVersion="4" checksum="892702678"/>
   </class>
   <class name="edm::Ptr<io_v1::CTPPSDiamondRecHit>"/>
   <class name="edm::Wrapper<io_v1::CTPPSDiamondRecHit>"/>
@@ -93,8 +96,9 @@
   <class name="std::map<int, edm::DetSetVector<io_v1::CTPPSDiamondRecHit>>"/>
   <class name="edm::Wrapper<std::map<int, edm::DetSetVector<io_v1::CTPPSDiamondRecHit>>>"/>
 
-  <class name="io_v1::CTPPSTimingLocalTrack" ClassVersion="3">
+  <class name="io_v1::CTPPSTimingLocalTrack" ClassVersion="4">
     <version ClassVersion="3" checksum="3045501838"/>
+    <version ClassVersion="4" checksum="2440940627"/>
   </class>
   <class name="edm::Ptr<io_v1::CTPPSTimingLocalTrack>"/>
   <class name="edm::Wrapper<io_v1::CTPPSTimingLocalTrack>"/>
@@ -105,8 +109,9 @@
   <class name="edm::DetSetVector<io_v1::CTPPSTimingLocalTrack>"/>
   <class name="edm::Wrapper<edm::DetSetVector<io_v1::CTPPSTimingLocalTrack> >"/>
 
-  <class name="io_v1::CTPPSDiamondLocalTrack" ClassVersion="3">
+  <class name="io_v1::CTPPSDiamondLocalTrack" ClassVersion="4">
     <version ClassVersion="3" checksum="1878285213"/>
+    <version ClassVersion="4" checksum="3350153418"/>
   </class>
   <class name="edm::Ptr<io_v1::CTPPSDiamondLocalTrack>"/>
   <class name="edm::Wrapper<io_v1::CTPPSDiamondLocalTrack>"/>
@@ -117,8 +122,9 @@
   <class name="edm::DetSetVector<io_v1::CTPPSDiamondLocalTrack>"/>
   <class name="edm::Wrapper<edm::DetSetVector<io_v1::CTPPSDiamondLocalTrack> >"/>
 
-  <class name="io_v1::TotemTimingLocalTrack" ClassVersion="3">
+  <class name="io_v1::TotemTimingLocalTrack" ClassVersion="4">
     <version ClassVersion="3" checksum="1582974563"/>
+    <version ClassVersion="4" checksum="978413352"/>
   </class>
   <class name="edm::Ptr<io_v1::TotemTimingLocalTrack>"/>
   <class name="edm::Wrapper<io_v1::TotemTimingLocalTrack>"/>
@@ -140,33 +146,38 @@
   <class name="edm::DetSetVector<io_v1::CTPPSPixelCluster>"/>
   <class name="edm::Wrapper<edm::DetSetVector<io_v1::CTPPSPixelCluster> >"/>
 
-  <class name="io_v1::CTPPSPixelRecHit" ClassVersion="3">
+  <class name="io_v1::CTPPSPixelRecHit" ClassVersion="4">
     <version ClassVersion="3" checksum="2339055351"/>
+    <version ClassVersion="4" checksum="353594040"/>
   </class>
   <class name="edm::DetSet<io_v1::CTPPSPixelRecHit>"/>
   <class name="std::vector<io_v1::CTPPSPixelRecHit>"/>
   <class name="std::vector<edm::DetSet<io_v1::CTPPSPixelRecHit> >"/>
   <class name="edm::DetSetVector<io_v1::CTPPSPixelRecHit>"/>
   <class name="edm::Wrapper<edm::DetSetVector<io_v1::CTPPSPixelRecHit> >"/>
+  <class name="edm::Wrapper<std::vector<io_v1::CTPPSPixelRecHit> >"/>
   <class name="std::map<int, edm::DetSetVector<io_v1::CTPPSPixelRecHit>>"/>
   <class name="std::pair<const int, edm::DetSetVector<io_v1::CTPPSPixelRecHit>>"/>
   <class name="edm::Wrapper<std::map<int, edm::DetSetVector<io_v1::CTPPSPixelRecHit>>>"/>
 
-  <class name="io_v1::CTPPSPixelLocalTrack" ClassVersion="3">
+  <class name="io_v1::CTPPSPixelLocalTrack" ClassVersion="4">
     <version ClassVersion="3" checksum="812170731"/>
+    <version ClassVersion="4" checksum="3047113717"/>
   </class>
   <class name="edm::DetSet<io_v1::CTPPSPixelLocalTrack>"/>
   <class name="std::vector<io_v1::CTPPSPixelLocalTrack>"/>
   <class name="std::vector<edm::DetSet<io_v1::CTPPSPixelLocalTrack> >"/>
   <class name="edm::DetSetVector<io_v1::CTPPSPixelLocalTrack>"/>
   <class name="edm::Wrapper<edm::DetSetVector<io_v1::CTPPSPixelLocalTrack> >"/>
+  <class name="edm::Wrapper<std::vector<io_v1::CTPPSPixelLocalTrack> >"/>
   <class name="edm::DetSetVector<io_v1::CTPPSPixelFittedRecHit>"/>
   <class name="edm::Wrapper<edm::DetSetVector<io_v1::CTPPSPixelFittedRecHit>>"/>
   <class name="std::vector<edm::DetSet<io_v1::CTPPSPixelFittedRecHit> >"/>
   <class name="edm::DetSet<io_v1::CTPPSPixelFittedRecHit>"/>
   <class name="std::vector<io_v1::CTPPSPixelFittedRecHit>"/>
-  <class name="io_v1::CTPPSPixelFittedRecHit" ClassVersion="3">
+  <class name="io_v1::CTPPSPixelFittedRecHit" ClassVersion="4">
     <version ClassVersion="3" checksum="4095907278"/>
+    <version ClassVersion="4" checksum="1128104663"/>
   </class>
 
 <!-- common objects -->

@@ -25,7 +25,7 @@ RecoCTPPSAOD = cms.PSet(
     'keep TotemVFATStatusedmDetSetVector_ctppsDiamondRawToDigi_*_*',
     'keep CTPPSDiamondRecHitedmDetSetVector_ctppsDiamondRecHits_*_*',
     'keep CTPPSDiamondLocalTrackedmDetSetVector_ctppsDiamondLocalTracks_*_*',
-    
+
     #diamond sampic
     'keep TotemTimingLocalTrackedmDetSetVector_diamondSampicLocalTracks_*_*',
 
@@ -40,6 +40,12 @@ RecoCTPPSAOD = cms.PSet(
     'keep CTPPSPixelClusteredmDetSetVector_ctppsPixelClusters_*_*',
     'keep CTPPSPixelRecHitedmDetSetVector_ctppsPixelRecHits_*_*',
     'keep CTPPSPixelLocalTrackedmDetSetVector_ctppsPixelLocalTracks_*_*',
+
+    # flat vectors of RECO
+    'keep CTPPSDiamondRecHits_*_*_*',
+    'keep CTPPSDiamondLocalTracks_*_*_*',
+    'keep CTPPSPixelRecHits_*_*_*',
+    'keep CTPPSPixelLocalTracks_*_*_*',
 
     # CTPPS common
     'keep CTPPSLocalTrackLites_ctppsLocalTrackLiteProducer_*_*',
