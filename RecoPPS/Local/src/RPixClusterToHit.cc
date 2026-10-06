@@ -3,7 +3,7 @@
 RPixClusterToHit::RPixClusterToHit(edm::ParameterSet const &conf)
     : verbosity_(conf.getUntrackedParameter<int>("RPixVerbosity")) {}
 
-void RPixClusterToHit::buildHits(unsigned int detId,
+void RPixClusterToHit::buildHits(CTPPSPixelDetId detId,
                                  const std::vector<CTPPSPixelCluster> &clusters,
                                  std::vector<CTPPSPixelRecHit> &hits,
                                  const PPSPixelTopology &ppt) const {
@@ -11,11 +11,12 @@ void RPixClusterToHit::buildHits(unsigned int detId,
     edm::LogInfo("PPS") << " RPixClusterToHit " << detId << " received cluster array of size = " << clusters.size();
 
   for (unsigned int i = 0; i < clusters.size(); i++) {
-    makeHit(clusters[i], hits, ppt);
+    makeHit(detId, clusters[i], hits, ppt);
   }
 }
 
-void RPixClusterToHit::makeHit(CTPPSPixelCluster cluster,
+void RPixClusterToHit::makeHit(CTPPSPixelDetId detid,
+                               CTPPSPixelCluster cluster,
                                std::vector<CTPPSPixelRecHit> &hits,
                                const PPSPixelTopology &ppt) const {
   // take a cluster, generate a rec hit and push it in the rec hit vector
@@ -113,14 +114,15 @@ void RPixClusterToHit::makeHit(CTPPSPixelCluster cluster,
   if (verbosity_)
     edm::LogInfo("PPS") << "RPixClusterToHit " << lp << " with error " << le;
 
-  hits.emplace_back(lp,
-                    le,
-                    anEdgePixel,
-                    aBadPixel,
-                    twoRocs,
-                    thisClusterMinRow,
-                    thisClusterMinCol,
-                    thisClusterSize,
-                    thisClusterRowSize,
-                    thisClusterColSize);
+  auto &hit = hits.emplace_back(lp,
+                                le,
+                                anEdgePixel,
+                                aBadPixel,
+                                twoRocs,
+                                thisClusterMinRow,
+                                thisClusterMinCol,
+                                thisClusterSize,
+                                thisClusterRowSize,
+                                thisClusterColSize);
+  hit.setDetId(detid);
 }

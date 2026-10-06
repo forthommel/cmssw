@@ -17,15 +17,14 @@
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 
-class CTPPSDiamondRecHitProducerAlgorithm
-    : public TimingRecHitProducerAlgorithm<CTPPSGeometry,
-                                           edm::DetSetVector<CTPPSDiamondDigi>,
-                                           edm::DetSetVector<CTPPSDiamondRecHit> > {
+class CTPPSDiamondRecHitProducerAlgorithm : public TimingRecHitProducerAlgorithm<CTPPSGeometry,
+                                                                                 edm::DetSetVector<CTPPSDiamondDigi>,
+                                                                                 std::vector<CTPPSDiamondRecHit> > {
 public:
   using TimingRecHitProducerAlgorithm::TimingRecHitProducerAlgorithm;
   void build(const CTPPSGeometry&,
              const edm::DetSetVector<CTPPSDiamondDigi>&,
-             edm::DetSetVector<CTPPSDiamondRecHit>&) override;
+             std::vector<CTPPSDiamondRecHit>&) override;
 
 private:
   static constexpr unsigned short MAX_CHANNEL = 20;

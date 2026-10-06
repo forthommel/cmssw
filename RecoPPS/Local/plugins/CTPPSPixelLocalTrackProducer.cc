@@ -63,7 +63,7 @@ private:
   const int maxTrackPerRomanPot_;
   const int maxTrackPerPattern_;
 
-  const edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelRecHit>> tokenCTPPSPixelRecHit_;
+  const edm::EDGetTokenT<std::vector<CTPPSPixelRecHit>> tokenCTPPSPixelRecHit_;
   const edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> tokenCTPPSGeometry_;
   edm::ESWatcher<VeryForwardRealGeometryRecord> geometryWatcher_;
 
@@ -83,8 +83,7 @@ CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterS
       maxHitPerRomanPot_(parameterSet.getParameter<int>("maxHitPerRomanPot")),
       maxTrackPerRomanPot_(parameterSet.getParameter<int>("maxTrackPerRomanPot")),
       maxTrackPerPattern_(parameterSet.getParameter<int>("maxTrackPerPattern")),
-      tokenCTPPSPixelRecHit_(
-          consumes<edm::DetSetVector<CTPPSPixelRecHit>>(parameterSet.getParameter<edm::InputTag>("tag"))),
+      tokenCTPPSPixelRecHit_(consumes<std::vector<CTPPSPixelRecHit>>(parameterSet.getParameter<edm::InputTag>("tag"))),
       tokenCTPPSGeometry_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()),
       tokenCTPPSPixelAnalysisMask_(esConsumes<CTPPSPixelAnalysisMask, CTPPSPixelAnalysisMaskRcd>()),
       numberOfPlanesPerPot_(parameterSet.getParameter<int>("numberOfPlanesPerPot")) {
@@ -114,7 +113,7 @@ CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterS
   }
   trackFinder_->setListOfPlanes(listOfAllPlanes);
   trackFinder_->initialize();
-  produces<edm::DetSetVector<CTPPSPixelLocalTrack>>();
+  produces<std::vector<CTPPSPixelLocalTrack>>();
 }
 
 //------------------------------------------------------------------------------------------------//
@@ -161,9 +160,12 @@ void CTPPSPixelLocalTrackProducer::fillDescriptions(edm::ConfigurationDescriptio
 void CTPPSPixelLocalTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // Step A: get inputs
 
-  edm::Handle<edm::DetSetVector<CTPPSPixelRecHit>> recHits;
+  edm::Handle<std::vector<CTPPSPixelRecHit>> recHits;
   iEvent.getByToken(tokenCTPPSPixelRecHit_, recHits);
-  edm::DetSetVector<CTPPSPixelRecHit> recHitVector(*recHits);
+  // convert from STL vector to input DetSetVector
+  edm::DetSetVector<CTPPSPixelRecHit> recHitVector;
+  for (const auto &rechit : *recHits)
+    recHitVector.find_or_insert(rechit.detId()).push_back(rechit);
 
   // get geometry
   edm::ESHandle<CTPPSGeometry> geometryHandler = iSetup.getHandle(tokenCTPPSGeometry_);
@@ -344,9 +346,12 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event &iEvent, const edm::EventS
     }
   }
 
-  iEvent.put(std::make_unique<edm::DetSetVector<CTPPSPixelLocalTrack>>(foundTracks));
-
-  return;
+  // convert back from STL vector to DetSetVector
+  auto pOut = std::make_unique<std::vector<CTPPSPixelLocalTrack>>();
+  for (const auto &tracks : foundTracks)
+    for (const auto &track : tracks)
+      pOut->push_back(track);
+  iEvent.put(std::move(pOut));
 }
 
 DEFINE_FWK_MODULE(CTPPSPixelLocalTrackProducer);

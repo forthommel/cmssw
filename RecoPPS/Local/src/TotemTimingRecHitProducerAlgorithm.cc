@@ -39,7 +39,7 @@ void TotemTimingRecHitProducerAlgorithm::setCalibration(const PPSTimingCalibrati
 
 void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
                                                const edm::DetSetVector<TotemTimingDigi>& input,
-                                               edm::DetSetVector<TotemTimingRecHit>& output) {
+                                               std::vector<TotemTimingRecHit>& output) {
   for (const auto& vec : input) {
     const CTPPSDetId detid(vec.detId());
 
@@ -63,8 +63,6 @@ void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
 
     if (!sampicConversions_)
       throw cms::Exception("TotemTimingRecHitProducerAlgorithm") << "No timing conversion retrieved.";
-
-    edm::DetSet<TotemTimingRecHit>& rec_hits = output.find_or_insert(detid);
 
     for (const auto& digi : vec) {
       const float triggerCellTimeInstant(sampicConversions_->triggerTime(digi));
@@ -97,18 +95,19 @@ void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
           (det->name() == "CTPPS_UFSD_Segment" && (*max_it) < saturationLimit_))
         t = constantFractionDiscriminator(time, dataCorrected);
       mode_ = TotemTimingRecHit::CFD;
-      rec_hits.emplace_back(x_pos,
-                            x_width,
-                            y_pos,
-                            y_width,
-                            z_pos,
-                            z_width,
-                            t,
-                            triggerCellTimeInstant,
-                            timePrecision,
-                            *max_corrected_it,
-                            baselineRegression.rms,
-                            mode_);
+      auto& rechit = output.emplace_back(x_pos,
+                                         x_width,
+                                         y_pos,
+                                         y_width,
+                                         z_pos,
+                                         z_width,
+                                         t,
+                                         triggerCellTimeInstant,
+                                         timePrecision,
+                                         *max_corrected_it,
+                                         baselineRegression.rms,
+                                         mode_);
+      rechit.setDetId(detid);
     }
   }
 }

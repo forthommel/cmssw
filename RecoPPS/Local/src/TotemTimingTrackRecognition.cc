@@ -24,7 +24,7 @@ void TotemTimingTrackRecognition::addHit(const TotemTimingRecHit& recHit) {
 
 //----------------------------------------------------------------------------------------------------
 
-int TotemTimingTrackRecognition::produceTracks(edm::DetSet<TotemTimingLocalTrack>& tracks) {
+int TotemTimingTrackRecognition::produceTracks(CTPPSDetId detid, std::vector<TotemTimingLocalTrack>& tracks) {
   int numberOfTracks = 0;
   DimensionParameters param;
 
@@ -79,6 +79,7 @@ int TotemTimingTrackRecognition::produceTracks(edm::DetSet<TotemTimingLocalTrack
         newTrack.setValid(valid_hits);
         newTrack.setTime(mean_time);
         newTrack.setTimeSigma(time_sigma);
+        newTrack.setDetId(detid);
         // in a next iteration, we will be setting validity / numHits / numPlanes
         tracks.push_back(newTrack);
       }

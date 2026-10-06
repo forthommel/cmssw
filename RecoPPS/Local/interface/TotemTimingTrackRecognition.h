@@ -11,7 +11,6 @@
 #ifndef RecoPPS_Local_TotemTimingTrackRecognition
 #define RecoPPS_Local_TotemTimingTrackRecognition
 
-#include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/CTPPSReco/interface/TotemTimingRecHit.h"
 #include "DataFormats/CTPPSReco/interface/TotemTimingLocalTrack.h"
 
@@ -29,7 +28,7 @@ public:
   void addHit(const TotemTimingRecHit& recHit) override;
 
   /// Produces a collection of tracks for the current station, given its hits collection
-  int produceTracks(edm::DetSet<TotemTimingLocalTrack>& tracks) override;
+  int produceTracks(CTPPSDetId, std::vector<TotemTimingLocalTrack>& tracks) override;
 };
 
 #endif

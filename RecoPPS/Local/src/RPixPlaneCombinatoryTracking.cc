@@ -497,15 +497,14 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
     auto const &planeFlags = (shiftStatusInitialRun->second).at(romanPotId_);
 
     for (const auto &hit : fittedHits) {
-      if (!hit.isUsedForFit())
-        continue;
-      if (pixelIndices.getROCId(hit.minPixelCol(), hit.minPixelRow()) == shiftedROC)
-        hitInShiftedROC++;  // Count how many hits are in the shifted ROC
-      unsigned short plane = CTPPSPixelDetId(hit.detId()).plane();
-      if (planeFlags.at(plane))
-        bxShiftedPlanesUsed++;  // Count how many bx-shifted planes are used
-      else if (planeFlags != std::vector<bool>(6, false))
-        bxNonShiftedPlanesUsed++;  // Count how many non-bx-shifted planes are used, only if there are shifted planes
+      if (hit.isUsedForFit()) {
+        if (pixelIndices.getROCId(hit.minPixelCol(), hit.minPixelRow()) == shiftedROC)
+          hitInShiftedROC++;  // Count how many hits are in the shifted ROC
+        if (unsigned short plane = hit.detId().plane(); planeFlags.at(plane))
+          bxShiftedPlanesUsed++;  // Count how many bx-shifted planes are used
+        else if (planeFlags != std::vector<bool>(6, false))
+          bxNonShiftedPlanesUsed++;  // Count how many non-bx-shifted planes are used, only if there are shifted planes
+      }
     }
 
     // Set recoInfo_ value

@@ -65,11 +65,11 @@ CTPPSDiamondRecHitProducer::CTPPSDiamondRecHitProducer(const edm::ParameterSet& 
         edm::ESInputTag(iConfig.getParameter<std::string>("timingCalibrationTag")));
     timingCalibrationLUTToken_ = esConsumes<PPSTimingCalibrationLUT, PPSTimingCalibrationLUTRcd>();
   }
-  produces<edm::DetSetVector<CTPPSDiamondRecHit> >();
+  produces<std::vector<CTPPSDiamondRecHit> >();
 }
 
 void CTPPSDiamondRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  auto pOut = std::make_unique<edm::DetSetVector<CTPPSDiamondRecHit> >();
+  auto pOut = std::make_unique<std::vector<CTPPSDiamondRecHit> >();
 
   // get the digi collection
   const auto& digis = iEvent.get(digiToken_);

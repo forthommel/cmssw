@@ -11,7 +11,6 @@
 #ifndef RecoPPS_Local_CTPPSDiamondTrackRecognition
 #define RecoPPS_Local_CTPPSDiamondTrackRecognition
 
-#include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondLocalTrack.h"
 
@@ -31,7 +30,7 @@ public:
   /// Feed a new hit to the tracks recognition algorithm
   void addHit(const CTPPSDiamondRecHit& recHit) override;
   /// Produce a collection of tracks for the current station, given its hits collection
-  int produceTracks(edm::DetSet<CTPPSDiamondLocalTrack>& tracks) override;
+  int produceTracks(CTPPSDetId, std::vector<CTPPSDiamondLocalTrack>& tracks) override;
 
 private:
   std::unordered_map<int, int> mhMap_;

@@ -15,7 +15,7 @@
 
 void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
                                                 const edm::DetSetVector<CTPPSDiamondDigi>& input,
-                                                edm::DetSetVector<CTPPSDiamondRecHit>& output) {
+                                                std::vector<CTPPSDiamondRecHit>& output) {
   for (const auto& vec : input) {
     const CTPPSDiamondDetId detid(vec.detId());
 
@@ -50,8 +50,6 @@ void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
     const double ch_t_offset = (apply_calib_) ? calib_->timeOffset(sector, station, plane, channel) : 0.;
     const double ch_t_precis = (apply_calib_) ? calib_->timePrecision(sector, station, plane, channel) : 0.;
 
-    edm::DetSet<CTPPSDiamondRecHit>& rec_hits = output.find_or_insert(detid);
-
     for (const auto& digi : vec) {
       const int t_lead = digi.leadingEdge(), t_trail = digi.trailingEdge();
       // skip invalid digis
@@ -74,7 +72,7 @@ void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
 
       // calibrated time of arrival
       const double t0 = (t_lead % 1024) * ts_to_ns_ + lut[t_lead % 1024] * ts_to_ns_ - ch_t_twc;
-      rec_hits.emplace_back(
+      auto& rechit = output.emplace_back(
           // spatial information
           x_pos,
           x_width,
@@ -90,6 +88,7 @@ void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
           // readout information
           digi.hptdcErrorFlags(),
           digi.multipleHit());
+      rechit.setDetId(detid);
     }
   }
 }

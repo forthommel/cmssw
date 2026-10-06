@@ -24,14 +24,12 @@
 class TotemTimingConversions;
 class TotemTimingRecHitProducerAlgorithm : public TimingRecHitProducerAlgorithm<CTPPSGeometry,
                                                                                 edm::DetSetVector<TotemTimingDigi>,
-                                                                                edm::DetSetVector<TotemTimingRecHit> > {
+                                                                                std::vector<TotemTimingRecHit> > {
 public:
   explicit TotemTimingRecHitProducerAlgorithm(const edm::ParameterSet&);
 
   void setCalibration(const PPSTimingCalibration&);
-  void build(const CTPPSGeometry&,
-             const edm::DetSetVector<TotemTimingDigi>&,
-             edm::DetSetVector<TotemTimingRecHit>&) override;
+  void build(const CTPPSGeometry&, const edm::DetSetVector<TotemTimingDigi>&, std::vector<TotemTimingRecHit>&) override;
 
 private:
   struct RegressionResults {

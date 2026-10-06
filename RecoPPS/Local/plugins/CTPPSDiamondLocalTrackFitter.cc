@@ -17,8 +17,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
-#include "DataFormats/Common/interface/DetSetVector.h"
-
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondLocalTrack.h"
@@ -34,23 +32,22 @@ public:
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondRecHit> > recHitsToken_;
+  edm::EDGetTokenT<std::vector<CTPPSDiamondRecHit> > recHitsToken_;
   const edm::ParameterSet trk_algo_params_;
   std::unordered_map<CTPPSDetId, std::unique_ptr<CTPPSDiamondTrackRecognition> > trk_algo_;
 };
 
 CTPPSDiamondLocalTrackFitter::CTPPSDiamondLocalTrackFitter(const edm::ParameterSet& iConfig)
-    : recHitsToken_(
-          consumes<edm::DetSetVector<CTPPSDiamondRecHit> >(iConfig.getParameter<edm::InputTag>("recHitsTag"))),
+    : recHitsToken_(consumes<std::vector<CTPPSDiamondRecHit> >(iConfig.getParameter<edm::InputTag>("recHitsTag"))),
       trk_algo_params_(iConfig.getParameter<edm::ParameterSet>("trackingAlgorithmParams")) {
-  produces<edm::DetSetVector<CTPPSDiamondLocalTrack> >();
+  produces<std::vector<CTPPSDiamondLocalTrack> >();
 }
 
 void CTPPSDiamondLocalTrackFitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // prepare the output
-  auto pOut = std::make_unique<edm::DetSetVector<CTPPSDiamondLocalTrack> >();
+  auto pOut = std::make_unique<std::vector<CTPPSDiamondLocalTrack> >();
 
-  edm::Handle<edm::DetSetVector<CTPPSDiamondRecHit> > recHits;
+  edm::Handle<std::vector<CTPPSDiamondRecHit> > recHits;
   iEvent.getByToken(recHitsToken_, recHits);
 
   // clear all hits possibly inherited from previous event
@@ -58,22 +55,19 @@ void CTPPSDiamondLocalTrackFitter::produce(edm::Event& iEvent, const edm::EventS
     algo_vs_id.second->clear();
 
   // feed hits to the track producers
-  for (const auto& vec : *recHits) {
-    const CTPPSDiamondDetId raw_detid(vec.detId()), detid(raw_detid.arm(), raw_detid.station(), raw_detid.rp());
+  for (const auto& rechit : *recHits) {
+    const CTPPSDiamondDetId raw_detid(rechit.detId()), detid(raw_detid.arm(), raw_detid.station(), raw_detid.rp());
     // if algorithm is not found, build it
     if (trk_algo_.count(detid) == 0)
       trk_algo_[detid] = std::make_unique<CTPPSDiamondTrackRecognition>(trk_algo_params_);
-    for (const auto& hit : vec)
-      // skip hits without a leading edge
-      if (hit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING)
-        trk_algo_[detid]->addHit(hit);
+    // skip hits without a leading edge
+    if (rechit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING)
+      trk_algo_[detid]->addHit(rechit);
   }
 
   // build the tracks for all stations
-  for (auto& algo_vs_id : trk_algo_) {
-    auto& tracks = pOut->find_or_insert(algo_vs_id.first);
-    algo_vs_id.second->produceTracks(tracks);
-  }
+  for (auto& algo_vs_id : trk_algo_)
+    algo_vs_id.second->produceTracks(algo_vs_id.first, *pOut);
 
   iEvent.put(std::move(pOut));
 }

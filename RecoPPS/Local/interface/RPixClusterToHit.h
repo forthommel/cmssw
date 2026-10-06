@@ -8,6 +8,7 @@
  **********************************************************************/
 
 #include "CondFormats/PPSObjects/interface/PPSPixelTopology.h"
+#include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelCluster.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelRecHit.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -17,13 +18,16 @@ class RPixClusterToHit {
 public:
   RPixClusterToHit(edm::ParameterSet const &conf);
 
-  void buildHits(unsigned int detId,
+  void buildHits(CTPPSPixelDetId detId,
                  const std::vector<CTPPSPixelCluster> &clusters,
                  std::vector<CTPPSPixelRecHit> &hits,
                  const PPSPixelTopology &ppt) const;
 
 private:
-  void makeHit(CTPPSPixelCluster cluster, std::vector<CTPPSPixelRecHit> &hits, PPSPixelTopology const &ppt) const;
+  void makeHit(CTPPSPixelDetId,
+               CTPPSPixelCluster cluster,
+               std::vector<CTPPSPixelRecHit> &hits,
+               PPSPixelTopology const &ppt) const;
 
   const int verbosity_;
 };
