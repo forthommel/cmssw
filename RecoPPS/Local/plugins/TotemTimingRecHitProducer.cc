@@ -62,11 +62,11 @@ TotemTimingRecHitProducer::TotemTimingRecHitProducer(const edm::ParameterSet& iC
           edm::ESInputTag(iConfig.getParameter<std::string>("timingCalibrationTag")))),
       geometryToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()),
       algo_(iConfig) {
-  produces<edm::DetSetVector<TotemTimingRecHit> >();
+  produces<std::vector<TotemTimingRecHit> >();
 }
 
 void TotemTimingRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::unique_ptr<edm::DetSetVector<TotemTimingRecHit> > pOut(new edm::DetSetVector<TotemTimingRecHit>);
+  auto pOut = std::make_unique<std::vector<TotemTimingRecHit> >();
 
   // get the digi collection
   const auto& digis = iEvent.get(digiToken_);

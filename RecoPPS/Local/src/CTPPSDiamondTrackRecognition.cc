@@ -34,7 +34,7 @@ void CTPPSDiamondTrackRecognition::addHit(const CTPPSDiamondRecHit& recHit) {
 
 //----------------------------------------------------------------------------------------------------
 
-int CTPPSDiamondTrackRecognition::produceTracks(edm::DetSet<CTPPSDiamondLocalTrack>& tracks) {
+int CTPPSDiamondTrackRecognition::produceTracks(CTPPSDetId detid, std::vector<CTPPSDiamondLocalTrack>& tracks) {
   int numberOfTracks = 0;
   DimensionParameters param;
 
@@ -85,6 +85,7 @@ int CTPPSDiamondTrackRecognition::produceTracks(edm::DetSet<CTPPSDiamondLocalTra
       newTrack.setValid(valid_hits);
       newTrack.setTime(mean_time);
       newTrack.setTimeSigma(time_sigma);
+      newTrack.setDetId(detid);
 
       tracks.push_back(newTrack);
     }

@@ -43,10 +43,10 @@ private:
   edm::EDGetTokenT<edm::DetSetVector<TotemRPLocalTrack>> siStripTrackToken_;
 
   bool includeDiamonds_;
-  edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondLocalTrack>> diamondTrackToken_;
+  edm::EDGetTokenT<std::vector<CTPPSDiamondLocalTrack>> diamondTrackToken_;
 
   bool includePixels_;
-  edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelLocalTrack>> pixelTrackToken_;
+  edm::EDGetTokenT<std::vector<CTPPSPixelLocalTrack>> pixelTrackToken_;
 
   double pixelTrackTxMin_, pixelTrackTxMax_, pixelTrackTyMin_, pixelTrackTyMax_;
   double timingTrackTMin_, timingTrackTMax_;
@@ -70,11 +70,11 @@ CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer(const edm::ParameterSet
 
   auto tagDiamondTrack = iConfig.getParameter<edm::InputTag>("tagDiamondTrack");
   if (!tagDiamondTrack.label().empty())
-    diamondTrackToken_ = consumes<edm::DetSetVector<CTPPSDiamondLocalTrack>>(tagDiamondTrack);
+    diamondTrackToken_ = consumes<std::vector<CTPPSDiamondLocalTrack>>(tagDiamondTrack);
 
   auto tagPixelTrack = iConfig.getParameter<edm::InputTag>("tagPixelTrack");
   if (!tagPixelTrack.label().empty())
-    pixelTrackToken_ = consumes<edm::DetSetVector<CTPPSPixelLocalTrack>>(tagPixelTrack);
+    pixelTrackToken_ = consumes<std::vector<CTPPSPixelLocalTrack>>(tagPixelTrack);
 
   produces<CTPPSLocalTrackLiteCollection>();
 }
@@ -135,94 +135,90 @@ void CTPPSLocalTrackLiteProducer::produce(edm::Event &iEvent, const edm::EventSe
 
   if (includeDiamonds_) {
     // get input from diamond detectors
-    edm::Handle<edm::DetSetVector<CTPPSDiamondLocalTrack>> inputDiamondTracks;
+    edm::Handle<std::vector<CTPPSDiamondLocalTrack>> inputDiamondTracks;
     iEvent.getByToken(diamondTrackToken_, inputDiamondTracks);
 
     // process tracks from diamond detectors
-    for (const auto &rpv : *inputDiamondTracks) {
-      const unsigned int rpId = rpv.detId();
-      for (const auto &trk : rpv) {
-        if (!trk.isValid())
-          continue;
+    for (const auto &trk : *inputDiamondTracks) {
+      if (!trk.isValid())
+        continue;
+      const unsigned int rpId = trk.detId();
 
-        const float abs_time = trk.time() + trk.ootIndex() * HPTDC_TIME_SLICE_WIDTH;
-        if (abs_time < timingTrackTMin_ || abs_time > timingTrackTMax_)
-          continue;
+      const float abs_time = trk.time() + trk.ootIndex() * HPTDC_TIME_SLICE_WIDTH;
+      if (abs_time < timingTrackTMin_ || abs_time > timingTrackTMax_)
+        continue;
 
-        float roundedX0 = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(trk.x0());
-        float roundedX0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.x0Sigma());
-        float roundedY0 = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.y0());
-        float roundedY0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.y0Sigma());
-        float roundedT = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(abs_time);
-        float roundedTSigma = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.timeSigma());
+      float roundedX0 = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(trk.x0());
+      float roundedX0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.x0Sigma());
+      float roundedY0 = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.y0());
+      float roundedY0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.y0Sigma());
+      float roundedT = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(abs_time);
+      float roundedTSigma = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.timeSigma());
 
-        pOut->emplace_back(rpId,  // detector info
-                                  // spatial info
-                           roundedX0,
-                           roundedX0Sigma,
-                           roundedY0,
-                           roundedY0Sigma,
-                           // angular info
-                           0.,
-                           0.,
-                           0.,
-                           0.,
-                           // reconstruction info
-                           0.,
-                           CTPPSpixelLocalTrackReconstructionInfo::invalid,
-                           trk.numberOfPlanes(),
-                           // timing info
-                           roundedT,
-                           roundedTSigma);
-      }
+      pOut->emplace_back(rpId,  // detector info
+                                // spatial info
+                         roundedX0,
+                         roundedX0Sigma,
+                         roundedY0,
+                         roundedY0Sigma,
+                         // angular info
+                         0.,
+                         0.,
+                         0.,
+                         0.,
+                         // reconstruction info
+                         0.,
+                         CTPPSpixelLocalTrackReconstructionInfo::invalid,
+                         trk.numberOfPlanes(),
+                         // timing info
+                         roundedT,
+                         roundedTSigma);
     }
   }
 
   //----- pixel detectors
 
   if (includePixels_) {
-    edm::Handle<edm::DetSetVector<CTPPSPixelLocalTrack>> inputPixelTracks;
+    edm::Handle<std::vector<CTPPSPixelLocalTrack>> inputPixelTracks;
     if (!pixelTrackToken_.isUninitialized()) {
       iEvent.getByToken(pixelTrackToken_, inputPixelTracks);
 
       // process tracks from pixels
-      for (const auto &rpv : *inputPixelTracks) {
-        const uint32_t rpId = rpv.detId();
-        for (const auto &trk : rpv) {
-          if (!trk.isValid())
-            continue;
-          if (trk.tx() > pixelTrackTxMin_ && trk.tx() < pixelTrackTxMax_ && trk.ty() > pixelTrackTyMin_ &&
-              trk.ty() < pixelTrackTyMax_) {
-            float roundedX0 = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(trk.x0());
-            float roundedX0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.x0Sigma());
-            float roundedY0 = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.y0());
-            float roundedY0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.y0Sigma());
-            float roundedTx = MiniFloatConverter::reduceMantissaToNbitsRounding<11>(trk.tx());
-            float roundedTxSigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.txSigma());
-            float roundedTy = MiniFloatConverter::reduceMantissaToNbitsRounding<11>(trk.ty());
-            float roundedTySigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.tySigma());
-            float roundedChiSquaredOverNDF =
-                MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.chiSquaredOverNDF());
+      for (const auto &trk : *inputPixelTracks) {
+        if (!trk.isValid())
+          continue;
+        const uint32_t rpId = trk.detId();
+        if (trk.tx() > pixelTrackTxMin_ && trk.tx() < pixelTrackTxMax_ && trk.ty() > pixelTrackTyMin_ &&
+            trk.ty() < pixelTrackTyMax_) {
+          float roundedX0 = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(trk.x0());
+          float roundedX0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.x0Sigma());
+          float roundedY0 = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.y0());
+          float roundedY0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.y0Sigma());
+          float roundedTx = MiniFloatConverter::reduceMantissaToNbitsRounding<11>(trk.tx());
+          float roundedTxSigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.txSigma());
+          float roundedTy = MiniFloatConverter::reduceMantissaToNbitsRounding<11>(trk.ty());
+          float roundedTySigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.tySigma());
+          float roundedChiSquaredOverNDF =
+              MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.chiSquaredOverNDF());
 
-            pOut->emplace_back(rpId,  // detector info
-                                      // spatial info
-                               roundedX0,
-                               roundedX0Sigma,
-                               roundedY0,
-                               roundedY0Sigma,
-                               // angular info
-                               roundedTx,
-                               roundedTxSigma,
-                               roundedTy,
-                               roundedTySigma,
-                               // reconstruction info
-                               roundedChiSquaredOverNDF,
-                               trk.recoInfo(),
-                               trk.numberOfPointsUsedForFit(),
-                               // timing info
-                               0.,
-                               0.);
-          }
+          pOut->emplace_back(rpId,  // detector info
+                                    // spatial info
+                             roundedX0,
+                             roundedX0Sigma,
+                             roundedY0,
+                             roundedY0Sigma,
+                             // angular info
+                             roundedTx,
+                             roundedTxSigma,
+                             roundedTy,
+                             roundedTySigma,
+                             // reconstruction info
+                             roundedChiSquaredOverNDF,
+                             trk.recoInfo(),
+                             trk.numberOfPointsUsedForFit(),
+                             // timing info
+                             0.,
+                             0.);
         }
       }
     }

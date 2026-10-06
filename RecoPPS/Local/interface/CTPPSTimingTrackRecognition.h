@@ -15,8 +15,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "CommonTools/Utils/interface/FormulaEvaluator.h"
-
-#include "DataFormats/Common/interface/DetSet.h"
+#include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 
 #include <vector>
 #include <unordered_map>
@@ -51,7 +50,7 @@ public:
   /// Add new hit to the set from which the tracks are reconstructed.
   virtual void addHit(const HIT_TYPE& recHit) = 0;
   /// Produce a collection of tracks, given its hits collection
-  virtual int produceTracks(edm::DetSet<TRACK_TYPE>& tracks) = 0;
+  virtual int produceTracks(CTPPSDetId, std::vector<TRACK_TYPE>& tracks) = 0;
 
 protected:
   // Algorithm parameters:

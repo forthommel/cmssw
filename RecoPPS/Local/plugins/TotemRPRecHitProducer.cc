@@ -15,7 +15,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPCluster.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPRecHit.h"
 
@@ -25,71 +24,34 @@
 
 class TotemRPRecHitProducer : public edm::stream::EDProducer<> {
 public:
-  explicit TotemRPRecHitProducer(const edm::ParameterSet& conf);
-
-  ~TotemRPRecHitProducer() override {}
-
-  void produce(edm::Event& e, const edm::EventSetup& c) override;
-  static void fillDescriptions(edm::ConfigurationDescriptions&);
-
-private:
-  const edm::ParameterSet conf_;
-  int verbosity_;
-
-  TotemRPRecHitProducerAlgorithm algorithm_;
-
-  edm::InputTag tagCluster_;
-  edm::EDGetTokenT<edm::DetSetVector<TotemRPCluster>> tokenCluster_;
-};
-
-//----------------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------
-
-using namespace std;
-using namespace edm;
-
-//----------------------------------------------------------------------------------------------------
-
-TotemRPRecHitProducer::TotemRPRecHitProducer(const edm::ParameterSet& conf) : conf_(conf), algorithm_(conf) {
-  verbosity_ = conf.getParameter<int>("verbosity");
-
-  tagCluster_ = conf.getParameter<edm::InputTag>("tagCluster");
-  tokenCluster_ = consumes<edm::DetSetVector<TotemRPCluster>>(tagCluster_);
-
-  produces<edm::DetSetVector<TotemRPRecHit>>();
-}
-
-//----------------------------------------------------------------------------------------------------
-
-void TotemRPRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es) {
-  // get input
-  edm::Handle<edm::DetSetVector<TotemRPCluster>> input;
-  e.getByToken(tokenCluster_, input);
-
-  // prepare output
-  DetSetVector<TotemRPRecHit> output;
-
-  // build reco hits
-  for (auto& ids : *input) {
-    DetSet<TotemRPRecHit>& ods = output.find_or_insert(ids.detId());
-    algorithm_.buildRecoHits(ids, ods);
+  explicit TotemRPRecHitProducer(const edm::ParameterSet& iConfig)
+      : tokenCluster_(consumes<edm::DetSetVector<TotemRPCluster>>(iConfig.getParameter<edm::InputTag>("tagCluster"))),
+        verbosity_(iConfig.getParameter<int>("verbosity")),
+        algorithm_(iConfig) {
+    produces<std::vector<TotemRPRecHit>>();
   }
 
-  // save output
-  e.put(make_unique<DetSetVector<TotemRPRecHit>>(output));
-}
+  void produce(edm::Event& event, const edm::EventSetup&) override {
+    auto output = std::make_unique<std::vector<TotemRPRecHit>>();  // prepare output
+    for (auto& ids : event.get(tokenCluster_))
+      algorithm_.buildRecoHits(ids, *output);  // build reco hits
+    event.put(std::move(output));              // save output
+  }
 
-//----------------------------------------------------------------------------------------------------
+  static void fillDescriptions(edm::ConfigurationDescriptions& descr) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("tagCluster", edm::InputTag("totemRPClusterProducer"))
+        ->setComment("input clusters collection to retrieve");
+    desc.add<int>("verbosity", 0);
+    descr.add("totemRPRecHitProducer", desc);
+  }
 
-void TotemRPRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descr) {
-  edm::ParameterSetDescription desc;
+private:
+  const edm::EDGetTokenT<edm::DetSetVector<TotemRPCluster>> tokenCluster_;
+  const int verbosity_;
 
-  desc.add<edm::InputTag>("tagCluster", edm::InputTag("totemRPClusterProducer"))
-      ->setComment("input clusters collection to retrieve");
-  desc.add<int>("verbosity", 0);
-
-  descr.add("totemRPRecHitProducer", desc);
-}
+  TotemRPRecHitProducerAlgorithm algorithm_;
+};
 
 //----------------------------------------------------------------------------------------------------
 

@@ -23,29 +23,23 @@ RecoCTPPSAOD = cms.PSet(
     'keep TotemFEDInfos_ctppsDiamondRawToDigi_*_*',
     'keep CTPPSDiamondDigiedmDetSetVector_ctppsDiamondRawToDigi_*_*',
     'keep TotemVFATStatusedmDetSetVector_ctppsDiamondRawToDigi_*_*',
-    'keep CTPPSDiamondRecHitedmDetSetVector_ctppsDiamondRecHits_*_*',
-    'keep CTPPSDiamondLocalTrackedmDetSetVector_ctppsDiamondLocalTracks_*_*',
+    'keep CTPPSDiamondRecHits_ctppsDiamondRecHits_*_*',
+    'keep CTPPSDiamondLocalTracks_ctppsDiamondLocalTracks_*_*',
 
     #diamond sampic
-    'keep TotemTimingLocalTrackedmDetSetVector_diamondSampicLocalTracks_*_*',
+    'keep TotemTimingLocalTracks_diamondSampicLocalTracks_*_*',
 
     # TOTEM timing
     'keep TotemTimingDigiedmDetSetVector_totemTimingRawToDigi_*_*',
-    'keep TotemTimingRecHitedmDetSetVector_totemTimingRecHits_*_*',
-    'keep TotemTimingLocalTrackedmDetSetVector_totemTimingLocalTracks_*_*',
+    'keep TotemTimingRecHits_totemTimingRecHits_*_*',
+    'keep TotemTimingLocalTracks_totemTimingLocalTracks_*_*',
 
     # tracking pixels
     'keep CTPPSPixelDigiedmDetSetVector_ctppsPixelDigis_*_*',
     'keep CTPPSPixelDataErroredmDetSetVector_ctppsPixelDigis_*_*',
     'keep CTPPSPixelClusteredmDetSetVector_ctppsPixelClusters_*_*',
-    'keep CTPPSPixelRecHitedmDetSetVector_ctppsPixelRecHits_*_*',
-    'keep CTPPSPixelLocalTrackedmDetSetVector_ctppsPixelLocalTracks_*_*',
-
-    # flat vectors of RECO
-    'keep CTPPSDiamondRecHits_*_*_*',
-    'keep CTPPSDiamondLocalTracks_*_*_*',
-    'keep CTPPSPixelRecHits_*_*_*',
-    'keep CTPPSPixelLocalTracks_*_*_*',
+    'keep CTPPSPixelRecHits_ctppsPixelRecHits_*_*',
+    'keep CTPPSPixelLocalTracks_ctppsPixelLocalTracks_*_*',
 
     # CTPPS common
     'keep CTPPSLocalTrackLites_ctppsLocalTrackLiteProducer_*_*',
