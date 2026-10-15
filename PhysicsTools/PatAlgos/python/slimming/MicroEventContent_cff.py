@@ -84,6 +84,8 @@ MicroEventContent = cms.PSet(
         # Lumi
         'keep LumiScalerss_scalersRawToDigi_*_*',
         # CTPPS
+        'keep CTPPSDiamondRecHits_*_*_*',
+        'keep CTPPSPixelRecHits_*_*_*',
         'keep CTPPSLocalTrackLites_ctppsLocalTrackLiteProducer_*_*',
         'keep recoForwardProtons_ctppsProtons_*_*',
 	# displacedStandAlone muon collection for EXO
