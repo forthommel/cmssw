@@ -20,6 +20,10 @@
 
 namespace converter::helper {
   template <typename ItemType, typename DetIdType>
+  concept HasSetDetId = requires(ItemType& item, const DetIdType& id) { item.setDetId(id); };
+
+  template <typename ItemType, typename DetIdType>
+    requires HasSetDetId<ItemType, DetIdType>
   class DetSetVectorFlattener : public edm::global::EDProducer<> {
   public:
     explicit DetSetVectorFlattener(const edm::ParameterSet& iConfig)
