@@ -32,10 +32,7 @@ using CTPPSDiamondLocalTrackFlattener =
 DEFINE_FWK_MODULE(CTPPSDiamondLocalTrackFlattener);
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
-#include "DataFormats/CTPPSReco/interface/CTPPSPixelRecHit.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrack.h"
 
-using CTPPSPixelRecHitFlattener = converter::helper::DetSetVectorFlattener<CTPPSPixelRecHit, CTPPSPixelDetId>;
-DEFINE_FWK_MODULE(CTPPSPixelRecHitFlattener);
 using CTPPSPixelLocalTrackFlattener = converter::helper::DetSetVectorFlattener<CTPPSPixelLocalTrack, CTPPSPixelDetId>;
 DEFINE_FWK_MODULE(CTPPSPixelLocalTrackFlattener);

@@ -103,6 +103,18 @@
   <class name="std::map<int, edm::DetSetVector<io_v1::CTPPSDiamondRecHit>>"/>
   <class name="edm::Wrapper<std::map<int, edm::DetSetVector<io_v1::CTPPSDiamondRecHit>>>"/>
 
+  <class name="io_v1::CTPPSPixelRecHitLite" ClassVersion="3">
+    <version ClassVersion="3" checksum="3793527261"/>
+  </class>
+  <class name="std::vector<io_v1::CTPPSPixelRecHitLite>"/>
+  <class name="edm::Wrapper<std::vector<io_v1::CTPPSPixelRecHitLite> >"/>
+  <class name="io_v1::CTPPSPixelRecHitLite::StatusFlags" ClassVersion="3">
+    <version ClassVersion="3" checksum="1873617249"/>
+  </class>
+  <class name="io_v1::CTPPSPixelRecHitLite::PixelPosition" ClassVersion="3">
+    <version ClassVersion="3" checksum="3720509242"/>
+  </class>
+
   <class name="io_v1::CTPPSTimingLocalTrack" ClassVersion="4">
     <version ClassVersion="3" checksum="3045501838"/>
     <version ClassVersion="4" checksum="2440940627"/>

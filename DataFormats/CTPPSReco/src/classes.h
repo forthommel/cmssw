@@ -18,6 +18,7 @@
 #include "DataFormats/CTPPSReco/interface/TotemTimingLocalTrack.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelCluster.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelRecHit.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSPixelRecHitLite.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrack.h"
 
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
