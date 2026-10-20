@@ -32,7 +32,7 @@ namespace io_v1 {
                                   unsigned char colsize = 0)
         : position_(position),
           position_unc_(uncertainty),
-          min_pixel_(minrow, mincol),
+          min_pixel_(PixelPosition(minrow, mincol)),
           flags_(edge | (bad << 1) | (rocs << 2)),
           cluster_size_(size),
           cluster_size_row_(rowsize),
@@ -53,18 +53,20 @@ namespace io_v1 {
     }
 
     inline void setDetId(CTPPSPixelDetId detid) { detid_ = detid; }
-    inline CTPPSPixelDetId detId() const { return detid_; }
+    inline CTPPSPixelDetId detId() const { return CTPPSPixelDetId{detid_}; }
 
     const Local2DPoint& point() const { return position_; }
     const LocalError& error() const { return position_unc_; }
 
     class PixelPosition {
     public:
+      explicit PixelPosition(unsigned short raw_id) : pixel_id_(raw_id) {}
       explicit PixelPosition(unsigned char pixel_row, unsigned char pixel_col)
           : pixel_id_(pixel_row * kNumCols + pixel_col) {}
 
       unsigned char row() const { return pixel_id_ / kNumCols; }
       unsigned char column() const { return pixel_id_ % kNumCols; }
+      operator unsigned short() const { return pixel_id_; }
 
     private:
       static constexpr unsigned char kNumCols = 3 * 52;
@@ -76,13 +78,14 @@ namespace io_v1 {
       bool isOnEdge() const { return flags_ & 0x1; }
       bool hasBadPixels() const { return (flags_ >> 1) & 0x1; }
       bool spanTwoRocs() const { return (flags_ >> 2) & 0x1; }
+      operator unsigned char() const { return flags_; }
 
     private:
       unsigned char flags_{0};
     };
 
-    StatusFlags flags() const { return flags_; }
-    PixelPosition minPixel() const { return min_pixel_; }
+    StatusFlags flags() const { return StatusFlags{flags_}; }
+    PixelPosition minPixel() const { return PixelPosition{min_pixel_}; }
 
     unsigned char clusterSize() const { return cluster_size_; }
     unsigned char clusterSizeRow() const { return cluster_size_row_; }
@@ -91,12 +94,12 @@ namespace io_v1 {
     float sort_key() const { return position_.mag2(); }
 
   private:
-    CTPPSPixelDetId detid_{CTPPSPixelDetId(0, 0)};
+    DetId detid_{0};
     const Local2DPoint position_{0., 0.};
     const LocalError position_unc_{0., 0., 0.};
 
-    const PixelPosition min_pixel_{0, 0};  // unsigned short
-    const StatusFlags flags_{0};           // unsigned char
+    const unsigned short min_pixel_{0};
+    const unsigned char flags_{0};
 
     const unsigned char cluster_size_{0};
     const unsigned char cluster_size_row_{0};
